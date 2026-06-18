@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ລາຍງານ — bunnies.bunn</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { background:#f4f4f2; margin:0; }
+
+    /* ── SIDEBAR ── */
+    .adm-sidebar { width:220px; background:#111; min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+    .adm-logo { padding:24px 20px 20px; font-family:'Times New Roman',serif; font-size:.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; border-bottom:1px solid rgba(255,255,255,.08); }
+    .adm-logo span { color:#c9a96e; }
+    .adm-nav { padding:12px 0; flex:1; }
+    .adm-nav a { display:flex; align-items:center; gap:10px; padding:12px 20px; font-size:.82rem; color:rgba(255,255,255,.6); text-decoration:none; transition:all .18s; border-left:3px solid transparent; }
+    .adm-nav a:hover { color:#fff; background:rgba(255,255,255,.05); }
+    .adm-nav a.active { color:#c9a96e; border-left-color:#c9a96e; background:rgba(201,169,110,.08); }
+    .adm-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); }
+    .adm-footer a { display:flex; align-items:center; gap:8px; font-size:.78rem; color:rgba(255,255,255,.4); text-decoration:none; }
+    .adm-footer a:hover { color:#c9a96e; }
+
+    /* ── LAYOUT ── */
+    .adm-main { margin-left:220px; padding:28px 32px; }
+    .adm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .adm-header h1 { font-family:'Noto Sans Lao',sans-serif; font-size:1.3rem; font-weight:700; color:#111; }
+    .header-actions { display:flex; gap:8px; }
+    .btn-sm {
+      display:flex; align-items:center; gap:5px;
+      background:#fff; color:#111; border:1.5px solid #ddd; padding:7px 16px;
+      border-radius:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.8rem;
+      cursor:pointer; transition:all .18s; white-space:nowrap;
+    }
+    .btn-sm:hover { border-color:#111; }
+
+    /* ── EXPORT BUTTON ── */
+    .btn-export {
+      display:inline-flex; align-items:center; gap:8px;
+      background:#1d6f42; color:#fff; border:none;
+      padding:10px 20px; border-radius:9px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; font-weight:700;
+      cursor:pointer; transition:all .18s; white-space:nowrap;
+      box-shadow:0 2px 10px rgba(29,111,66,.25); letter-spacing:.2px;
+    }
+    .btn-export:hover { background:#155a34; box-shadow:0 4px 16px rgba(29,111,66,.35); }
+    .btn-export:active { transform:translateY(1px); }
+
+    /* ── TABS ── */
+    .tabs { display:flex; gap:0; margin-bottom:22px; border-bottom:2px solid #e8e4de; }
+    .tab-btn {
+      padding:10px 22px; font-family:'Noto Sans Lao',sans-serif; font-size:.85rem;
+      font-weight:700; color:#aaa; background:none; border:none; cursor:pointer;
+      border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .18s;
+    }
+    .tab-btn:hover { color:#555; }
+    .tab-btn.active { color:#c9a96e; border-bottom-color:#c9a96e; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── STAT CARDS ── */
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+    .stat-card { background:#fff; border-radius:12px; border:1px solid #e8e4de; padding:18px 20px; position:relative; overflow:hidden; }
+    .stat-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; }
+    .stat-card.green::before  { background:#27ae60; }
+    .stat-card.blue::before   { background:#3498db; }
+    .stat-card.orange::before { background:#e67e22; }
+    .stat-card.red::before    { background:#e74c3c; }
+    .stat-icon  { font-size:1.5rem; margin-bottom:8px; }
+    .stat-label { font-size:.68rem; text-transform:uppercase; letter-spacing:1px; color:#aaa; font-weight:600; margin-bottom:3px; }
+    .stat-val   { font-size:1.5rem; font-weight:700; color:#111; line-height:1.2; }
+    .stat-sub   { font-size:.72rem; color:#aaa; margin-top:3px; }
+
+    /* ── STATUS PIPELINE ── */
+    .pipeline { display:flex; gap:0; margin-bottom:20px; background:#fff; border:1px solid #e8e4de; border-radius:12px; overflow:hidden; }
+    .pipe-item { flex:1; padding:14px 16px; text-align:center; border-right:1px solid #f0ede8; }
+    .pipe-item:last-child { border-right:none; }
+    .pipe-dot  { font-size:1.2rem; margin-bottom:4px; }
+    .pipe-cnt  { font-size:1.3rem; font-weight:700; color:#111; }
+    .pipe-lbl  { font-size:.68rem; color:#aaa; margin-top:2px; }
+
+    /* ── SECTION ── */
+    .section { background:#fff; border-radius:12px; border:1px solid #e8e4de; margin-bottom:20px; overflow:hidden; }
+    .section-head {
+      padding:11px 18px; background:#c9a96e;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .section-head h2 { font-size:.8rem; font-weight:700; color:#fff; letter-spacing:.3px; }
+    .section-head .btn-export {
+      background:rgba(255,255,255,.95); color:#1d6f42;
+      box-shadow:0 1px 5px rgba(0,0,0,.12); padding:6px 14px; font-size:.76rem;
+    }
+    .section-head .btn-export:hover { background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.15); }
+
+    /* ── TABLE ── */
+    .rpt-table { width:100%; border-collapse:collapse; }
+    .rpt-table th { padding:10px 16px; text-align:left; font-size:.67rem; text-transform:uppercase; letter-spacing:1px; color:#aaa; background:#fafafa; border-bottom:1px solid #f0f0f0; font-weight:600; white-space:nowrap; }
+    .rpt-table td { padding:11px 16px; border-bottom:1px solid #f7f7f7; font-size:.83rem; color:#333; vertical-align:middle; }
+    .rpt-table tr:last-child td { border-bottom:none; }
+    .rpt-table tr:hover td { background:#fafaf8; }
+    .td-name { font-weight:600; color:#111; }
+    .empty-row { text-align:center; padding:32px; color:#bbb; font-size:.84rem; }
+
+    /* ── CHART ── */
+    .chart-wrap { padding:16px 20px; }
+    .chart-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .chart-label { width:60px; font-size:.7rem; color:#888; text-align:right; flex-shrink:0; }
+    .chart-bar-wrap { flex:1; background:#f5f3f0; border-radius:4px; height:20px; overflow:hidden; display:flex; }
+    .chart-bar-t { height:100%; background:#3498db; transition:width .6s ease; }
+    .chart-bar-c { height:100%; background:#e67e22; transition:width .6s ease; }
+    .chart-val  { font-size:.7rem; color:#555; font-weight:600; width:115px; flex-shrink:0; text-align:right; }
+
+    /* ── TOP PRODUCTS ── */
+    .prod-rank { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+    .prod-rank:last-child { border-bottom:none; }
+    .prod-rank-num { width:22px; height:22px; border-radius:50%; background:#111; color:#fff; font-size:.7rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .prod-rank-num.top3 { background:#c9a96e; }
+    .prod-rank-img { width:40px; height:40px; border-radius:8px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
+    .prod-rank-info { flex:1; min-width:0; }
+    .prod-rank-name { font-size:.82rem; font-weight:600; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .prod-rank-sku  { font-size:.7rem; color:#aaa; }
+    .prod-rank-qty  { font-size:.82rem; font-weight:700; color:#27ae60; white-space:nowrap; }
+    .prod-rank-rev  { font-size:.7rem; color:#aaa; white-space:nowrap; text-align:right; }
+
+    /* ── FILTER WRAP ── */
+    .filter-wrap {
+      padding:14px 20px; background:#fafaf8; border-bottom:1px solid #f0ede8;
+      display:flex; gap:9px; flex-wrap:wrap; align-items:center;
+    }
+    .fg-group {
+      display:inline-flex; align-items:center; background:#fff;
+      border:1.5px solid #e8e4de; border-radius:9px; overflow:hidden;
+      transition:border-color .2s;
+    }
+    .fg-group:focus-within { border-color:#c9a96e; }
+    .fg-lbl {
+      font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px;
+      color:#ccc; white-space:nowrap; padding:0 8px 0 12px; border-right:1px solid #f0ede8;
+      align-self:stretch; display:flex; align-items:center;
+    }
+    .fg-group select, .fg-group input[type=date] {
+      border:none; outline:none; background:transparent;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; color:#333;
+      padding:8px 12px 8px 8px; cursor:pointer;
+    }
+    .fg-group input[type=date] { width:138px; }
+    .filter-search {
+      display:inline-flex; align-items:center; gap:7px;
+      background:#fff; border:1.5px solid #e8e4de; border-radius:9px;
+      padding:7px 13px; min-width:200px; flex:1; max-width:280px;
+      transition:border-color .2s;
+    }
+    .filter-search:focus-within { border-color:#c9a96e; }
+    .srch-icon { font-size:.8rem; color:#ccc; flex-shrink:0; line-height:1; }
+    .filter-search input {
+      border:none; outline:none; background:transparent;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; color:#333; width:100%;
+    }
+    .filter-search input::placeholder { color:#ccc; }
+    .filter-spacer { flex:1; min-width:8px; }
+    .filter-count {
+      font-size:.73rem; color:#888; font-weight:700; white-space:nowrap;
+      background:#f0ede8; padding:5px 14px; border-radius:20px;
+    }
+    .stock-status-pills {
+      display:inline-flex; gap:5px; flex-wrap:wrap;
+    }
+    .ssp {
+      padding:5px 13px; border-radius:20px; font-size:.72rem; font-weight:700;
+      border:1.5px solid transparent; cursor:pointer; transition:all .15s;
+      background:#f5f3f0; color:#888; border-color:#e8e4de;
+    }
+    .ssp:hover { border-color:#c9a96e; color:#a07840; background:#fdf8f0; }
+    .ssp.active { border-color:transparent; color:#fff; }
+    .ssp.active.all  { background:#111; border-color:#111; }
+    .ssp.active.ok   { background:#27ae60; border-color:#27ae60; }
+    .ssp.active.low  { background:#e67e22; border-color:#e67e22; }
+    .ssp.active.out  { background:#e74c3c; border-color:#e74c3c; }
+
+    /* ── STATUS BADGE ── */
+    .st { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+    .st-pending    { background:#fff8e1; color:#856404; }
+    .st-confirmed  { background:#e3f2fd; color:#1565c0; }
+    .st-processing { background:#e8f0fe; color:#1a73e8; }
+    .st-shipped    { background:#f3e5f5; color:#6a1b9a; }
+    .st-delivered  { background:#e8f5e9; color:#2e7d32; }
+    .st-completed  { background:#e8f5e9; color:#1b5e20; font-weight:700; }
+    .st-cancelled  { background:#fce4ec; color:#c62828; }
+
+    /* ── PAY TAG ── */
+    .pay-tag { display:inline-flex; align-items:center; gap:4px; font-size:.7rem; font-weight:700; padding:3px 9px; border-radius:20px; }
+    .pay-transfer { background:#e3f2fd; color:#1565c0; }
+    .pay-cod      { background:#f3e5f5; color:#6a1b9a; }
+
+    /* ── STOCK BADGES ── */
+    .stock-ok  { background:#e8f5e9; color:#2e7d32; padding:2px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+    .stock-low { background:#fff3e0; color:#e65100; padding:2px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+    .stock-out { background:#fde8e8; color:#c0392b; padding:2px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+
+    .profit-pos { color:#27ae60; font-weight:700; }
+    .profit-neg { color:#e74c3c; font-weight:700; }
+    .profit-zero{ color:#aaa; }
+
+    /* ── PROFIT MONTH PICKER ── */
+    .profit-mbar {
+      display:flex; align-items:center; gap:10px; margin-bottom:20px;
+    }
+    .pm-chip {
+      display:inline-flex; align-items:center; gap:8px;
+      background:#fff; border:1.5px solid #e8e4de; border-radius:40px;
+      padding:9px 18px; cursor:pointer; user-select:none;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.88rem; font-weight:700;
+      color:#111; transition:all .15s; position:relative;
+    }
+    .pm-chip:hover { border-color:#c9a96e; }
+    .pm-chip.active { border-color:#c9a96e; background:#fdf9f4; }
+    .pm-chip-icon { font-size:1rem; }
+    .pm-chip-caret { font-size:.6rem; color:#bbb; margin-left:2px; }
+    .pm-clear {
+      display:none; align-items:center; gap:5px;
+      background:#f5f0e8; border:none; border-radius:20px;
+      padding:7px 14px; font-family:'Noto Sans Lao',sans-serif;
+      font-size:.78rem; color:#8b7355; cursor:pointer; transition:all .15s;
+    }
+    .pm-clear:hover { background:#e8e0d0; }
+
+    /* popup */
+    .pm-popup {
+      display:none; position:absolute; top:calc(100% + 8px); left:0; z-index:999;
+      background:#fff; border:1px solid #e8e4de; border-radius:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.14); padding:16px;
+      min-width:280px;
+      animation:pmPop .18s cubic-bezier(.34,1.4,.64,1);
+    }
+    .pm-popup.open { display:block; }
+    @keyframes pmPop {
+      from { opacity:0; transform:scale(.94) translateY(-6px); }
+      to   { opacity:1; transform:scale(1) translateY(0); }
+    }
+    .pm-popup-head {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:12px;
+    }
+    .pm-yr-btn {
+      background:none; border:1px solid #e8e4de; border-radius:6px;
+      width:28px; height:28px; cursor:pointer; font-size:.9rem;
+      display:flex; align-items:center; justify-content:center;
+      color:#666; transition:all .15s;
+    }
+    .pm-yr-btn:hover { background:#f5f0e8; color:#111; }
+    .pm-yr-label { font-weight:700; font-size:.95rem; color:#111; }
+    .pm-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:6px;
+    }
+    .pm-cell {
+      padding:8px 4px; text-align:center; border-radius:8px; cursor:pointer;
+      font-size:.8rem; font-family:'Noto Sans Lao',sans-serif; color:#333;
+      border:1.5px solid transparent; transition:all .12s;
+    }
+    .pm-cell:hover { background:#f5f0e8; color:#111; }
+    .pm-cell.has-data { font-weight:700; color:#111; }
+    .pm-cell.selected { background:#c9a96e; color:#fff; border-color:#c9a96e; }
+    .pm-cell.disabled { color:#ddd; cursor:default; pointer-events:none; }
+    .pm-all-btn {
+      width:100%; margin-top:10px; padding:9px; background:#f5f3f0;
+      border:none; border-radius:8px; font-family:'Noto Sans Lao',sans-serif;
+      font-size:.82rem; cursor:pointer; color:#666; transition:background .15s;
+    }
+    .pm-all-btn:hover { background:#e8e4de; }
+    .margin-bar-wrap { background:#f5f3f0; border-radius:6px; height:16px; overflow:hidden; flex:1; }
+    .margin-bar { height:100%; border-radius:6px; transition:width .6s ease; }
+    .margin-bar.good { background:linear-gradient(90deg,#27ae60,#2ecc71); }
+    .margin-bar.mid  { background:linear-gradient(90deg,#e67e22,#f39c12); }
+    .margin-bar.low  { background:linear-gradient(90deg,#e74c3c,#c0392b); }
+    .gauge-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:.8rem; }
+    .gauge-label { width:80px; color:#888; flex-shrink:0; text-align:right; }
+    .gauge-pct { width:48px; flex-shrink:0; text-align:right; font-weight:700; font-size:.78rem; }
+
+    /* ══ BUDGET PLANNER TOPBAR ══ */
+    .bp-topbar {
+      display:grid; grid-template-columns:180px repeat(3,1fr);
+      border-radius:12px; overflow:hidden; margin-bottom:22px;
+      box-shadow:0 2px 20px rgba(0,0,0,.08);
+    }
+    .bp-month-cell {
+      background:#111; padding:22px 20px;
+      display:flex; flex-direction:column; justify-content:center;
+    }
+    .bp-month-label { font-size:.58rem; text-transform:uppercase; letter-spacing:1.5px; color:rgba(255,255,255,.35); margin-bottom:8px; }
+    .bp-month-name  { font-size:1.6rem; font-weight:700; font-family:'Times New Roman',serif; color:#c9a96e; line-height:1; }
+    .bp-month-year  { font-size:.76rem; color:rgba(255,255,255,.3); margin-top:4px; }
+    .bp-month-nav   { display:flex; align-items:center; gap:8px; }
+    .bp-nav-btn {
+      background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12);
+      color:rgba(255,255,255,.4); width:28px; height:28px; border-radius:50%;
+      cursor:pointer; font-size:1rem; line-height:1;
+      display:flex; align-items:center; justify-content:center;
+      transition:all .15s; padding:0; flex-shrink:0; outline:none;
+    }
+    .bp-nav-btn:hover:not(:disabled) { background:rgba(201,169,110,.22); color:#c9a96e; border-color:rgba(201,169,110,.4); }
+    .bp-nav-btn:disabled { opacity:.18; cursor:default; }
+    .bp-metric-cell {
+      background:#fff; padding:18px 22px; border-left:1px solid #f0ede8;
+      border-bottom:1px solid #f0ede8; border-top:1px solid #f0ede8;
+      display:flex; flex-direction:column; justify-content:center;
+      position:relative;
+    }
+    .bp-metric-cell::before {
+      content:''; position:absolute; top:0; left:0; width:4px; height:100%;
+    }
+    .bp-metric-cell.gold::before  { background:#c9a96e; }
+    .bp-metric-cell.red::before   { background:#e74c3c; }
+    .bp-metric-cell.green::before { background:#27ae60; }
+    .bp-metric-cell:last-child { border-right:1px solid #f0ede8; }
+    .bp-metric-lbl { font-size:.6rem; text-transform:uppercase; letter-spacing:1px; color:#bbb; margin-bottom:5px; font-weight:700; }
+    .bp-metric-num { font-size:1.5rem; font-weight:700; line-height:1; font-family:'Times New Roman',serif; }
+    .bp-metric-num.gold  { color:#c9a96e; }
+    .bp-metric-num.red   { color:#e74c3c; }
+    .bp-metric-num.green { color:#27ae60; }
+    .bp-metric-sub { font-size:.7rem; color:#bbb; margin-top:4px; }
+
+    /* ── BP GRID ── */
+    .bp-row { display:grid; gap:18px; margin-bottom:18px; }
+    .bp-row.c2  { grid-template-columns:1fr 1fr; }
+    .bp-row.c32 { grid-template-columns:3fr 2fr; }
+    .bp-box { background:#fff; border:1px solid #e8e4de; border-radius:10px; overflow:hidden; }
+
+    /* ── BP SECTION HEADERS ── */
+    .bp-sh {
+      padding:10px 16px; background:#c9a96e;
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:.75rem; font-weight:700; color:#fff;
+      letter-spacing:.4px; text-transform:uppercase;
+    }
+    .bp-sh.dark  { background:#2c2c2c; }
+    .bp-sh.light { background:#f5f0e8; color:#8b7355; }
+
+    /* ── STATUS PIPELINE (bp style) ── */
+    .bp-pipe-row {
+      display:flex; align-items:center; padding:9px 16px;
+      border-bottom:1px solid #f7f7f5; transition:background .12s;
+    }
+    .bp-pipe-row:last-child { border-bottom:none; }
+    .bp-pipe-row:hover { background:#fafaf8; }
+    .bp-pipe-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; margin-right:10px; }
+    .bp-pipe-lbl { flex:1; font-size:.82rem; color:#444; }
+    .bp-pipe-cnt { font-size:.95rem; font-weight:700; color:#111; min-width:24px; text-align:right; }
+    .bp-pipe-amt { font-size:.72rem; color:#aaa; margin-left:12px; min-width:80px; text-align:right; }
+
+    /* ── YEARLY TABLE ── */
+    .bp-yr-table { width:100%; border-collapse:collapse; }
+    .bp-yr-table th {
+      background:#f5f0e8; color:#8b7355; font-size:.65rem; text-transform:uppercase;
+      letter-spacing:.5px; padding:9px 14px; text-align:right; font-weight:700; white-space:nowrap;
+    }
+    .bp-yr-table th:first-child { text-align:left; }
+    .bp-yr-table td { padding:9px 14px; font-size:.8rem; border-bottom:1px solid #f7f7f5; text-align:right; color:#333; }
+    .bp-yr-table td:first-child { text-align:left; font-weight:600; color:#111; }
+    .bp-yr-table tr:last-child td { border-bottom:none; }
+    .bp-yr-table tr:hover td { background:#fafaf8; }
+    .bp-yr-table .yr-total td { background:#f5f0e8 !important; font-weight:700; border-top:2px solid #e8e0d0; }
+    .bp-yr-pos { color:#27ae60 !important; font-weight:700; }
+    .bp-yr-neg { color:#e74c3c !important; font-weight:700; }
+
+    @media(max-width:1200px) { .bp-topbar { grid-template-columns:1fr; } .bp-row.c2,.bp-row.c32 { grid-template-columns:1fr; } }
+    @media(max-width:1100px) { .stat-grid { grid-template-columns:repeat(2,1fr); } }
+
+    /* ── EXPORT DROPDOWN ── */
+    .export-menu {
+      position:fixed; z-index:99999;
+      background:#fff; border:1px solid #e8e4de;
+      border-radius:14px; box-shadow:0 8px 40px rgba(0,0,0,.18);
+      padding:6px; min-width:220px;
+      animation:expPop .16s cubic-bezier(.34,1.4,.64,1);
+    }
+    @keyframes expPop {
+      from { opacity:0; transform:scale(.93) translateY(-6px); }
+      to   { opacity:1; transform:scale(1)   translateY(0); }
+    }
+    .exp-menu-lbl {
+      font-size:.58rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:1.3px; color:#ccc; padding:8px 12px 6px;
+    }
+    .fmt-btn {
+      display:flex; align-items:center; gap:10px; width:100%;
+      padding:10px 13px; border:none; background:none;
+      border-radius:9px; cursor:pointer;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.83rem;
+      font-weight:600; color:#222; text-align:left; transition:background .12s;
+    }
+    .fmt-btn:hover { background:#f5f0e8; }
+    .fmt-btn-icon { font-size:1.15rem; width:26px; text-align:center; flex-shrink:0; }
+    .fmt-btn-text { flex:1; }
+    .fmt-btn-text small { display:block; font-size:.65rem; color:#bbb; font-weight:400; margin-top:1px; }
+    .fmt-btn-badge {
+      font-size:.58rem; font-weight:700; padding:2px 8px; border-radius:20px;
+      background:#f0ede8; color:#999; flex-shrink:0;
+    }
+    .btn-export .exp-caret { font-size:.65rem; opacity:.5; margin-left:2px; }
+  </style>
+</head>
+<body>
+
+<aside class="adm-sidebar">
+  <div class="adm-logo">bunnies<span>.bunn</span></div>
+  <nav class="adm-nav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="products.html">🛍️ ຈັດການສິນຄ້າ</a>
+    <a href="categories.html">🗂️ ໝວດໝູ່</a>
+    <a href="orders.html">📦 ລາຍງານການສັ່ງຊື້</a>
+    <a href="reports.html" class="active">📈 ລາຍງານສະຫຼຸບ</a>
+    <a href="preorders.html">🟣 Pre-Order</a>
+    <a href="banners.html">🖼️ Banners</a>
+  </nav>
+  <div class="adm-footer"><a href="../index.html">← ກັບໜ້າຮ້ານ</a></div>
+</aside>
+
+<main class="adm-main">
+
+  <div class="adm-header">
+    <h1>📈 ລາຍງານ</h1>
+    <div class="header-actions">
+      <button class="btn-sm" onclick="loadAll()">↻ ໂຫຼດໃໝ່</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('summary',this)">📊 ສະຫຼຸບ</button>
+    <button class="tab-btn" onclick="switchTab('profit',this)">💹 ກຳໄລ / ຕົ້ນທຶນ</button>
+    <button class="tab-btn" onclick="switchTab('orders',this)">📦 ຄຳສັ່ງຊື້</button>
+    <button class="tab-btn" onclick="switchTab('stock',this)">🗃️ ສະຕ໋ອກ</button>
+    <button class="tab-btn" onclick="switchTab('preorder',this);loadPreOrders()">🟣 Pre-Order</button>
+  </div>
+
+  <!-- ══════════════ TAB: SUMMARY ══════════════ -->
+  <div class="tab-panel active" id="tab-summary">
+
+    <!-- BUDGET PLANNER TOPBAR -->
+    <div class="bp-topbar">
+      <div class="bp-month-cell">
+        <div class="bp-month-label">ເດືອນ</div>
+        <div class="bp-month-nav">
+          <button id="bp-prev-btn" class="bp-nav-btn" onclick="prevSummaryMonth()" title="ເດືອນກ່ອນ">&#8249;</button>
+          <div>
+            <div class="bp-month-name" id="bp-month-name">—</div>
+            <div class="bp-month-year" id="bp-month-year">—</div>
+          </div>
+          <button id="bp-next-btn" class="bp-nav-btn" onclick="nextSummaryMonth()" title="ເດືອນຕໍ່ໄປ">&#8250;</button>
+        </div>
+      </div>
+      <div class="bp-metric-cell gold">
+        <div class="bp-metric-lbl">ລາຍຮັບລວມ</div>
+        <div class="bp-metric-num gold" id="bp-revenue">—</div>
+        <div class="bp-metric-sub" id="bp-order-count">— ຄຳສັ່ງ</div>
+      </div>
+      <div class="bp-metric-cell red">
+        <div class="bp-metric-lbl">ຕົ້ນທຶນລວມ</div>
+        <div class="bp-metric-num red" id="bp-cost">—</div>
+        <div class="bp-metric-sub">ລວມທຸກສິນຄ້າທີ່ຂາຍ</div>
+      </div>
+      <div class="bp-metric-cell green">
+        <div class="bp-metric-lbl">ກຳໄລສຸດທິ</div>
+        <div class="bp-metric-num green" id="bp-profit">—</div>
+        <div class="bp-metric-sub" id="bp-margin">— % margin</div>
+      </div>
+    </div>
+
+    <!-- ROW 1: Monthly Chart + Status Pipeline -->
+    <div class="bp-row c32">
+      <div class="bp-box">
+        <div class="bp-sh">
+          ຍອດຂາຍລາຍເດືອນ
+          <span style="font-size:.65rem;opacity:.75;text-transform:none;font-weight:400;letter-spacing:0">🟦 ໂອນ &nbsp; 🟧 COD</span>
+        </div>
+        <div class="chart-wrap" id="monthChart"><div class="empty-row">ກຳລັງໂຫຼດ...</div></div>
+      </div>
+      <div class="bp-box">
+        <div class="bp-sh">ສະຖານະຄຳສັ່ງ</div>
+        <div id="bp-pipeline"><div class="empty-row">ກຳລັງໂຫຼດ...</div></div>
+      </div>
+    </div>
+
+    <!-- ROW 2: Top Products + Low Stock -->
+    <div class="bp-row c2">
+      <div class="bp-box">
+        <div class="bp-sh dark">ສິນຄ້າຂາຍດີ</div>
+        <div style="padding:8px 16px" id="topProducts"><div class="empty-row">ກຳລັງໂຫຼດ...</div></div>
+      </div>
+      <div class="bp-box">
+        <div class="bp-sh dark">
+          ສາງໃກ້ໝົດ / ໝົດ
+          <span id="lowStockCount" style="font-size:.7rem;opacity:.8;font-weight:400;text-transform:none;letter-spacing:0"></span>
+        </div>
+        <table class="rpt-table" id="lowStockTable">
+          <thead><tr><th>ສິນຄ້າ</th><th>SKU</th><th>ສາງ</th></tr></thead>
+          <tbody><tr><td colspan="3" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ROW 3: Yearly Summary Table -->
+    <div class="bp-box" style="margin-bottom:20px">
+      <div class="bp-sh light">ສະຫຼຸບລາຍເດືອນ</div>
+      <div style="overflow-x:auto">
+        <table class="bp-yr-table">
+          <thead>
+            <tr>
+              <th>ເດືອນ</th>
+              <th>ລາຍຮັບລວມ</th>
+              <th>ໂອນເງິນ</th>
+              <th>COD</th>
+              <th>ຄຳສັ່ງ</th>
+              <th>ຍົກເລີກ</th>
+            </tr>
+          </thead>
+          <tbody id="yearlyTbody"><tr><td colspan="6" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /tab-summary -->
+
+  <!-- ══════════════ TAB: PROFIT ══════════════ -->
+  <div class="tab-panel" id="tab-profit">
+
+    <!-- month picker -->
+    <div class="profit-mbar">
+      <div style="position:relative">
+        <div class="pm-chip" id="pm-chip" onclick="pmToggle()">
+          <span class="pm-chip-icon">📅</span>
+          <span id="pm-chip-lbl">ທັງໝົດ</span>
+          <span class="pm-chip-caret">▼</span>
+        </div>
+        <div class="pm-popup" id="pm-popup">
+          <div class="pm-popup-head">
+            <button class="pm-yr-btn" onclick="pmYrShift(-1)">‹</button>
+            <span class="pm-yr-label" id="pm-yr-lbl">2026</span>
+            <button class="pm-yr-btn" onclick="pmYrShift(1)">›</button>
+          </div>
+          <div class="pm-grid" id="pm-grid"></div>
+          <button class="pm-all-btn" onclick="pmSelectAll()">ທັງໝົດ</button>
+        </div>
+      </div>
+      <button class="pm-clear" id="pm-clear" onclick="pmSelectAll()">✕ ລ້າງ</button>
+    </div>
+
+    <!-- 4 profit stat cards -->
+    <div class="stat-grid" id="profitGrid">
+      <div class="stat-card green"><div class="stat-icon">📈</div><div class="stat-label">ລາຍຮັບລວມ</div><div class="stat-val" id="pr-revenue">—</div><div class="stat-sub" id="pr-units">—</div></div>
+      <div class="stat-card red"><div class="stat-icon">📉</div><div class="stat-label">ຕົ້ນທຶນລວມ</div><div class="stat-val" id="pr-cost">—</div><div class="stat-sub">ລວມທຸກສິນຄ້າ</div></div>
+      <div class="stat-card blue"><div class="stat-icon">💰</div><div class="stat-label">ກຳໄລລວມ</div><div class="stat-val" id="pr-profit">—</div><div class="stat-sub" id="pr-margin">—</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <!-- PROFIT BY MONTH -->
+      <div class="section">
+        <div class="section-head"><h2>📅 ກຳໄລລາຍເດືອນ</h2></div>
+        <div class="chart-wrap" id="profitMonthChart"><div class="empty-row">ກຳລັງໂຫຼດ...</div></div>
+      </div>
+      <!-- MARGIN GAUGE -->
+      <div class="section">
+        <div class="section-head"><h2>📊 ອັດຕາກຳໄລ (Margin)</h2></div>
+        <div style="padding:24px 20px" id="marginGauge"><div class="empty-row">ກຳລັງໂຫຼດ...</div></div>
+      </div>
+    </div>
+
+    <!-- PROFIT BY PRODUCT -->
+    <div class="section">
+      <div class="section-head">
+        <h2>🏆 ກຳໄລລາຍສິນຄ້າ</h2>
+        <button class="btn-export" onclick="openExportMenu(event,'profit')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export <span class="exp-caret">▾</span>
+        </button>
+      </div>
+      <table class="rpt-table" id="profitTable">
+        <thead>
+          <tr><th>#</th><th>ສິນຄ້າ</th><th>SKU</th><th>ຂາຍໄດ້</th><th>ລາຄາຂາຍ/ຊິ້ນ</th><th>ຕົ້ນທຶນ/ຊິ້ນ</th><th>ລາຍຮັບ</th><th>ຕົ້ນທຶນ</th><th>ກຳໄລ</th><th>Margin</th></tr>
+        </thead>
+        <tbody id="profitTbody"><tr><td colspan="10" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-profit -->
+
+  <!-- ══════════════ TAB: ORDERS ══════════════ -->
+  <div class="tab-panel" id="tab-orders">
+    <div class="section">
+      <div class="section-head">
+        <h2>📦 ລາຍການຄຳສັ່ງຊື້ທັງໝົດ</h2>
+        <button class="btn-export" onclick="openExportMenu(event,'orders')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export <span class="exp-caret">▾</span>
+        </button>
+      </div>
+
+      <div class="filter-wrap">
+        <div class="fg-group">
+          <span class="fg-lbl">ສະຖານະ</span>
+          <select id="filterStatus" onchange="applyOrderFilter()">
+            <option value="">ທັງໝົດ</option>
+            <option value="pending">ລໍຖ້າ</option>
+            <option value="confirmed">ຢືນຢັນ</option>
+            <option value="shipped">ກຳລັງສົ່ງ</option>
+            <option value="delivered">ສົ່ງແລ້ວ</option>
+            <option value="completed">ສຳເລັດ</option>
+            <option value="cancelled">ຍົກເລີກ</option>
+          </select>
+        </div>
+        <div class="fg-group">
+          <span class="fg-lbl">ຈາກ</span>
+          <input type="date" id="filterFrom" onchange="applyOrderFilter()">
+        </div>
+        <div class="fg-group">
+          <span class="fg-lbl">ຫາ</span>
+          <input type="date" id="filterTo" onchange="applyOrderFilter()">
+        </div>
+        <div class="filter-search">
+          <span class="srch-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
+          <input type="text" id="filterSearch" placeholder="ຄົ້ນຫາ ຊື່ / ເລກທີ / ເບີ..." oninput="applyOrderFilter()">
+        </div>
+        <div class="filter-spacer"></div>
+        <span id="ordCount" class="filter-count"></span>
+      </div>
+
+      <table class="rpt-table" id="ordersTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ເລກທີ</th>
+            <th>ລູກຄ້າ</th>
+            <th>ເບີໂທ</th>
+            <th>ຍອດ</th>
+            <th>ຊຳລະ</th>
+            <th>ສະຖານະ</th>
+            <th>ວັນທີ</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTbody"><tr><td colspan="8" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /tab-orders -->
+
+  <!-- ══════════════ TAB: STOCK ══════════════ -->
+  <div class="tab-panel" id="tab-stock">
+    <div class="section">
+      <div class="section-head">
+        <h2>🗃️ ສະຕ໋ອກສິນຄ້າ</h2>
+        <button class="btn-export" onclick="openExportMenu(event,'stock')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export <span class="exp-caret">▾</span>
+        </button>
+      </div>
+      <div class="filter-wrap">
+        <div class="filter-search">
+          <span class="srch-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </span>
+          <input type="text" id="stockSearch" placeholder="ຄົ້ນຫາ ຊື່ / SKU / ໝວດ..." oninput="applyStockFilter()">
+        </div>
+        <div class="stock-status-pills">
+          <button class="ssp all active" onclick="setStockStatus('all',this)">ທັງໝົດ</button>
+          <button class="ssp ok"         onclick="setStockStatus('ok',this)">✓ ປົກກະຕິ</button>
+          <button class="ssp low"        onclick="setStockStatus('low',this)">⚡ ໃກ້ໝົດ</button>
+          <button class="ssp out"        onclick="setStockStatus('out',this)">⚠ ໝົດ</button>
+        </div>
+        <div class="filter-spacer"></div>
+        <span id="totalProducts" class="filter-count"></span>
+      </div>
+      <table class="rpt-table" id="stockTable">
+        <thead>
+          <tr><th>#</th><th>ສິນຄ້າ</th><th>ໝວດ</th><th>SKU</th><th>ລາຄາ</th><th>ສະຕ໋ອກ</th><th>ສະຖານະ</th></tr>
+        </thead>
+        <tbody id="stockTbody"><tr><td colspan="7" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+  </div><!-- /tab-stock -->
+
+  <!-- ══════════════ TAB: PRE-ORDER ══════════════ -->
+  <div class="tab-panel" id="tab-preorder">
+
+    <!-- KPI cards -->
+    <div class="stat-grid" id="po-kpi" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+      <div class="stat-card" style="border-top:3px solid #6366f1">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">ລາຍການທັງໝົດ</div>
+        <div class="stat-val" id="po-lines">—</div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid #6366f1">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">ຈຳນວນຊິ້ນລວມ</div>
+        <div class="stat-val" id="po-units">—</div>
+        <div class="stat-sub">ຊິ້ນ</div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid #c9a96e">
+        <div class="stat-icon">💰</div>
+        <div class="stat-label">ມູນຄ່າລວມ</div>
+        <div class="stat-val" id="po-value" style="font-size:1.15rem">—</div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid #3b82f6">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">ລູກຄ້າທີ່ Pre-Order</div>
+        <div class="stat-val" id="po-customers">—</div>
+        <div class="stat-sub">ຄົນ</div>
+      </div>
+    </div>
+
+    <!-- by product summary -->
+    <div class="section" style="margin-bottom:16px">
+      <div class="section-head"><h2>🟣 ສິນຄ້າ Pre-Order (ຈັດລຽງຕາມຈຳນວນ)</h2></div>
+      <table class="rpt-table" id="po-prod-table">
+        <thead>
+          <tr>
+            <th>#</th><th>ຮູບ</th><th>ສິນຄ້າ</th><th>SKU</th>
+            <th style="text-align:center">ຈຳນວນ (ຊິ້ນ)</th>
+            <th style="text-align:center">ຈຳນວນ ອໍເດີ</th>
+          </tr>
+        </thead>
+        <tbody id="po-prod-body"><tr><td colspan="6" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- detail rows -->
+    <div class="section">
+      <div class="section-head">
+        <h2>📋 ລາຍການ Pre-Order ທັງໝົດ</h2>
+        <button class="btn-export" onclick="openExportMenu(event,'preorder')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export <span class="exp-caret">▾</span>
+        </button>
+      </div>
+      <div class="filter-wrap">
+        <!-- ປີ -->
+        <div class="fg-group">
+          <span class="fg-lbl">ປີ</span>
+          <select id="po-year" onchange="filterPreOrders()" style="min-width:80px">
+            <option value="">ທຸກປີ</option>
+          </select>
+        </div>
+        <!-- ເດືອນ -->
+        <div class="fg-group">
+          <span class="fg-lbl">ເດືອນ</span>
+          <select id="po-month" onchange="filterPreOrders()" style="min-width:110px">
+            <option value="">ທຸກເດືອນ</option>
+            <option value="01">ມັງກອນ</option>
+            <option value="02">ກຸມພາ</option>
+            <option value="03">ມີນາ</option>
+            <option value="04">ເມສາ</option>
+            <option value="05">ພຶດສະພາ</option>
+            <option value="06">ມິຖຸນາ</option>
+            <option value="07">ກໍລະກົດ</option>
+            <option value="08">ສິງຫາ</option>
+            <option value="09">ກັນຍາ</option>
+            <option value="10">ຕຸລາ</option>
+            <option value="11">ພະຈິກ</option>
+            <option value="12">ທັນວາ</option>
+          </select>
+        </div>
+        <!-- ວັນທີ -->
+        <div class="fg-group">
+          <span class="fg-lbl">ວັນທີ</span>
+          <input type="date" id="po-day" onchange="filterPreOrders()" style="padding:8px 10px 8px 8px;border:none;outline:none;background:transparent;font-family:'Noto Sans Lao',sans-serif;font-size:.82rem;color:#333;width:148px;cursor:pointer">
+        </div>
+        <!-- Search -->
+        <div class="filter-search">
+          <span class="srch-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input type="text" id="po-search" placeholder="ຊື່ / ເລກອໍເດີ / ລູກຄ້າ..." oninput="filterPreOrders()">
+        </div>
+        <!-- Clear -->
+        <button onclick="clearPoFilters()" style="padding:7px 14px;border-radius:8px;border:1.5px solid #e8e4de;background:#fff;font-family:'Noto Sans Lao',sans-serif;font-size:.78rem;color:#888;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='#6366f1';this.style.color='#6366f1'" onmouseout="this.style.borderColor='#e8e4de';this.style.color='#888'">✕ ລ້າງ</button>
+        <div class="filter-spacer"></div>
+        <span id="po-count" class="filter-count"></span>
+      </div>
+      <table class="rpt-table">
+        <thead>
+          <tr>
+            <th>#</th><th>ຮູບ</th><th>ສິນຄ້າ</th><th>ອໍເດີ</th>
+            <th>ລູກຄ້າ</th><th>ເບີໂທ</th>
+            <th style="text-align:center">ຈຳນວນ</th>
+            <th style="text-align:right">ລາຄາ/ຊິ້ນ</th>
+            <th>ສະຖານະ</th><th>ວັນທີ</th>
+          </tr>
+        </thead>
+        <tbody id="po-detail-body"><tr><td colspan="10" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-preorder -->
+
+</main>
+
+<!-- EXPORT FORMAT MENU (shared) -->
+<div id="export-menu" class="export-menu" style="display:none" onclick="event.stopPropagation()">
+  <div class="exp-menu-lbl">ເລືອກຮູບແບບ Export</div>
+  <button class="fmt-btn" onclick="runExport('excel')">
+    <span class="fmt-btn-icon">📊</span>
+    <span class="fmt-btn-text">Excel<small>ໄຟລ໌ .xls — ເປີດດ້ວຍ Microsoft Excel</small></span>
+    <span class="fmt-btn-badge">XLS</span>
+  </button>
+  <button class="fmt-btn" onclick="runExport('csv')">
+    <span class="fmt-btn-icon">📄</span>
+    <span class="fmt-btn-text">CSV<small>ໄຟລ໌ comma-separated ທຸກ program ເປີດໄດ້</small></span>
+    <span class="fmt-btn-badge">CSV</span>
+  </button>
+  <button class="fmt-btn" onclick="runExport('pdf')">
+    <span class="fmt-btn-icon">🖨️</span>
+    <span class="fmt-btn-text">PDF / ພິມ<small>ເປີດໜ້າ print preview ໃນ browser</small></span>
+    <span class="fmt-btn-badge">PDF</span>
+  </button>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+const fmt = n => '₭' + Number(n||0).toLocaleString();
+const STATUS_LO = { pending:'ລໍຖ້າ', confirmed:'ຢືນຢັນ', processing:'ກຳລັງດຳເນີນ', shipped:'ກຳລັງສົ່ງ', delivered:'ສົ່ງແລ້ວ', completed:'ສຳເລັດ', cancelled:'ຍົກເລີກ' };
+
+/* ─── TAB ─── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ─── SUMMARY ─── */
+const _MONTHS_LO = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
+function _nowYM() { const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`; }
+let _summaryMonth = _nowYM();
+
+function prevSummaryMonth() {
+  const [y,m] = _summaryMonth.split('-').map(Number);
+  const d = new Date(y, m-2, 1);
+  _summaryMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  loadSummary();
+}
+function nextSummaryMonth() {
+  const [y,m] = _summaryMonth.split('-').map(Number);
+  const d = new Date(y, m, 1);
+  const next = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  if (next > _nowYM()) return;
+  _summaryMonth = next;
+  loadSummary();
+}
+
+async function loadSummary() {
+  const mq = `&month=${_summaryMonth}`;
+  try {
+    const [sum, sc, prof] = await Promise.all([
+      fetch(`../api/reports.php?type=summary${mq}`).then(r => r.json()),
+      fetch(`../api/reports.php?type=status_counts${mq}`).then(r => r.json()),
+      fetch(`../api/reports.php?type=profit${mq}`).then(r => r.json())
+    ]);
+    const s  = sum.sales  || {};
+    const po = prof.overall || {};
+
+    /* topbar */
+    const [y, mo] = _summaryMonth.split('-').map(Number);
+    document.getElementById('bp-month-name').textContent = _MONTHS_LO[mo-1];
+    document.getElementById('bp-month-year').textContent = y;
+    document.getElementById('bp-revenue').textContent    = fmt(s.total);
+    document.getElementById('bp-order-count').textContent = `${s.count||0} ຄຳສັ່ງ`;
+    document.getElementById('bp-cost').textContent       = fmt(po.cost);
+    document.getElementById('bp-profit').textContent     = fmt(po.profit);
+    const margin = +po.revenue > 0 ? ((+po.profit / +po.revenue) * 100).toFixed(1) : 0;
+    document.getElementById('bp-margin').textContent     = `${margin}% margin`;
+    document.getElementById('bp-next-btn').disabled = _summaryMonth >= _nowYM();
+
+    /* pipeline */
+    const statusCfg = [
+      {key:'pending',   lbl:'ລໍຖ້າ',       color:'#f39c12'},
+      {key:'confirmed', lbl:'ຢືນຢັນ',       color:'#3498db'},
+      {key:'shipped',   lbl:'ກຳລັງສົ່ງ',   color:'#9b59b6'},
+      {key:'delivered', lbl:'ສົ່ງແລ້ວ',     color:'#27ae60'},
+      {key:'completed', lbl:'ສຳເລັດ',       color:'#2ecc71'},
+      {key:'cancelled', lbl:'ຍົກເລີກ',      color:'#e74c3c'},
+    ];
+    const mp = {};
+    (sc||[]).forEach(r => { mp[r.status] = {cnt: +r.cnt||0, total: +r.total||0}; });
+    document.getElementById('bp-pipeline').innerHTML = statusCfg.map(({key,lbl,color}) => {
+      const d = mp[key] || {cnt:0,total:0};
+      return `<div class="bp-pipe-row">
+        <div class="bp-pipe-dot" style="background:${color}"></div>
+        <div class="bp-pipe-lbl">${lbl}</div>
+        <div class="bp-pipe-cnt">${d.cnt}</div>
+        <div class="bp-pipe-amt">${d.total > 0 ? fmt(d.total) : ''}</div>
+      </div>`;
+    }).join('');
+
+    /* low stock */
+    const low = sum.low_stock || [];
+    document.getElementById('lowStockCount').textContent = low.length ? `${low.length} ລາຍການ` : '';
+    const ltbody = document.querySelector('#lowStockTable tbody');
+    ltbody.innerHTML = !low.length
+      ? '<tr><td colspan="3" class="empty-row">✅ ສິນຄ້າທຸກຢ່າງຍັງມີ</td></tr>'
+      : low.map(p => `
+          <tr>
+            <td><div class="td-name">${p.name||p.name_lo||''}</div>
+                <div style="font-size:.72rem;color:#aaa">${p.category_name||''}</div></td>
+            <td style="color:#aaa;font-size:.76rem">${p.sku||'—'}</td>
+            <td>${p.stock==0?'<span class="stock-out">ໝົດ</span>':`<span class="stock-low">${p.stock} ຊິ້ນ</span>`}</td>
+          </tr>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+/* ─── MONTHLY CHART ─── */
+async function loadMonthly() {
+  try {
+    const rows = await fetch('../api/reports.php?type=monthly').then(r => r.json());
+    const el = document.getElementById('monthChart');
+    if (!rows.length) { el.innerHTML = '<div class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</div>'; return; }
+    const max = Math.max(...rows.map(r => +r.total||0), 1);
+    el.innerHTML = rows.map(r => {
+      const tPct = ((+r.transfer_total||0)/max*100).toFixed(1);
+      const cPct = ((+r.cod_total||0)/max*100).toFixed(1);
+      const [yr, mo] = (r.month||'').split('-');
+      const label = mo ? `${mo}/${yr?.slice(2)}` : r.month;
+      return `
+      <div class="chart-row">
+        <div class="chart-label">${label}</div>
+        <div class="chart-bar-wrap">
+          <div class="chart-bar-t" style="width:${tPct}%"></div>
+          <div class="chart-bar-c" style="width:${cPct}%"></div>
+        </div>
+        <div class="chart-val">${fmt(r.total)} <span style="color:#bbb;font-weight:400">(${r.orders})</span></div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+/* ─── TOP PRODUCTS ─── */
+async function loadTopProducts() {
+  try {
+    const rows = await fetch('../api/reports.php?type=top_products').then(r => r.json());
+    const el = document.getElementById('topProducts');
+    if (!rows.length) { el.innerHTML = '<div class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</div>'; return; }
+    el.innerHTML = rows.map((p, i) => {
+      const img = p.image || '';
+      return `
+      <div class="prod-rank">
+        <div class="prod-rank-num ${i<3?'top3':''}">${i+1}</div>
+        <img class="prod-rank-img" src="${img ? '../'+img : ''}" onerror="this.style.display='none'" style="${img?'':'display:none'}" alt="">
+        <div class="prod-rank-info">
+          <div class="prod-rank-name">${p.name||'—'}</div>
+          <div class="prod-rank-sku">${p.sku||'—'}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="prod-rank-qty">${p.total_qty} ຊິ້ນ</div>
+          <div class="prod-rank-rev">${fmt(p.total_revenue)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+/* ─── ORDERS TAB ─── */
+let _allOrders = [];
+
+async function loadOrders() {
+  try {
+    const rows = await fetch('../api/orders.php').then(r => r.json());
+    _allOrders = Array.isArray(rows) ? rows : [];
+    applyOrderFilter();
+  } catch(e) { console.error(e); }
+}
+
+function applyOrderFilter() {
+  const st   = document.getElementById('filterStatus').value;
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  const q    = document.getElementById('filterSearch').value.toLowerCase();
+  let data = _allOrders.filter(o => {
+    if (st && o.status !== st) return false;
+    const d = o.created_at?.slice(0,10);
+    if (from && d < from) return false;
+    if (to   && d > to)   return false;
+    if (q && !(
+      (o.order_number||'').toLowerCase().includes(q) ||
+      (o.customer_name||'').toLowerCase().includes(q) ||
+      (o.customer_phone||'').includes(q)
+    )) return false;
+    return true;
+  });
+  document.getElementById('ordCount').textContent = `${data.length} ລາຍການ`;
+  const tbody = document.getElementById('ordersTbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-row">ບໍ່ພົບຄຳສັ່ງ</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((o, i) => {
+    const date = new Date(o.created_at).toLocaleDateString('lo-LA',{year:'numeric',month:'short',day:'numeric'});
+    const time = new Date(o.created_at).toLocaleTimeString('lo-LA',{hour:'2-digit',minute:'2-digit'});
+    const isCod = o.payment_method === 'cod';
+    return `
+    <tr>
+      <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+      <td><div class="td-name" style="font-size:.8rem">${o.order_number}</div></td>
+      <td>${o.customer_name||'—'}</td>
+      <td style="color:#888">${o.customer_phone||'—'}</td>
+      <td style="font-weight:700">${fmt(o.total_amount)}</td>
+      <td><span class="pay-tag ${isCod?'pay-cod':'pay-transfer'}">${isCod?'🚚 COD':'🏦 ໂອນ'}</span></td>
+      <td><span class="st st-${o.status||'pending'}">${STATUS_LO[o.status]||o.status}</span></td>
+      <td style="color:#888;font-size:.78rem">${date}<br>${time}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildOrdersExportData() {
+  const st   = document.getElementById('filterStatus').value;
+  const from = document.getElementById('filterFrom').value;
+  const to   = document.getElementById('filterTo').value;
+  const q    = document.getElementById('filterSearch').value.toLowerCase();
+  const data = _allOrders.filter(o => {
+    if (st && o.status !== st) return false;
+    const d = o.created_at?.slice(0,10);
+    if (from && d < from) return false;
+    if (to   && d > to)   return false;
+    if (q && !((o.order_number||'').toLowerCase().includes(q)||(o.customer_name||'').toLowerCase().includes(q)||(o.customer_phone||'').includes(q))) return false;
+    return true;
+  });
+  const cols = [
+    {label:'#',          type:'num', w:5 },
+    {label:'ເລກທີ',      type:'str', w:20},
+    {label:'ລູກຄ້າ',    type:'str', w:16},
+    {label:'ເບີໂທ',      type:'str', w:14},
+    {label:'ທີ່ຢູ່',      type:'str', w:28},
+    {label:'ຍອດລວມ (₭)', type:'num', w:14},
+    {label:'ການຊຳລະ',   type:'str', w:16},
+    {label:'ສະຖານະ',    type:'str', w:14},
+    {label:'ວັນທີ',      type:'str', w:20},
+  ];
+  const rows = data.map((o,i) => [
+    i+1, o.order_number, o.customer_name||'',
+    o.customer_phone||'', o.customer_address||'',
+    Number(o.total_amount||0),
+    o.payment_method==='cod'?'ຈ່າຍປາຍທາງ':'ໂອນເງິນ',
+    STATUS_LO[o.status]||o.status,
+    o.created_at?.slice(0,16)||''
+  ]);
+  const total = data.reduce((s,o)=>s+(+o.total_amount||0),0);
+  const totRow = ['','','','','ລວມ',total,'','',''];
+  totRow.__total = true;
+  return { title:'ລາຍການຄຳສັ່ງຊື້', cols, rows:[...rows, totRow],
+           filename:`orders_${new Date().toISOString().slice(0,10)}.xlsx` };
+}
+
+/* ─── STOCK TAB ─── */
+let _allProducts = [];
+let _stockStatus = 'all';
+
+function setStockStatus(val, btn) {
+  _stockStatus = val;
+  document.querySelectorAll('.ssp').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyStockFilter();
+}
+
+async function loadStock() {
+  try {
+    const data = await fetch('../api/products.php').then(r => r.json());
+    _allProducts = (data.products||[]).sort((a,b) => (a.stock||0) - (b.stock||0));
+    applyStockFilter();
+  } catch(e) { console.error(e); }
+}
+
+function applyStockFilter() {
+  const q = document.getElementById('stockSearch').value.toLowerCase();
+  let data = _allProducts;
+
+  if (_stockStatus === 'out') data = data.filter(p => (p.stock??0) === 0);
+  else if (_stockStatus === 'low') data = data.filter(p => (p.stock??0) > 0 && (p.stock??0) < 5);
+  else if (_stockStatus === 'ok')  data = data.filter(p => (p.stock??0) >= 5);
+
+  if (q) data = data.filter(p =>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.name_lo||'').toLowerCase().includes(q) ||
+    (p.sku||'').toLowerCase().includes(q) ||
+    (p.category_name||'').toLowerCase().includes(q)
+  );
+
+  document.getElementById('totalProducts').textContent = `${data.length} ລາຍການ`;
+  const tbody = document.getElementById('stockTbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-row">ບໍ່ພົບສິນຄ້າ</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((p, i) => {
+    const stock = p.stock ?? 0;
+    let badge = stock==0 ? '<span class="stock-out">ໝົດ</span>'
+                         : stock<5 ? `<span class="stock-low">${stock} ຊິ້ນ</span>`
+                                   : `<span class="stock-ok">${stock} ຊິ້ນ</span>`;
+    let status = stock==0 ? '<span style="color:#e74c3c;font-size:.75rem;font-weight:700">⚠ ຕ້ອງເຕີມ</span>'
+                           : stock<5 ? '<span style="color:#e67e22;font-size:.75rem;font-weight:700">⚡ ໃກ້ໝົດ</span>'
+                                     : '<span style="color:#27ae60;font-size:.75rem">✓ ປົກກະຕິ</span>';
+    return `
+    <tr>
+      <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+      <td><div class="td-name">${p.name_lo||p.name}</div></td>
+      <td style="color:#888;font-size:.78rem">${p.category_name||'—'}</td>
+      <td style="color:#aaa;font-size:.78rem">${p.sku||'—'}</td>
+      <td style="font-weight:700">${fmt(p.price)}</td>
+      <td>${badge}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildStockExportData() {
+  const cols = [
+    {label:'#',          type:'num', w:5 },
+    {label:'ຊື່ສິນຄ້າ',  type:'str', w:24},
+    {label:'ໝວດ',        type:'str', w:16},
+    {label:'SKU',        type:'str', w:14},
+    {label:'ລາຄາ (₭)',   type:'num', w:14},
+    {label:'ຕົ້ນທຶນ (₭)', type:'num', w:14},
+    {label:'ສາງ',        type:'num', w:8 },
+    {label:'ສະຖານະ',     type:'str', w:12},
+  ];
+  const rows = _allProducts.map((p,i) => {
+    const stock = p.stock ?? 0;
+    const status = stock < 0 ? 'ສາງຕິດລົບ' : stock == 0 ? 'ໝົດ' : stock < 5 ? 'ໃກ້ໝົດ' : 'ປົກກະຕິ';
+    return [i+1, p.name_lo||p.name, p.category_name||'', p.sku||'',
+            Number(p.price||0), Number(p.cost_price||0), stock, status];
+  });
+  return { title:'ສາງສິນຄ້າ', cols, rows,
+           filename:`stock_${new Date().toISOString().slice(0,10)}.xlsx` };
+}
+
+/* ─── EXCEL EXPORT (HTML-table method, no CDN needed) ─── */
+function downloadXLSX(title, cols, rows, filename) {
+  const esc   = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const nCol  = cols.length;
+  const today = new Date().toLocaleDateString('lo-LA',{year:'numeric',month:'long',day:'numeric'});
+
+  const headCells = cols.map(c =>
+    `<td style="background:#C9A96E;color:#FFF;font-weight:bold;padding:9px 14px;
+      border:1px solid #B8935A;white-space:nowrap;font-size:11pt;text-align:center;
+      mso-number-format:'@'">${esc(c.label)}</td>`
+  ).join('');
+
+  const bodyRows = rows.map((row, ri) => {
+    const isTot  = row.__total === true;
+    const bg     = isTot ? '#F5F0E8' : ri % 2 === 0 ? '#FFFFFF' : '#F7F5F2';
+    const fw     = isTot ? 'bold' : 'normal';
+    const topBdr = isTot ? 'border-top:2px solid #D4C5A9;' : '';
+    const cells  = cols.map((col, ci) => {
+      const val  = row[ci] ?? '';
+      const isNum = col.type === 'num';
+      const fmt  = isNum ? "mso-number-format:'#,##0';text-align:right;" : "mso-number-format:'@';";
+      return `<td style="background:${bg};${topBdr}padding:7px 13px;
+        border:1px solid #F0EDE8;font-size:10pt;font-weight:${fw};${fmt}">${esc(String(val))}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head><meta charset="UTF-8">
+<style>
+  table{border-collapse:collapse}
+  td{font-family:Calibri,sans-serif;vertical-align:middle}
+</style>
+</head>
+<body><table>
+<tr>
+  <td colspan="${nCol}" style="background:#111;color:#C9A96E;font-weight:bold;font-size:14pt;
+    padding:14px 18px;mso-number-format:'@'">bunnies.bunn — ${esc(title)}</td>
+</tr>
+<tr>
+  <td colspan="${nCol}" style="background:#2C2C2C;color:#AAA;font-size:9pt;
+    padding:4px 18px;font-style:italic;mso-number-format:'@'">Export: ${today}</td>
+</tr>
+<tr>${headCells}</tr>
+${bodyRows}
+</table></body></html>`;
+
+  const blob = new Blob(['﻿'+html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename.replace('.xlsx','.xls');
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ─── PROFIT ─── */
+let _profitData = null;
+let _profitMonth = '';
+
+/* ── month picker state ── */
+let _pmYear = new Date().getFullYear();
+let _pmDataMonths = new Set(); // months that have data e.g. "2026-06"
+
+function _pmUpdateChip() {
+  const chip  = document.getElementById('pm-chip');
+  const lbl   = document.getElementById('pm-chip-lbl');
+  const clrBtn= document.getElementById('pm-clear');
+  if (_profitMonth) {
+    const [y,mo] = _profitMonth.split('-').map(Number);
+    lbl.textContent = `${_MONTHS_LO[mo-1]} ${y}`;
+    chip.classList.add('active');
+    clrBtn.style.display = 'inline-flex';
+  } else {
+    lbl.textContent = 'ທັງໝົດ';
+    chip.classList.remove('active');
+    clrBtn.style.display = 'none';
+  }
+}
+
+function _pmRenderGrid() {
+  const now = new Date();
+  const nowYM = _nowYM();
+  document.getElementById('pm-yr-lbl').textContent = _pmYear;
+  document.getElementById('pm-grid').innerHTML = _MONTHS_LO.map((name,i) => {
+    const ym = `${_pmYear}-${String(i+1).padStart(2,'0')}`;
+    const isFuture = ym > nowYM;
+    const hasData  = _pmDataMonths.has(ym);
+    const isSel    = ym === _profitMonth;
+    const cls = [
+      'pm-cell',
+      isSel    ? 'selected'  : '',
+      hasData  ? 'has-data'  : '',
+      isFuture ? 'disabled'  : '',
+    ].join(' ');
+    return `<div class="${cls}" onclick="pmSelectMonth('${ym}')">${name}</div>`;
+  }).join('');
+}
+
+function pmToggle() {
+  const popup = document.getElementById('pm-popup');
+  _pmYear = _profitMonth ? +_profitMonth.split('-')[0] : new Date().getFullYear();
+  _pmRenderGrid();
+  popup.classList.toggle('open');
+}
+function pmYrShift(d) {
+  _pmYear += d;
+  _pmRenderGrid();
+}
+function pmSelectMonth(ym) {
+  _profitMonth = ym;
+  document.getElementById('pm-popup').classList.remove('open');
+  _pmUpdateChip();
+  loadProfit();
+}
+function pmSelectAll() {
+  _profitMonth = '';
+  document.getElementById('pm-popup').classList.remove('open');
+  _pmUpdateChip();
+  loadProfit();
+}
+
+/* close popup on outside click */
+document.addEventListener('click', e => {
+  const chip = document.getElementById('pm-chip');
+  const popup= document.getElementById('pm-popup');
+  if (popup && !chip?.contains(e.target) && !popup.contains(e.target))
+    popup.classList.remove('open');
+});
+
+function _populatePmSelect(byMonth) {
+  _pmDataMonths = new Set((byMonth||[]).map(m => m.month));
+}
+
+async function loadProfit() {
+  const mq = _profitMonth ? `&month=${_profitMonth}` : '';
+  try {
+    const d = await fetch(`../api/reports.php?type=profit${mq}`).then(r => r.json());
+    _profitData = d;
+    _populatePmSelect(d.by_month);
+    _pmUpdateChip();
+    const ov = d.overall || {};
+    const revenue = +ov.revenue || 0;
+    const cost    = +ov.cost    || 0;
+    const profit  = +ov.profit  || 0;
+    const margin  = revenue > 0 ? (profit/revenue*100).toFixed(1) : 0;
+
+    document.getElementById('pr-revenue').textContent = fmt(revenue);
+    document.getElementById('pr-units').textContent   = `${(+ov.units_sold||0).toLocaleString()} ຊິ້ນ`;
+    document.getElementById('pr-cost').textContent    = fmt(cost);
+
+    const profEl = document.getElementById('pr-profit');
+    profEl.textContent  = fmt(profit);
+    profEl.className    = 'stat-val ' + (profit>0?'profit-pos':profit<0?'profit-neg':'profit-zero');
+    document.getElementById('pr-margin').textContent = `Margin ${margin}%`;
+
+    /* by month chart */
+    const months  = d.by_month || [];
+    const chartEl = document.getElementById('profitMonthChart');
+    if (!months.length) { chartEl.innerHTML = '<div class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</div>'; }
+    else {
+      const maxP = Math.max(...months.map(m => Math.abs(+m.profit||0)), 1);
+      chartEl.innerHTML = months.map(m => {
+        const p = +m.profit || 0;
+        const pct = (Math.abs(p)/maxP*100).toFixed(1);
+        const cls = p > 0 ? 'good' : 'low';
+        const [yr,mo] = (m.month||'').split('-');
+        return `
+        <div class="chart-row">
+          <div class="chart-label">${mo||''}/${yr?.slice(2)||''}</div>
+          <div class="chart-bar-wrap">
+            <div class="margin-bar ${cls}" style="width:${pct}%"></div>
+          </div>
+          <div class="chart-val ${p>=0?'profit-pos':'profit-neg'}">${fmt(p)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* margin gauge by product */
+    const gaugeEl = document.getElementById('marginGauge');
+    const gData   = (d.by_product||[]).filter(p => +p.revenue > 0).slice(0,8);
+    if (!gData.length) { gaugeEl.innerHTML = '<div class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</div>'; }
+    else {
+      gaugeEl.innerHTML = gData.map(p => {
+        const m = +p.revenue > 0 ? ((+p.profit / +p.revenue)*100).toFixed(1) : 0;
+        const cls = m >= 30 ? 'good' : m >= 10 ? 'mid' : 'low';
+        return `
+        <div class="gauge-row">
+          <div class="gauge-label" title="${p.name}" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${p.name}</div>
+          <div class="margin-bar-wrap"><div class="margin-bar ${cls}" style="width:${Math.max(0,Math.min(100,m))}%"></div></div>
+          <div class="gauge-pct ${+p.profit>=0?'profit-pos':'profit-neg'}">${m}%</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* product table */
+    const tbody = document.getElementById('profitTbody');
+    const rows  = d.by_product || [];
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="10" class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>'; return; }
+    tbody.innerHTML = rows.map((p,i) => {
+      const rev  = +p.revenue || 0;
+      const cost = +p.cost    || 0;
+      const prf  = +p.profit  || 0;
+      const mgn  = rev > 0 ? (prf/rev*100).toFixed(1) : '—';
+      const hasCost = +p.cost_price > 0;
+      return `
+      <tr>
+        <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+        <td><div class="td-name">${p.name||'—'}</div></td>
+        <td style="color:#aaa;font-size:.75rem">${p.sku||'—'}</td>
+        <td style="font-weight:600">${(+p.qty||0).toLocaleString()} ຊິ້ນ</td>
+        <td>${hasCost ? fmt((rev/+p.qty).toFixed(0)) : '<span style="color:#aaa">—</span>'}</td>
+        <td>${hasCost ? fmt(p.cost_price) : '<span style="color:#e74c3c;font-size:.75rem">ຍັງບໍ່ກຳນົດ</span>'}</td>
+        <td style="font-weight:600">${fmt(rev)}</td>
+        <td>${hasCost ? fmt(cost) : '—'}</td>
+        <td class="${prf>0?'profit-pos':prf<0?'profit-neg':'profit-zero'}">${fmt(prf)}</td>
+        <td>${mgn !== '—' ? `<span class="${+mgn>=30?'profit-pos':+mgn>=10?'':'profit-neg'}">${mgn}%</span>` : '—'}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+function buildProfitExportData() {
+  const cols = [
+    {label:'#',               type:'num', w:5 },
+    {label:'ສິນຄ້າ',          type:'str', w:24},
+    {label:'SKU',             type:'str', w:12},
+    {label:'ຂາຍໄດ້ (ຊິ້ນ)',   type:'num', w:12},
+    {label:'ລາຄາ/ຊິ້ນ (₭)',  type:'num', w:14},
+    {label:'ຕົ້ນທຶນ/ຊິ້ນ (₭)', type:'num', w:14},
+    {label:'ລາຍຮັບ (₭)',      type:'num', w:14},
+    {label:'ຕົ້ນທຶນ (₭)',     type:'num', w:14},
+    {label:'ກຳໄລ (₭)',        type:'num', w:14},
+    {label:'Margin %',        type:'str', w:10},
+  ];
+  const items = (_profitData||{}).by_product || [];
+  const rows = items.map((p,i) => {
+    const rev = +p.revenue||0; const qty = Math.max(+p.qty||1,1);
+    const mgn = rev > 0 ? ((+p.profit/rev)*100).toFixed(1)+'%' : '—';
+    return [i+1, p.name, p.sku||'', +p.qty||0, Math.round(rev/qty),
+            +p.cost_price||0, Math.round(rev), Math.round(+p.cost||0),
+            Math.round(+p.profit||0), mgn];
+  });
+  const totRev  = items.reduce((s,p)=>s+(+p.revenue||0),0);
+  const totCost = items.reduce((s,p)=>s+(+p.cost||0),0);
+  const totPft  = items.reduce((s,p)=>s+(+p.profit||0),0);
+  const totMgn  = totRev > 0 ? ((totPft/totRev)*100).toFixed(1)+'%' : '—';
+  const totRow  = ['','ລວມທັງໝົດ','','','','',Math.round(totRev),Math.round(totCost),Math.round(totPft),totMgn];
+  totRow.__total = true;
+  const mLabel = _profitMonth
+    ? (() => { const [y,mo]=_profitMonth.split('-').map(Number); return `${_MONTHS_LO[mo-1]} ${y}`; })()
+    : 'ທັງໝົດ';
+  return { title:`ກຳໄລລາຍສິນຄ້າ — ${mLabel}`, cols, rows:[...rows, totRow],
+           filename:`profit_${_profitMonth || new Date().toISOString().slice(0,7)}.xlsx` };
+}
+
+/* ─── YEARLY SUMMARY TABLE ─── */
+async function loadYearlySummary() {
+  try {
+    const rows = await fetch('../api/reports.php?type=monthly').then(r => r.json());
+    const tbody = document.getElementById('yearlyTbody');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-row">ຍັງບໍ່ມີຂໍ້ມູນ</td></tr>';
+      return;
+    }
+    const mNames = ['','ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
+    const sorted = [...rows].sort((a,b) => a.month.localeCompare(b.month));
+    const totals = {total:0, transfer:0, cod:0, orders:0, cancelled:0};
+    tbody.innerHTML = sorted.map(r => {
+      const [yr, mo] = (r.month||'').split('-');
+      totals.total    += +r.total||0;
+      totals.transfer += +r.transfer_total||0;
+      totals.cod      += +r.cod_total||0;
+      totals.orders   += +r.orders||0;
+      totals.cancelled+= +r.cancelled||0;
+      return `<tr>
+        <td>${mNames[+mo]||mo} ${yr}</td>
+        <td style="color:#c9a96e;font-weight:700">${fmt(r.total)}</td>
+        <td style="color:#3498db">${fmt(r.transfer_total)}</td>
+        <td style="color:#9b59b6">${fmt(r.cod_total)}</td>
+        <td>${+r.orders||0}</td>
+        <td style="color:#e74c3c">${+r.cancelled||0}</td>
+      </tr>`;
+    }).join('') + `<tr class="yr-total">
+      <td>ລວມ</td>
+      <td style="color:#c9a96e">${fmt(totals.total)}</td>
+      <td style="color:#3498db">${fmt(totals.transfer)}</td>
+      <td style="color:#9b59b6">${fmt(totals.cod)}</td>
+      <td>${totals.orders}</td>
+      <td style="color:#e74c3c">${totals.cancelled}</td>
+    </tr>`;
+  } catch(e) { console.error(e); }
+}
+
+/* ─── INIT ─── */
+function loadAll() {
+  loadSummary();
+  loadMonthly();
+  loadTopProducts();
+  loadYearlySummary();
+  loadProfit();
+  loadOrders();
+  loadStock();
+}
+loadAll();
+
+/* ─── PRE-ORDER ─── */
+let _poData = null;
+
+async function loadPreOrders() {
+  if (_poData) { renderPreOrders(); return; } // cached
+  try {
+    _poData = await fetch('../api/reports.php?type=preorders').then(r => r.json());
+    renderPreOrders();
+  } catch(e) {
+    document.getElementById('po-detail-body').innerHTML =
+      '<tr><td colspan="10" class="empty-row">ໂຫຼດຂໍ້ມູນບໍ່ໄດ້</td></tr>';
+  }
+}
+
+function renderPreOrders() {
+  if (!_poData) return;
+  const s = _poData.summary || {};
+
+  /* KPI */
+  document.getElementById('po-lines').textContent     = Number(s.total_lines||0).toLocaleString();
+  document.getElementById('po-units').textContent     = Number(s.total_units||0).toLocaleString();
+  document.getElementById('po-value').textContent     = fmt(s.total_value);
+  document.getElementById('po-customers').textContent = Number(s.unique_customers||0).toLocaleString();
+
+  /* by product */
+  const bp = _poData.by_product || [];
+  document.getElementById('po-prod-body').innerHTML = bp.length
+    ? bp.map((p,i) => `
+      <tr>
+        <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+        <td><img src="../${p.product_image||'images/placeholder.jpg'}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #eee"></td>
+        <td class="td-name">${p.product_name||'—'}</td>
+        <td style="color:#aaa;font-size:.76rem">${p.sku||'—'}</td>
+        <td style="text-align:center">
+          <span style="background:#ede9fe;color:#5b21b6;font-weight:700;padding:3px 14px;border-radius:20px;font-size:.82rem">
+            ${p.total_units} ຊິ້ນ
+          </span>
+        </td>
+        <td style="text-align:center;color:#888">${p.order_count} ອໍເດີ</td>
+      </tr>`)
+      .join('')
+    : '<tr><td colspan="6" class="empty-row">ຍັງບໍ່ມີ Pre-Order</td></tr>';
+
+  filterPreOrders();
+}
+
+function _populatePoYears() {
+  const years = [...new Set((_poData.rows||[]).map(r => r.created_at?.slice(0,4)).filter(Boolean))].sort().reverse();
+  const sel = document.getElementById('po-year');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">ທຸກປີ</option>' + years.map(y => `<option value="${y}"${y===cur?' selected':''}>${y}</option>`).join('');
+}
+
+function clearPoFilters() {
+  ['po-year','po-month','po-search'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  const d = document.getElementById('po-day'); if(d) d.value='';
+  _populatePoYears();
+  filterPreOrders();
+}
+
+function filterPreOrders() {
+  if (!_poData) return;
+  const year  = document.getElementById('po-year')?.value  || '';
+  const month = document.getElementById('po-month')?.value || '';
+  const day   = document.getElementById('po-day')?.value   || '';   // YYYY-MM-DD
+  const q     = (document.getElementById('po-search')?.value || '').toLowerCase();
+
+  let rows = _poData.rows || [];
+
+  if (day)   rows = rows.filter(r => (r.created_at||'').slice(0,10) === day);
+  else {
+    if (year)  rows = rows.filter(r => (r.created_at||'').slice(0,4)  === year);
+    if (month) rows = rows.filter(r => (r.created_at||'').slice(5,7)  === month);
+  }
+  if (q) rows = rows.filter(r =>
+    (r.product_name||'').toLowerCase().includes(q) ||
+    (r.order_number||'').toLowerCase().includes(q) ||
+    (r.customer_name||'').toLowerCase().includes(q) ||
+    (r.customer_phone||'').includes(q)
+  );
+
+  document.getElementById('po-count').textContent = `${rows.length} ລາຍການ`;
+  const tbody = document.getElementById('po-detail-body');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty-row">ບໍ່ພົບລາຍການ</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map((r,i) => {
+    const date = new Date(r.created_at).toLocaleDateString('lo-LA',{year:'numeric',month:'short',day:'numeric'});
+    return `<tr>
+      <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+      <td><img src="../${r.product_image||'images/placeholder.jpg'}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #eee"></td>
+      <td class="td-name" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name||'—'}</td>
+      <td style="font-size:.76rem;font-weight:600;color:#5b21b6">${r.order_number}</td>
+      <td>${r.customer_name||'—'}</td>
+      <td style="color:#888;font-size:.78rem">${r.customer_phone||'—'}</td>
+      <td style="text-align:center">
+        <span style="background:#ede9fe;color:#5b21b6;font-weight:700;padding:2px 12px;border-radius:20px">${r.quantity}</span>
+      </td>
+      <td style="text-align:right;font-weight:700">${fmt(r.price)}</td>
+      <td><span class="st st-${r.status||'pending'}">${STATUS_LO[r.status]||r.status}</span></td>
+      <td style="color:#aaa;font-size:.76rem;white-space:nowrap">${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildPreOrderExportData() {
+  const allRows = ((_poData||{}).rows || []).map((r,i) => [
+    i+1, r.product_name||'', r.order_number||'',
+    r.customer_name||'', r.customer_phone||'',
+    Number(r.quantity||0), Number(r.price||0),
+    STATUS_LO[r.status]||r.status, r.created_at?.slice(0,10)||''
+  ]);
+  const cols = [
+    {label:'#',              type:'num', w:5 },
+    {label:'ສິນຄ້າ',         type:'str', w:24},
+    {label:'ເລກອໍເດີ',      type:'str', w:20},
+    {label:'ລູກຄ້າ',         type:'str', w:16},
+    {label:'ເບີໂທ',           type:'str', w:14},
+    {label:'ຈຳນວນ (ຊິ້ນ)',   type:'num', w:12},
+    {label:'ລາຄາ/ຊິ້ນ (₭)',  type:'num', w:14},
+    {label:'ສະຖານະ',         type:'str', w:14},
+    {label:'ວັນທີ',           type:'str', w:16},
+  ];
+  const total = allRows.reduce((s,r)=>s+(+r[5]||0)*(+r[6]||0),0);
+  const totRow = ['','','','','ລວມ','',total,'',''];
+  totRow.__total = true;
+  return { title:'ລາຍການ Pre-Order', cols, rows:[...allRows, totRow],
+           filename:`preorders_${new Date().toISOString().slice(0,10)}.xlsx` };
+}
+
+/* ─── EXPORT MENU CONTROLLER ─── */
+let _curExportType = null;
+
+function openExportMenu(e, type) {
+  e.stopPropagation();
+  _curExportType = type;
+  const menu = document.getElementById('export-menu');
+  const rect = e.currentTarget.getBoundingClientRect();
+  menu.style.display = 'block';
+  // position below button, aligned to right edge
+  const menuW = 230;
+  let left = rect.right - menuW;
+  if (left < 8) left = 8;
+  menu.style.top   = (rect.bottom + 6) + 'px';
+  menu.style.left  = left + 'px';
+  menu.style.right = 'auto';
+}
+
+document.addEventListener('click', () => {
+  const m = document.getElementById('export-menu');
+  if (m) m.style.display = 'none';
+});
+
+function runExport(fmt) {
+  document.getElementById('export-menu').style.display = 'none';
+  const builders = {
+    orders:   buildOrdersExportData,
+    stock:    buildStockExportData,
+    profit:   buildProfitExportData,
+    preorder: buildPreOrderExportData
+  };
+  const fn = builders[_curExportType];
+  if (!fn) return;
+  const { title, cols, rows, filename } = fn();
+  if (!rows.filter(r => !r.__total).length) { alert('ບໍ່ມີຂໍ້ມູນ'); return; }
+  if (fmt === 'excel') downloadXLSX(title, cols, rows, filename);
+  else if (fmt === 'csv') downloadCSV(title, cols, rows, filename);
+  else if (fmt === 'pdf') openPrintView(title, cols, rows);
+}
+
+/* ─── CSV DOWNLOAD ─── */
+function downloadCSV(title, cols, rows, filename) {
+  const esc = v => '"' + String(v??'').replace(/"/g,'""') + '"';
+  const head = cols.map(c => esc(c.label)).join(',');
+  const body = rows.filter(r => !r.__total)
+    .map(row => cols.map((_,ci) => esc(row[ci]??'')).join(','))
+    .join('\n');
+  const blob = new Blob(['﻿' + head + '\n' + body], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename.replace(/\.xlsx?$/i, '.csv');
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ─── PDF / PRINT VIEW ─── */
+function openPrintView(title, cols, rows) {
+  const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const today = new Date().toLocaleDateString('lo-LA',{year:'numeric',month:'long',day:'numeric'});
+  const head = cols.map(c => `<th>${esc(c.label)}</th>`).join('');
+  const body = rows.map((row,ri) => {
+    const isTot = row.__total === true;
+    const cells = cols.map((_,ci) =>
+      `<td${isTot?' class="tot"':''}>${esc(String(row[ci]??''))}</td>`
+    ).join('');
+    return `<tr class="${isTot?'tot-row':ri%2===0?'even':'odd'}">${cells}</tr>`;
+  }).join('');
+  const w = window.open('','_blank','width=980,height=680');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<title>bunnies.bunn — ${esc(title)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#111;padding:24px 32px}
+  .topbar{background:#111;color:#fff;padding:12px 20px;border-radius:10px;margin-bottom:18px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .topbar h1{font-size:13pt;font-family:Georgia,serif;color:#c9a96e;letter-spacing:.4px}
+  .topbar .date{font-size:8pt;color:rgba(255,255,255,.4)}
+  .print-btn{background:#c9a96e;color:#fff;border:none;padding:8px 22px;border-radius:6px;
+    font-size:9.5pt;font-weight:700;cursor:pointer;letter-spacing:.3px;white-space:nowrap}
+  .print-btn:hover{background:#b8935a}
+  table{width:100%;border-collapse:collapse}
+  th{background:#c9a96e;color:#fff;padding:8px 11px;text-align:left;font-size:8.5pt;
+    font-weight:700;white-space:nowrap;border:1px solid #b8935a}
+  td{padding:7px 11px;font-size:9pt;border:1px solid #f0ede8;vertical-align:middle}
+  .even td{background:#fff}.odd td{background:#fafaf8}
+  td.tot{font-weight:700}.tot-row td{background:#f5f0e8!important;font-weight:700;border-top:2px solid #d4c5a9}
+  @media print{.print-btn{display:none}body{padding:10px 16px}}
+</style></head>
+<body>
+<div class="topbar">
+  <h1>bunnies.bunn — ${esc(title)}</h1>
+  <span class="date">${esc(today)}</span>
+  <button class="print-btn" onclick="window.print()">🖨️ ພິມ / Save PDF</button>
+</div>
+<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+</body></html>`);
+  w.document.close();
+}
+</script>
+</body>
+</html>

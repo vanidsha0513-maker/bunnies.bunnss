@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ລາຍງານການສັ່ງຊື້ — bunnies.bunn</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { background:#f4f4f2; margin:0; }
+
+    /* ── SIDEBAR ── */
+    .adm-sidebar { width:220px; background:#111; min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+    .adm-logo { padding:24px 20px 20px; font-family:'Times New Roman',serif; font-size:.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; border-bottom:1px solid rgba(255,255,255,.08); }
+    .adm-logo span { color:#c9a96e; }
+    .adm-nav { padding:12px 0; flex:1; }
+    .adm-nav a { display:flex; align-items:center; gap:10px; padding:12px 20px; font-size:.82rem; color:rgba(255,255,255,.6); text-decoration:none; transition:all .18s; border-left:3px solid transparent; }
+    .adm-nav a:hover { color:#fff; background:rgba(255,255,255,.05); }
+    .adm-nav a.active { color:#c9a96e; border-left-color:#c9a96e; background:rgba(201,169,110,.08); }
+    .adm-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); }
+    .adm-footer a { display:flex; align-items:center; gap:8px; font-size:.78rem; color:rgba(255,255,255,.4); text-decoration:none; transition:color .18s; }
+    .adm-footer a:hover { color:#c9a96e; }
+
+    /* ── MAIN ── */
+    .adm-main { margin-left:220px; padding:32px; min-height:100vh; }
+    .adm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+    .adm-header h1 { font-family:'Noto Sans Lao',sans-serif; font-size:1.4rem; font-weight:700; color:#111; }
+    .adm-count { font-size:.78rem; color:#aaa; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .filter-select, .filter-input {
+      padding:9px 12px; border:1.5px solid #ddd; border-radius:8px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; background:#fff;
+      outline:none; transition:border-color .2s;
+    }
+    .filter-select:focus, .filter-input:focus { border-color:#c9a96e; }
+    .filter-input { min-width:200px; }
+
+    /* ── TABLE ── */
+    .tbl-card { background:#fff; border-radius:10px; border:1px solid #e8e4de; overflow:hidden; overflow-x:auto; }
+    .adm-table { width:100%; border-collapse:collapse; min-width:720px; }
+    .adm-table th { padding:11px 14px; text-align:left; font-size:.7rem; text-transform:uppercase; letter-spacing:1px; color:#aaa; background:#fafafa; border-bottom:1px solid #f0f0f0; font-weight:600; white-space:nowrap; }
+    .adm-table td { padding:13px 14px; border-bottom:1px solid #f7f7f7; font-size:.83rem; color:#333; vertical-align:middle; }
+    .adm-table tr:last-child td { border-bottom:none; }
+    .adm-table tr:hover td { background:#fafaf8; }
+    .td-num { font-family:'Times New Roman',serif; font-weight:700; color:#111; font-size:.82rem; }
+    .td-name { font-weight:600; }
+    .td-phone { color:#888; font-size:.78rem; }
+    .td-transfer { color:#2e7d32; font-weight:700; font-family:'Times New Roman',serif; }
+    .td-dest { color:#856404; font-family:'Times New Roman',serif; }
+
+    /* ── STATUS BADGE ── */
+    .sb { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+    .sb-pending   { background:#fff8e1; color:#f39c12; }
+    .sb-confirmed { background:#e3f2fd; color:#1565c0; }
+    .sb-shipped   { background:#e8f5e9; color:#2e7d32; }
+    .sb-completed { background:#111;    color:#fff;    }
+    .sb-cancelled { background:#fde8e8; color:#c0392b; }
+
+    /* ── DETAIL BUTTON ── */
+    .btn-detail {
+      background:none; border:1.5px solid #ddd; color:#555;
+      padding:5px 12px; border-radius:6px; font-family:'Noto Sans Lao',sans-serif;
+      font-size:.75rem; cursor:pointer; transition:all .15s; white-space:nowrap;
+    }
+    .btn-detail:hover { border-color:#111; color:#111; }
+
+    /* ── MODAL ── */
+    .adm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.52); z-index:3000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s; padding:16px; }
+    .adm-overlay.open { opacity:1; pointer-events:auto; }
+    .adm-modal { background:#fff; width:100%; max-width:660px; border-radius:12px; max-height:90vh; overflow-y:auto; transform:translateY(20px); transition:transform .25s; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .adm-overlay.open .adm-modal { transform:translateY(0); }
+    .modal-head { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:1; }
+    .modal-head-left { display:flex; align-items:center; gap:12px; }
+    .modal-head h2 { font-size:.95rem; font-weight:700; color:#111; }
+    .modal-close { background:none; border:none; font-size:1.4rem; cursor:pointer; color:#bbb; }
+    .modal-close:hover { color:#555; }
+    .modal-body { padding:20px 24px 24px; }
+
+    /* info grid */
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+    .info-item {}
+    .info-lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.8px; color:#aaa; margin-bottom:3px; font-weight:600; }
+    .info-val { font-size:.88rem; color:#222; }
+    .info-val.bold { font-weight:700; }
+    .info-full { grid-column:1/-1; }
+
+    /* items table */
+    .items-sec { margin-bottom:18px; }
+    .items-sec h4 { font-size:.75rem; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:10px; font-weight:700; }
+    .items-tbl { width:100%; border-collapse:collapse; }
+    .items-tbl th { font-size:.7rem; text-transform:uppercase; letter-spacing:.8px; color:#aaa; padding:6px 10px; text-align:left; border-bottom:1px solid #f0f0f0; }
+    .items-tbl td { padding:9px 10px; border-bottom:1px solid #f7f7f7; font-size:.82rem; }
+    .items-tbl tr:last-child td { border-bottom:none; }
+
+    /* totals box */
+    .totals-box { background:#fafafa; border:1px solid #f0f0f0; border-radius:8px; padding:14px 16px; margin-bottom:18px; }
+    .tot-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:.83rem; }
+    .tot-row.transfer { color:#2e7d32; }
+    .tot-row.dest { color:#856404; }
+    .tot-row.grand { font-size:1rem; font-weight:700; color:#111; padding-top:10px; border-top:1px solid #eee; margin-top:6px; }
+    .tot-badge { font-size:.65rem; padding:2px 7px; border-radius:20px; margin-left:6px; }
+    .tb-green  { background:#e8f5e9; color:#2e7d32; }
+    .tb-yellow { background:#fff8e1; color:#856404; }
+
+    /* slip */
+    .slip-wrap { margin-bottom:18px; }
+    .slip-lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.8px; color:#aaa; margin-bottom:8px; font-weight:600; }
+    .slip-img { width:120px; height:120px; object-fit:cover; border-radius:8px; cursor:pointer; border:1px solid #e8e4de; transition:opacity .2s; }
+    .slip-img:hover { opacity:.85; }
+    .slip-none { color:#bbb; font-size:.82rem; }
+
+    /* status update */
+    .status-row { display:flex; align-items:center; gap:10px; padding-top:16px; border-top:1px solid #f0f0f0; flex-wrap:wrap; }
+    .status-row label { font-size:.75rem; text-transform:uppercase; letter-spacing:.8px; color:#888; font-weight:700; }
+    .status-sel { padding:8px 12px; border:1.5px solid #ddd; border-radius:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; outline:none; }
+    .status-sel:focus { border-color:#c9a96e; }
+    .btn-save-status { background:#111; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; cursor:pointer; transition:background .2s; }
+    .btn-save-status:hover { background:#333; }
+
+    /* lightbox */
+    .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:9999; display:none; align-items:center; justify-content:center; }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:90vw; max-height:90vh; border-radius:4px; }
+    .lb-close { position:absolute; top:20px; right:28px; color:rgba(255,255,255,.8); font-size:2rem; cursor:pointer; background:none; border:none; line-height:1; }
+    .lb-close:hover { color:#fff; }
+
+    /* empty */
+    .tbl-empty { text-align:center; padding:48px; color:#bbb; font-size:.85rem; }
+
+    /* ── INVOICE MODAL ── */
+    .inv-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
+      z-index:5000; display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity .2s; padding:16px;
+    }
+    .inv-overlay.open { opacity:1; pointer-events:auto; }
+    .inv-modal {
+      background:#fff; width:100%; max-width:680px; border-radius:12px;
+      max-height:92vh; overflow-y:auto;
+      box-shadow:0 24px 64px rgba(0,0,0,.25);
+      transform:translateY(16px); transition:transform .2s;
+    }
+    .inv-overlay.open .inv-modal { transform:translateY(0); }
+
+    .inv-toolbar {
+      padding:12px 20px; border-bottom:1px solid #eee;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .inv-toolbar-title { font-size:.82rem; color:#888; font-weight:600; letter-spacing:.5px; }
+    .inv-toolbar-btns { display:flex; gap:8px; }
+    .btn-inv-print {
+      background:#111; color:#fff; border:none; padding:8px 18px;
+      border-radius:7px; font-family:'Noto Sans Lao',sans-serif; font-size:.82rem;
+      cursor:pointer; transition:background .2s;
+    }
+    .btn-inv-print:hover { background:#333; }
+    .btn-inv-close {
+      background:none; border:1.5px solid #ddd; color:#555; padding:8px 14px;
+      border-radius:7px; font-family:'Noto Sans Lao',sans-serif; font-size:.82rem;
+      cursor:pointer; transition:all .15s;
+    }
+    .btn-inv-close:hover { border-color:#999; color:#111; }
+
+    /* Invoice paper */
+    .inv-paper { padding:40px 48px; font-family:'Noto Sans Lao',sans-serif; }
+    .inv-brand { font-family:'Times New Roman',serif; font-size:26px; font-weight:700; letter-spacing:2px; }
+    .inv-brand span { color:#c9a96e; }
+    .inv-head-row { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:32px; }
+    .inv-head-right { text-align:right; }
+    .inv-title { font-size:13px; text-transform:uppercase; letter-spacing:2px; color:#888; font-weight:700; margin-bottom:6px; }
+    .inv-num { font-size:20px; font-weight:700; color:#111; }
+    .inv-date { font-size:12px; color:#aaa; margin-top:4px; }
+
+    .inv-divider { height:1px; background:#eee; margin:20px 0; }
+
+    .inv-info-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px; }
+    .inv-info-block .inv-lbl { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#aaa; font-weight:700; margin-bottom:5px; }
+    .inv-info-block .inv-val { font-size:14px; color:#222; line-height:1.5; }
+    .inv-info-block .inv-val b { font-weight:700; }
+
+    .inv-items-title { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#aaa; font-weight:700; margin-bottom:10px; }
+    .inv-items-tbl { width:100%; border-collapse:collapse; }
+    .inv-items-tbl th {
+      font-size:10px; text-transform:uppercase; letter-spacing:.8px;
+      color:#aaa; padding:8px 10px; text-align:left;
+      border-bottom:2px solid #eee; font-weight:700;
+    }
+    .inv-items-tbl th:last-child { text-align:right; }
+    .inv-items-tbl td { padding:11px 10px; font-size:13px; border-bottom:1px solid #f5f5f5; color:#333; }
+    .inv-items-tbl td:last-child { text-align:right; font-weight:700; }
+    .inv-items-tbl tr:last-child td { border-bottom:none; }
+
+    .inv-totals { margin-top:20px; padding-top:16px; border-top:2px solid #eee; }
+    .inv-tot-row { display:flex; justify-content:space-between; padding:4px 0; font-size:13px; color:#666; }
+    .inv-tot-grand {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:12px; padding-top:12px; border-top:1px solid #ddd;
+      font-size:18px; font-weight:700; color:#111;
+    }
+    .inv-tot-grand span:last-child { color:#c9a96e; }
+
+    .inv-footer { margin-top:36px; text-align:center; font-size:11px; color:#bbb; line-height:1.8; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body > *:not(#inv-overlay) { display:none !important; }
+      #inv-overlay { position:static !important; background:none !important; opacity:1 !important; pointer-events:auto !important; padding:0 !important; display:block !important; }
+      .inv-modal { box-shadow:none !important; max-height:none !important; border-radius:0 !important; transform:none !important; }
+      .inv-toolbar { display:none !important; }
+      .inv-paper { padding:20px 32px !important; }
+    }
+
+    /* ── EXPANDABLE ROW ── */
+    .order-row { cursor:pointer; }
+    .order-row:hover td { background:#f5f3ef !important; }
+    .order-row td:first-child { position:relative; }
+    .row-expand-icon {
+      display:inline-block; width:16px; height:16px; border-radius:50%;
+      background:#f0ede8; color:#888; text-align:center; line-height:16px;
+      font-size:10px; margin-right:6px; transition:transform .2s; flex-shrink:0;
+    }
+    .order-row.expanded .row-expand-icon { transform:rotate(90deg); background:#c9a96e; color:#fff; }
+    .expand-row { display:none; }
+    .expand-row.open { display:table-row; }
+    .expand-inner {
+      background:#fafaf8; border-bottom:1px solid #f0ede8;
+      padding:0 14px 14px 42px;
+    }
+    .expand-items-tbl { width:100%; border-collapse:collapse; margin-top:10px; }
+    .expand-items-tbl th {
+      font-size:.67rem; text-transform:uppercase; letter-spacing:.8px;
+      color:#bbb; padding:6px 10px; text-align:left; border-bottom:1px solid #eee;
+    }
+    .expand-items-tbl td { padding:8px 10px; font-size:.81rem; border-bottom:1px solid #f5f5f5; }
+    .expand-items-tbl tr:last-child td { border-bottom:none; }
+    .expand-total-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 10px 0; border-top:1px solid #eee; margin-top:4px;
+      font-size:.88rem; font-weight:700; color:#111;
+    }
+    .expand-loading { padding:14px 10px; color:#bbb; font-size:.8rem; }
+    .pay-badge {
+      display:inline-block; font-size:.65rem; padding:2px 8px;
+      border-radius:20px; font-weight:700; margin-left:6px;
+    }
+    .pay-transfer { background:#e3f2fd; color:#1565c0; }
+    .pay-cod      { background:#e8f5e9; color:#2e7d32; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="adm-sidebar">
+  <div class="adm-logo">bunnies<span>.bunn</span></div>
+  <nav class="adm-nav">
+    <a href="dashboard.html"><span>📊</span> Dashboard</a>
+    <a href="products.html"><span>🛍️</span> ຈັດການສິນຄ້າ</a>
+    <a href="categories.html"><span>🗂️</span> ໝວດໝູ່</a>
+    <a href="orders.html" class="active"><span>📦</span> ລາຍງານການສັ່ງຊື້</a>
+    <a href="reports.html"><span>📈</span> ລາຍງານສະຫຼຸບ</a>
+    <a href="preorders.html"><span>🟣</span> Pre-Order</a>
+    <a href="banners.html"><span>🖼️</span> Banners</a>
+  </nav>
+  <div class="adm-footer"><a href="../index.html">🌐 ໄປໜ້າຮ້ານ</a></div>
+</div>
+
+<!-- MAIN -->
+<div class="adm-main">
+  <div class="adm-header">
+    <h1>ລາຍງານການສັ່ງຊື້ທັງໝົດ</h1>
+    <span class="adm-count" id="order-count"></span>
+  </div>
+
+  <div class="filter-bar">
+    <select class="filter-select" id="filter-status" onchange="applyFilter()">
+      <option value="">ທຸກສະຖານະ</option>
+      <option value="pending">ລໍຖ້າ</option>
+      <option value="confirmed">ຢືນຢັນແລ້ວ</option>
+      <option value="shipped">ກຳລັງສົ່ງ</option>
+      <option value="completed">ສຳເລັດ</option>
+      <option value="cancelled">ຍົກເລີກ</option>
+    </select>
+    <input class="filter-input" type="text" id="filter-search"
+           placeholder="ຄົ້ນຫາຊື່ / ເລກທີ..." oninput="applyFilter()">
+  </div>
+
+  <div class="tbl-card">
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>ເລກທີ</th>
+          <th>ລູກຄ້າ</th>
+          <th>ຍອດລວມ</th>
+          <th>ວິທີຈ່າຍ</th>
+          <th>ຂົນສົ່ງ</th>
+          <th>ສະຖານະ</th>
+          <th>ວັນທີ</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orders-body">
+        <tr><td colspan="8" class="tbl-empty">ກຳລັງໂຫຼດ...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="adm-overlay" id="detail-modal" onclick="if(event.target===this)closeModal()">
+  <div class="adm-modal">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <h2 id="modal-order-num"></h2>
+        <span id="modal-order-status"></span>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-lbl">ລູກຄ້າ</div>
+          <div class="info-val bold" id="m-name"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-lbl">ເບີໂທ</div>
+          <div class="info-val" id="m-phone"></div>
+        </div>
+        <div class="info-item info-full">
+          <div class="info-lbl">ທີ່ຢູ່ຈັດສົ່ງ</div>
+          <div class="info-val" id="m-address"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-lbl">ບໍລິສັດຂົນສົ່ງ</div>
+          <div class="info-val bold" id="m-shipping-company"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-lbl">ວິທີຊຳລະ</div>
+          <div class="info-val" id="m-payment-method"></div>
+        </div>
+        <div class="info-item">
+          <div class="info-lbl">ເລກສະມາຊິກ</div>
+          <div class="info-val" id="m-member-number"></div>
+        </div>
+        <div class="info-item info-full" id="m-note-wrap">
+          <div class="info-lbl">ໝາຍເຫດ</div>
+          <div class="info-val" id="m-note" style="color:#888"></div>
+        </div>
+      </div>
+
+      <div class="items-sec">
+        <h4>ລາຍການສິນຄ້າ</h4>
+        <table class="items-tbl">
+          <thead><tr><th>ສິນຄ້າ</th><th>ລາຄາ</th><th>ຈຳນວນ</th><th>ລວມ</th></tr></thead>
+          <tbody id="m-items"><tr><td colspan="4" style="color:#bbb;padding:12px">ກຳລັງໂຫຼດ...</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="totals-box">
+        <div class="tot-row transfer">
+          <span>ຍອດໂອນ <span class="tot-badge tb-green">ໂອນ</span></span>
+          <span id="m-items-total"></span>
+        </div>
+        <div class="tot-row dest">
+          <span>ຄ່າຂົນສົ່ງ / ຍອດປາຍທາງ <span class="tot-badge tb-yellow">COD</span></span>
+          <span id="m-shipping-fee"></span>
+        </div>
+        <div class="tot-row grand">
+          <span>ລວມທັງໝົດ</span>
+          <span id="m-total"></span>
+        </div>
+      </div>
+
+      <div class="slip-wrap">
+        <div class="slip-lbl">ຫຼັກຖານໂອນ</div>
+        <img id="m-slip" src="" class="slip-img" onclick="openLightbox(this.src)"
+             onerror="this.style.display='none';document.getElementById('m-no-slip').style.display='block'">
+        <span id="m-no-slip" class="slip-none">ບໍ່ມີຫຼັກຖານ</span>
+      </div>
+
+      <div class="status-row">
+        <label>ສະຖານະ</label>
+        <select class="status-sel" id="m-status">
+          <option value="pending">ລໍຖ້າ</option>
+          <option value="confirmed">ຢືນຢັນແລ້ວ</option>
+          <option value="shipped">ກຳລັງສົ່ງ</option>
+          <option value="completed">ສຳເລັດ</option>
+          <option value="cancelled">ຍົກເລີກ</option>
+        </select>
+        <button class="btn-save-status" onclick="updateStatus()">ບັນທຶກ</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE MODAL -->
+<div class="inv-overlay" id="inv-overlay" onclick="if(event.target===this)closeInvoice()">
+  <div class="inv-modal">
+    <div class="inv-toolbar">
+      <span class="inv-toolbar-title">ໃບບິນ / Invoice</span>
+      <div class="inv-toolbar-btns">
+        <button class="btn-inv-print" onclick="window.print()">🖨 ພິມ</button>
+        <button class="btn-inv-close" onclick="closeInvoice()">ປິດ</button>
+      </div>
+    </div>
+    <div class="inv-paper" id="inv-paper">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lb-close" onclick="closeLightbox()">×</button>
+  <img id="lightbox-img" src="" alt="Slip">
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+let allOrders = [], currentId = null;
+
+const statusLabel = s => ({ pending:'ລໍຖ້າ', confirmed:'ຢືນຢັນ', shipped:'ກຳລັງສົ່ງ', completed:'ສຳເລັດ', cancelled:'ຍົກເລີກ' })[s] || s;
+const statusCls   = s => ({ pending:'sb-pending', confirmed:'sb-confirmed', shipped:'sb-shipped', completed:'sb-completed', cancelled:'sb-cancelled' })[s] || '';
+const shippingMap = { anousith:'🚚 ອານຸສິດ', houngaloun:'🚛 ຮຸ່ງອາລຸນ' };
+const pmMap       = { transfer:'💳 ໂອນເງິນ', cod:'📦 COD ຈ່າຍປາຍທາງ' };
+
+function formatDate(dt) {
+  if (!dt) return '-';
+  return new Date(dt).toLocaleDateString('lo-LA', { year:'numeric', month:'short', day:'numeric' });
+}
+
+async function loadOrders() {
+  try {
+    const r = await fetch('../api/orders.php');
+    allOrders = await r.json();
+    applyFilter();
+  } catch {
+    document.getElementById('orders-body').innerHTML =
+      '<tr><td colspan="8" class="tbl-empty">⚠️ ເຊື່ອມ API ບໍ່ໄດ້</td></tr>';
+  }
+}
+
+function applyFilter() {
+  const status = document.getElementById('filter-status').value;
+  const search = document.getElementById('filter-search').value.toLowerCase();
+  const filtered = allOrders.filter(o => {
+    const ms = !status || o.status === status;
+    const mq = !search || (o.order_number||'').toLowerCase().includes(search) || (o.customer_name||'').toLowerCase().includes(search);
+    return ms && mq;
+  });
+  renderTable(filtered);
+  document.getElementById('order-count').textContent = filtered.length + ' ລາຍການ';
+}
+
+function renderTable(orders) {
+  if (!orders.length) {
+    document.getElementById('orders-body').innerHTML =
+      '<tr><td colspan="8" class="tbl-empty">ບໍ່ພົບລາຍງານການສັ່ງຊື້</td></tr>';
+    return;
+  }
+  document.getElementById('orders-body').innerHTML = orders.map(o => {
+    const total = Number(o.total_amount ?? 0);
+    const pm    = o.payment_method || 'transfer';
+    const pmBadge = pm === 'cod'
+      ? '<span class="pay-badge pay-cod">COD</span>'
+      : '<span class="pay-badge pay-transfer">ໂອນ</span>';
+    return `
+      <tr class="order-row" id="row-${o.id}" onclick="toggleRow(${o.id})">
+        <td class="td-num">
+          <span class="row-expand-icon">▶</span>${o.order_number}
+        </td>
+        <td>
+          <div class="td-name">${o.customer_name}</div>
+          <div class="td-phone">${o.customer_phone || ''}</div>
+        </td>
+        <td style="font-weight:700;font-family:'Times New Roman',serif;color:#111">
+          ₭${total.toLocaleString()}
+        </td>
+        <td>${pmBadge}</td>
+        <td style="font-size:.78rem;color:#666">${shippingMap[o.shipping_company] || o.shipping_company || '-'}</td>
+        <td><span class="sb ${statusCls(o.status)}">${statusLabel(o.status)}</span></td>
+        <td style="font-size:.78rem;color:#aaa">${formatDate(o.created_at)}</td>
+        <td style="white-space:nowrap">
+          <button class="btn-detail" onclick="event.stopPropagation();openInvoice(${o.id})" style="margin-right:4px">ໃບບິນ</button>
+          <button class="btn-detail" onclick="event.stopPropagation();openDetail(${o.id})">ອັບເດດສະຖານະ</button>
+        </td>
+      </tr>
+      <tr class="expand-row" id="expand-${o.id}">
+        <td colspan="8" style="padding:0">
+          <div class="expand-inner" id="expand-inner-${o.id}">
+            <div class="expand-loading">ກຳລັງໂຫຼດ...</div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+const loadedItems = {};
+
+async function toggleRow(id) {
+  const row     = document.getElementById('row-' + id);
+  const expRow  = document.getElementById('expand-' + id);
+  const inner   = document.getElementById('expand-inner-' + id);
+  const isOpen  = expRow.classList.contains('open');
+
+  // close all others
+  document.querySelectorAll('.expand-row.open').forEach(r => r.classList.remove('open'));
+  document.querySelectorAll('.order-row.expanded').forEach(r => r.classList.remove('expanded'));
+
+  if (isOpen) return; // toggle off
+
+  row.classList.add('expanded');
+  expRow.classList.add('open');
+
+  if (loadedItems[id]) { renderItems(id, loadedItems[id]); return; }
+
+  inner.innerHTML = '<div class="expand-loading">ກຳລັງໂຫຼດລາຍການ...</div>';
+  try {
+    const r     = await fetch('../api/orders.php?id=' + id);
+    const items = await r.json();
+    loadedItems[id] = items;
+    renderItems(id, items);
+  } catch {
+    inner.innerHTML = '<div class="expand-loading" style="color:#e74c3c">ໂຫຼດລາຍການບໍ່ໄດ້</div>';
+  }
+}
+
+function renderItems(id, items) {
+  const o     = allOrders.find(x => x.id == id);
+  const total = Number(o?.total_amount ?? 0);
+  const pm    = o?.payment_method || 'transfer';
+  const pmLabel = pm === 'cod' ? '💵 ເກັບປາຍທາງ (COD)' : '💳 ໂອນເງິນ';
+  const inner = document.getElementById('expand-inner-' + id);
+  if (!items || !items.length) {
+    inner.innerHTML = '<div class="expand-loading">ບໍ່ມີລາຍການສິນຄ້າ</div>'; return;
+  }
+  inner.innerHTML = `
+    <table class="expand-items-tbl">
+      <thead><tr><th>ສິນຄ້າ</th><th>ລາຄາ/ຊິ້ນ</th><th>ຈຳນວນ</th><th>ລວມ</th></tr></thead>
+      <tbody>
+        ${items.map(it => {
+          const preBadge = parseInt(it.is_preorder)
+            ? `<span style="margin-left:6px;padding:1px 6px;font-size:.6rem;font-weight:700;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:4px">📦 PRE</span>`
+            : '';
+          return `<tr>
+            <td>${it.product_name || 'ສິນຄ້າ #' + it.product_id}${preBadge}</td>
+            <td>₭${Number(it.price).toLocaleString()}</td>
+            <td>${it.quantity} ຊິ້ນ</td>
+            <td style="font-weight:700">₭${Number(it.price * it.quantity).toLocaleString()}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div class="expand-total-row">
+      <span style="font-size:.75rem;color:#888;font-weight:400">${pmLabel}</span>
+      <span>ລວມ: ₭${total.toLocaleString()}</span>
+    </div>`;
+}
+
+async function openDetail(id) {
+  currentId = id;
+  const o = allOrders.find(x => x.id == id);
+  document.getElementById('modal-order-num').textContent = o.order_number;
+  document.getElementById('modal-order-status').innerHTML = `<span class="sb ${statusCls(o.status)}">${statusLabel(o.status)}</span>`;
+  document.getElementById('m-name').textContent    = o.customer_name;
+  document.getElementById('m-phone').textContent   = o.customer_phone || '-';
+  document.getElementById('m-address').textContent = o.customer_address || '-';
+  document.getElementById('m-shipping-company').textContent = shippingMap[o.shipping_company] || o.shipping_company || '-';
+  const pm = o.payment_method || 'transfer';
+  const pmEl = document.getElementById('m-payment-method');
+  pmEl.textContent = pmMap[pm] || pm;
+  pmEl.style.color = pm === 'cod' ? '#856404' : '#2e7d32';
+  document.getElementById('m-member-number').textContent = o.member_number || '-';
+  const note = (o.note || '').trim();
+  document.getElementById('m-note').textContent = note || '-';
+  document.getElementById('m-note-wrap').style.display = note ? '' : 'none';
+  document.getElementById('m-status').value = o.status;
+
+  const iT = Number(o.items_total ?? o.total_amount ?? 0);
+  const sF = Number(o.shipping_fee ?? 0);
+  document.getElementById('m-items-total').textContent  = '₭' + iT.toLocaleString();
+  document.getElementById('m-shipping-fee').textContent = '₭' + sF.toLocaleString();
+  document.getElementById('m-total').textContent        = '₭' + Number(o.total_amount||0).toLocaleString();
+
+  const slipEl = document.getElementById('m-slip');
+  const noSlip = document.getElementById('m-no-slip');
+  if (o.payment_slip) {
+    slipEl.src = '../' + o.payment_slip; slipEl.style.display = 'block'; noSlip.style.display = 'none';
+  } else {
+    slipEl.style.display = 'none'; noSlip.style.display = 'inline';
+  }
+
+  document.getElementById('m-items').innerHTML = '<tr><td colspan="4" style="color:#bbb;padding:12px 10px">ກຳລັງໂຫຼດ...</td></tr>';
+  document.getElementById('detail-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const r = await fetch(`../api/orders.php?id=${id}`);
+    const items = await r.json();
+    document.getElementById('m-items').innerHTML = (items||[]).map(it => {
+      const preBadge = parseInt(it.is_preorder)
+        ? `<span style="display:inline-block;margin-left:6px;padding:1px 7px;font-size:.62rem;font-weight:700;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:4px;vertical-align:middle">📦 PRE-ORDER</span>`
+        : '';
+      return `<tr>
+        <td>${it.product_name || 'ສິນຄ້າ #' + it.product_id}${preBadge}</td>
+        <td>₭${Number(it.price).toLocaleString()}</td>
+        <td>${it.quantity}</td>
+        <td style="font-weight:700">₭${Number(it.price * it.quantity).toLocaleString()}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="color:#bbb;padding:10px">ບໍ່ມີລາຍການ</td></tr>';
+  } catch {
+    document.getElementById('m-items').innerHTML = '<tr><td colspan="4" style="color:#e74c3c;padding:10px">ໂຫຼດລາຍການບໍ່ໄດ້</td></tr>';
+  }
+}
+
+async function updateStatus() {
+  const status = document.getElementById('m-status').value;
+  const r = await fetch('../api/orders.php', {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ id: currentId, status })
+  });
+  const d = await r.json();
+  if (d.success) {
+    const idx = allOrders.findIndex(o => o.id == currentId);
+    if (idx > -1) allOrders[idx].status = status;
+    applyFilter();
+    showToast('ອັບເດດສະຖານະສຳເລັດ!');
+    closeModal();
+  }
+}
+
+function closeModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  document.body.style.overflow = '';
+  currentId = null;
+}
+
+function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox()    { document.getElementById('lightbox').classList.remove('open'); }
+
+async function openInvoice(id) {
+  const o = allOrders.find(x => x.id == id);
+  if (!o) return;
+  const paper = document.getElementById('inv-paper');
+  paper.innerHTML = '<div style="padding:40px;text-align:center;color:#bbb">ກຳລັງໂຫຼດ...</div>';
+  document.getElementById('inv-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  let items = loadedItems[id];
+  if (!items) {
+    try {
+      const r = await fetch('../api/orders.php?id=' + id);
+      items = await r.json();
+      loadedItems[id] = items;
+    } catch { items = []; }
+  }
+
+  const total  = Number(o.total_amount || 0);
+  const pm     = o.payment_method || 'transfer';
+  const pmText = pm === 'cod' ? '📦 ຈ່າຍປາຍທາງ (COD)' : '💳 ໂອນເງິນ';
+  const dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString('lo-LA', { year:'numeric', month:'long', day:'numeric' }) : '-';
+
+  const itemsRows = (items||[]).map(it => `
+    <tr>
+      <td>${it.product_name || 'ສິນຄ້າ #' + it.product_id}</td>
+      <td style="text-align:center">${it.quantity}</td>
+      <td style="text-align:right">₭${Number(it.price).toLocaleString()}</td>
+      <td>₭${Number(it.price * it.quantity).toLocaleString()}</td>
+    </tr>`).join('');
+
+  paper.innerHTML = `
+    <div class="inv-head-row">
+      <div>
+        <div class="inv-brand">bunnies<span>.bunn</span></div>
+        <div style="font-size:11px;color:#aaa;margin-top:4px;letter-spacing:.5px">bunnies.bunn — ຮ້ານສິນຄ້າອອນໄລ</div>
+      </div>
+      <div class="inv-head-right">
+        <div class="inv-title">ໃບບິນ</div>
+        <div class="inv-num">${o.order_number}</div>
+        <div class="inv-date">${dateStr}</div>
+      </div>
+    </div>
+
+    <div class="inv-divider"></div>
+
+    <div class="inv-info-grid">
+      <div class="inv-info-block">
+        <div class="inv-lbl">ລູກຄ້າ</div>
+        <div class="inv-val">
+          <b>${o.customer_name}</b><br>
+          ${o.customer_phone || ''}<br>
+          <span style="color:#666">${o.customer_address || ''}</span>
+        </div>
+      </div>
+      <div class="inv-info-block">
+        <div class="inv-lbl">ຂໍ້ມູນການສັ່ງ</div>
+        <div class="inv-val">
+          ຂົນສົ່ງ: <b>${shippingMap[o.shipping_company] || o.shipping_company || '-'}</b><br>
+          ຊຳລະ: <b>${pmText}</b><br>
+          ສະຖານະ: <span style="font-weight:700">${statusLabel(o.status)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="inv-items-title">ລາຍການສິນຄ້າ</div>
+    <table class="inv-items-tbl">
+      <thead>
+        <tr>
+          <th>ສິນຄ້າ</th>
+          <th style="text-align:center">ຈຳນວນ</th>
+          <th style="text-align:right">ລາຄາ/ຊິ້ນ</th>
+          <th style="text-align:right">ລວມ</th>
+        </tr>
+      </thead>
+      <tbody>${itemsRows || '<tr><td colspan="4" style="color:#bbb">ບໍ່ມີລາຍການ</td></tr>'}</tbody>
+    </table>
+
+    <div class="inv-totals">
+      <div class="inv-tot-grand">
+        <span>ລວມທັງໝົດ</span>
+        <span>₭${total.toLocaleString()}</span>
+      </div>
+    </div>
+
+    <div class="inv-footer">
+      ຂອບໃຈທີ່ໃຊ້ບໍລິການ bunnies.bunn<br>
+      ຖ້າມີຄຳຖາມ ກະລຸນາຕິດຕໍ່ທີ່ຮ້ານ
+    </div>`;
+}
+
+function closeInvoice() {
+  document.getElementById('inv-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+loadOrders();
+</script>
+</body>
+</html>

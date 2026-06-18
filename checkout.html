@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ສັ່ງຊື້ - bunnies.bunn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { background:#f4f4f2; }
+
+    /* ── NAV ── */
+    .co-nav {
+      background:#fff; border-bottom:1px solid #e8e4de;
+      padding:0 24px; height:56px; display:flex; align-items:center;
+      justify-content:space-between; position:sticky; top:0; z-index:100;
+    }
+    .co-nav-logo {
+      font-family:'Times New Roman',serif; font-size:1.25rem; font-weight:700;
+      letter-spacing:2.5px; text-transform:uppercase;
+      color:#000; white-space:nowrap; cursor:pointer;
+    }
+    .co-nav-logo span { color:#000; }
+    .co-back { font-size:13px; color:#888; text-decoration:none; display:flex;
+               align-items:center; gap:4px; }
+    .co-back:hover { color:#333; }
+
+    /* ── WRAPPER ── */
+    .co-wrap {
+      max-width:920px; margin:0 auto; padding:36px 32px 80px;
+    }
+
+    /* ── SECTION CARD ── */
+    .co-card {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de;
+      padding:30px; margin-bottom:18px;
+    }
+    .co-card:last-child { margin-bottom:0; }
+    .co-section-title {
+      font-size:14px; font-weight:700; text-transform:uppercase;
+      letter-spacing:1px; color:#888; margin-bottom:20px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .co-section-title::after {
+      content:''; flex:1; height:1px; background:#eee;
+    }
+    .step-num {
+      width:22px; height:22px; border-radius:50%; background:#111;
+      color:#fff; font-size:11px; display:inline-flex;
+      align-items:center; justify-content:center; flex-shrink:0;
+    }
+
+    /* ── FORM ── */
+    .co-field { margin-bottom:16px; }
+    .co-field label {
+      display:block; font-size:12px; font-weight:600; color:#555;
+      text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;
+    }
+    .co-field input, .co-field textarea {
+      width:100%; padding:13px 16px; border:1.5px solid #ddd;
+      border-radius:8px; font-family:'Phetsarath OT',serif; font-size:16px;
+      outline:none; transition:border-color .2s, box-shadow .2s;
+      background:#fff;
+    }
+    .co-field input:focus, .co-field textarea:focus {
+      border-color:#c9a96e; box-shadow:0 0 0 3px rgba(201,169,110,.12);
+    }
+    .co-field textarea { resize:vertical; }
+    .co-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    @media(max-width:480px){ .co-row { grid-template-columns:1fr; } }
+
+    /* ── OPTION CARDS ── */
+    .opt-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .opt-card {
+      border:2px solid #e0e0e0; border-radius:10px; padding:14px;
+      cursor:pointer; transition:all .18s; user-select:none;
+      display:flex; align-items:center; gap:10px;
+    }
+    .opt-card:hover { border-color:#bbb; background:#fafafa; }
+    .opt-card.selected { border-color:#111; background:#fafafa; }
+    .opt-card.pay-transfer.selected { border-color:#2e7d32; background:#f1fdf2; }
+    .opt-card.pay-cod.selected      { border-color:#b08040; background:#fffdf3; }
+    .opt-card input[type=radio] { accent-color:#111; flex-shrink:0; }
+    .opt-card-icon { font-size:22px; line-height:1; }
+    .opt-card-body .opt-label { font-size:16px; font-weight:600; }
+    .opt-card-body .opt-sub   { font-size:13px; color:#999; margin-top:2px; }
+
+    /* ── UPLOAD ── */
+    .upload-box {
+      border:2px dashed #ddd; border-radius:10px; padding:32px 20px;
+      text-align:center; cursor:pointer; transition:border-color .2s, background .2s;
+      background:#fafafa;
+    }
+    .upload-box:hover { border-color:#c9a96e; background:#fdf9f4; }
+    .upload-box p { color:#aaa; font-size:14px; margin:0; }
+    .upload-box .upload-icon { font-size:28px; margin-bottom:8px; }
+    #slip-preview { max-width:100%; max-height:200px; border-radius:8px; display:none; margin:0 auto; }
+
+    /* ── SIDEBAR ── */
+    .co-sidebar { margin-top:0; }
+    .summary-card {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de; overflow:hidden;
+    }
+    .summary-head {
+      background:#111; color:#fff; padding:16px 20px; font-size:13px;
+      font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+    }
+    .summary-body { padding:20px; }
+    .sum-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 0; font-size:15px; border-bottom:1px solid #f0f0f0;
+    }
+    .sum-item:last-child { border-bottom:none; }
+    .sum-item-name { color:#444; }
+    .sum-item-price { font-weight:600; }
+    .sum-divider { height:1px; background:#eee; margin:12px 0; }
+    .sum-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:7px 0; font-size:15px;
+    }
+    .sum-row.transfer { color:#2e7d32; font-weight:600; }
+    .sum-row.dest     { color:#856404; font-weight:600; }
+    .sum-row.total    { font-size:18px; font-weight:700; color:#111; padding-top:12px; }
+    .sum-badge {
+      font-size:10px; padding:2px 7px; border-radius:20px;
+      margin-left:6px; vertical-align:middle;
+    }
+    .badge-green  { background:#e8f5e9; color:#2e7d32; }
+    .badge-yellow { background:#fff8e1; color:#856404; }
+    .badge-grey   { background:#f0f0f0; color:#666; }
+
+    /* ── PAYMENT QR ── */
+    #qr-section { transition:all .2s; }
+
+    .qr-main {
+      display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    /* QR code box */
+    .qr-code-box {
+      flex-shrink:0; width:188px; height:188px;
+      border:2px solid #e8e4de; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      background:#fff; overflow:hidden; padding:8px;
+      box-shadow:0 2px 12px rgba(0,0,0,.06);
+    }
+    .qr-code-box canvas { width:100%!important; height:100%!important; }
+    .qr-code-box img    { width:100%; height:100%; object-fit:contain; }
+
+    /* right: amount + hint */
+    .qr-right {
+      flex:1; min-width:150px; display:flex; flex-direction:column; gap:10px;
+    }
+    .qr-amount-card {
+      background:linear-gradient(135deg,#1a3c2e,#2d5a40);
+      border-radius:12px; padding:18px 20px; color:#fff;
+    }
+    .qr-label    { font-size:.6rem; letter-spacing:1.2px; text-transform:uppercase; opacity:.65; margin-bottom:6px; }
+    .qr-total    { font-size:1.75rem; font-weight:800; line-height:1; letter-spacing:.5px; }
+    .qr-currency { font-size:.75rem; font-weight:600; opacity:.75; margin-top:4px; }
+    .qr-copy-btn {
+      margin-top:12px; display:flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22);
+      color:rgba(255,255,255,.9); border-radius:7px; padding:7px 12px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.72rem; cursor:pointer;
+      transition:background .15s; width:100%;
+    }
+    .qr-copy-btn:hover { background:rgba(255,255,255,.22); }
+    .qr-copy-btn.copied { background:rgba(255,255,255,.28); }
+
+    /* bank info row */
+    .qr-bank-info {
+      background:#f8fdf9; border:1px solid #c8e6c9; border-radius:10px;
+      padding:12px 16px; display:flex; flex-direction:column; gap:7px;
+    }
+    .qr-bank-row {
+      display:flex; align-items:center; gap:8px; font-size:.8rem;
+    }
+    .qr-bank-icon { font-size:.9rem; flex-shrink:0; }
+    .qr-bank-key  { color:#888; min-width:70px; flex-shrink:0; }
+    .qr-bank-val  { font-weight:700; color:#111; }
+    .qr-bank-val.num { font-family:monospace; letter-spacing:.5px; }
+
+    /* notice */
+    .qr-notice {
+      display:flex; align-items:flex-start; gap:8px;
+      background:#fffbf0; border:1px solid #ffe082; border-radius:8px;
+      padding:10px 14px; font-size:.75rem; color:#856404; line-height:1.6;
+      margin-top:4px;
+    }
+
+    /* ── PLACE ORDER BTN ── */
+    .btn-place {
+      width:100%; padding:18px; background:#111; color:#fff; border:none;
+      border-radius:10px; font-family:'Noto Sans Lao',sans-serif; font-size:17px;
+      font-weight:700; cursor:pointer; margin-top:20px;
+      transition:background .2s, transform .1s;
+    }
+    .btn-place:hover { background:#333; }
+    .btn-place:active { transform:scale(.98); }
+
+    /* ── REVIEW MODAL ── */
+    .review-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.52); backdrop-filter:blur(3px);
+      -webkit-backdrop-filter:blur(3px);
+      z-index:3900; display:none; align-items:flex-end; justify-content:center;
+    }
+    .review-overlay.open { display:flex; }
+    .review-sheet {
+      background:#fff; width:100%; max-width:520px;
+      border-radius:22px 22px 0 0;
+      padding:0 0 32px;
+      box-shadow:0 -12px 60px rgba(0,0,0,.18);
+      max-height:88vh; display:flex; flex-direction:column;
+      animation:sheetUp .3s cubic-bezier(.34,1.3,.64,1);
+    }
+    @keyframes sheetUp {
+      from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1}
+    }
+    .rv-handle {
+      width:40px; height:4px; background:#e0dcd6; border-radius:2px;
+      margin:12px auto 0;
+    }
+    .rv-head {
+      padding:16px 24px 14px; border-bottom:1px solid #f0ece6;
+      display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+    }
+    .rv-title { font-size:1rem; font-weight:700; color:#111; }
+    .rv-close-btn {
+      width:32px; height:32px; border-radius:50%; border:none;
+      background:#f5f2ee; font-size:1rem; cursor:pointer; color:#888;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .rv-body { overflow-y:auto; padding:16px 24px; flex:1; }
+    .rv-section { margin-bottom:18px; }
+    .rv-sec-label {
+      font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px;
+      color:#aaa; margin-bottom:8px;
+    }
+    .rv-items { display:flex; flex-direction:column; gap:8px; }
+    .rv-item {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 12px; background:#faf9f7; border-radius:10px;
+    }
+    .rv-item-img {
+      width:42px; height:42px; border-radius:8px; object-fit:cover; flex-shrink:0;
+      background:#eee;
+    }
+    .rv-item-name { font-size:.82rem; font-weight:600; color:#111; flex:1; }
+    .rv-item-qty  { font-size:.75rem; color:#aaa; }
+    .rv-item-price{ font-size:.85rem; font-weight:700; color:#111; flex-shrink:0; }
+    .rv-info-rows { display:flex; flex-direction:column; gap:6px; }
+    .rv-info-row {
+      display:flex; gap:8px; font-size:.82rem;
+    }
+    .rv-info-key { color:#999; min-width:80px; flex-shrink:0; }
+    .rv-info-val { font-weight:600; color:#111; }
+    .rv-divider { border:none; border-top:1px solid #f0ece6; margin:14px 0; }
+    .rv-total-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 16px; background:#fdf9f3; border-radius:12px;
+      border:1.5px solid #e8d9b8;
+    }
+    .rv-total-key { font-size:.85rem; color:#888; }
+    .rv-total-val { font-size:1.3rem; font-weight:800; color:#111; }
+    .rv-delivery-note {
+      display:flex; align-items:center; gap:8px;
+      margin:0 24px 10px; padding:10px 14px;
+      background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px;
+      font-size:.78rem; color:#166534; line-height:1.5; flex-shrink:0;
+    }
+    .rv-delivery-note strong { font-weight:700; }
+    .rv-stock-warn {
+      display:none; flex-direction:column; gap:6px;
+      margin:0 24px 10px; padding:12px 14px;
+      border-radius:10px; font-size:.78rem; flex-shrink:0;
+    }
+    .rv-stock-warn.show  { display:flex; }
+    .rv-stock-warn.has-out   { background:#eef2ff; border:1.5px solid #a5b4fc; color:#3730a3; }
+    .rv-stock-warn.has-low   { background:#fff7ed; border:1.5px solid #fdba74; color:#9a3412; }
+    .rv-stock-warn-title { font-weight:700; display:flex; align-items:center; gap:6px; font-size:.82rem; }
+    .rv-stock-warn-item  { padding-left:22px; line-height:1.6; }
+    .rv-item.out-of-stock { opacity:.65; }
+    .rv-item-out-tag {
+      font-size:.62rem; font-weight:700; border-radius:4px; padding:2px 6px; flex-shrink:0;
+    }
+    .rv-item-out-tag.pre { color:#4338ca; background:#e0e7ff; }
+    .rv-item-out-tag.low { color:#c2410c; background:#ffedd5; }
+    /* status tick / cross */
+    .rv-item-status {
+      width:20px; height:20px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800;
+    }
+    .rv-item-status.ok  { background:#dcfce7; color:#16a34a; }
+    .rv-item-status.out { background:#fee2e2; color:#dc2626; }
+    /* remove button */
+    .rv-item-remove {
+      width:24px; height:24px; border-radius:50%; border:none; background:#f5f2ee;
+      color:#aaa; font-size:.75rem; cursor:pointer; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .15s, color .15s;
+    }
+    .rv-item-remove:hover { background:#fee2e2; color:#dc2626; }
+    .rv-actions {
+      display:flex; gap:10px; padding:0 24px; flex-shrink:0; margin-top:4px;
+    }
+    .rv-btn-cancel {
+      flex:1; padding:15px; background:#fff; border:1.5px solid #e0dcd6;
+      border-radius:12px; font-family:'Noto Sans Lao',sans-serif; font-size:.9rem;
+      color:#888; cursor:pointer; transition:background .15s;
+    }
+    .rv-btn-cancel:hover { background:#f5f2ee; }
+    .rv-btn-confirm {
+      flex:2; padding:15px; background:#111; border:none;
+      border-radius:12px; font-family:'Noto Sans Lao',sans-serif; font-size:.9rem;
+      font-weight:700; color:#fff; cursor:pointer; transition:background .15s, transform .1s;
+    }
+    .rv-btn-confirm:hover  { background:#333; }
+    .rv-btn-confirm:active { transform:scale(.98); }
+    .rv-btn-confirm:disabled { background:#aaa; cursor:default; }
+    .rv-slip-thumb {
+      width:52px; height:52px; border-radius:8px; object-fit:cover;
+      border:1px solid #e0dcd6; flex-shrink:0;
+    }
+
+    /* ── SUCCESS MODAL ── */
+    .success-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
+      z-index:4000; display:none; align-items:center; justify-content:center; padding:20px;
+    }
+    .success-overlay.open { display:flex; }
+    .success-box {
+      background:#fff; width:100%; max-width:360px; border-radius:18px;
+      padding:40px 28px 28px; text-align:center;
+      box-shadow:0 24px 64px rgba(0,0,0,.22);
+      animation:popIn .32s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn {
+      from{transform:scale(.75);opacity:0} to{transform:scale(1);opacity:1}
+    }
+    .suc-icon {
+      width:76px; height:76px; border-radius:50%;
+      background:linear-gradient(135deg,#c9a96e,#a07840);
+      display:flex; align-items:center; justify-content:center;
+      font-size:34px; color:#fff; margin:0 auto 20px;
+    }
+    .suc-title  { font-size:22px; font-weight:700; margin-bottom:4px; }
+    .suc-sub    { font-size:13px; color:#999; margin-bottom:6px; }
+    .suc-num    {
+      display:inline-block; background:#f5f0e8; color:#8a6430;
+      padding:5px 16px; border-radius:20px; font-weight:700;
+      font-size:14px; margin-bottom:24px; letter-spacing:.5px;
+    }
+    .suc-amounts { display:flex; gap:10px; margin-bottom:24px; }
+    .suc-amt {
+      flex:1; padding:14px 10px; border-radius:10px; font-size:13px; text-align:center;
+    }
+    .suc-amt.t { background:#f1fdf2; border:1px solid #c8e6c9; }
+    .suc-amt.d { background:#fffdf3; border:1px solid #ffe082; }
+    .suc-amt .al { font-size:11px; color:#888; margin-bottom:4px; }
+    .suc-amt .av { font-weight:700; font-size:16px; }
+    .suc-amt.t .av { color:#2e7d32; }
+    .suc-amt.d .av { color:#856404; }
+    .suc-cod {
+      background:#fffdf3; border:1px solid #ffe082;
+      border-radius:10px; padding:16px; margin-bottom:24px;
+    }
+    .suc-cod .cl { font-size:12px; color:#999; margin-bottom:4px; }
+    .suc-cod .cv { font-size:20px; font-weight:700; color:#856404; }
+    .btn-suc-ok {
+      width:100%; background:#111; color:#fff; border:none; padding:14px;
+      border-radius:10px; font-family:'Noto Sans Lao',sans-serif; font-size:15px;
+      cursor:pointer; transition:background .2s;
+    }
+    .btn-suc-ok:hover { background:#333; }
+
+    /* ── font size boost ── */
+    .co-back          { font-size:15px; }
+    .co-section-title { font-size:16px; }
+    .co-field label   { font-size:14px; }
+    .co-field input, .co-field textarea { font-size:18px; }
+    .opt-card-body .opt-label { font-size:18px; }
+    .opt-card-body .opt-sub   { font-size:15px; }
+    .sum-row          { font-size:17px; }
+    .sum-row.total    { font-size:20px; }
+    .btn-place        { font-size:19px; }
+    .btn-suc-ok       { font-size:17px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="co-nav">
+  <div class="co-nav-logo" onclick="location.href='index.html'">bunnies<span>.bunn</span></div>
+  <a href="cart.html" class="co-back">← ກັບກະຕ່າ</a>
+</nav>
+
+<div class="co-wrap">
+
+  <!-- ══════════════════ LEFT FORM ══════════════════ -->
+  <div class="co-left">
+
+    <!-- 1. ຂໍ້ມູນລູກຄ້າ -->
+    <div class="co-card">
+      <div class="co-section-title">
+        <span class="step-num">1</span> ຂໍ້ມູນລູກຄ້າ
+      </div>
+      <div class="co-row">
+        <div class="co-field">
+          <label>ຊື່ລູກຄ້າ *</label>
+          <input type="text" id="c-name" placeholder="ຊື່ - ນາມສະກຸນ" required>
+        </div>
+        <div class="co-field">
+          <label>ເບີໂທ *</label>
+          <input type="tel" id="c-phone" placeholder="020 XXXX XXXX" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ຂົນສົ່ງ -->
+    <div class="co-card">
+      <div class="co-section-title">
+        <span class="step-num">2</span> ບໍລິສັດຂົນສົ່ງ
+      </div>
+      <div class="opt-grid">
+        <div class="opt-card" id="ship-card-anousith" onclick="selectShipping('anousith')">
+          <input type="radio" name="shipping" value="anousith" id="ship-anousith">
+          <div class="opt-card-icon">🚚</div>
+          <div class="opt-card-body">
+            <div class="opt-label">ອານຸສິດ</div>
+            <div class="opt-sub">Anousith Express</div>
+          </div>
+        </div>
+        <div class="opt-card" id="ship-card-houngaloun" onclick="selectShipping('houngaloun')">
+          <input type="radio" name="shipping" value="houngaloun" id="ship-houngaloun">
+          <div class="opt-card-icon">🚛</div>
+          <div class="opt-card-body">
+            <div class="opt-label">ຮຸ່ງອາລຸນ</div>
+            <div class="opt-sub">Houng Aloun</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="co-field" style="margin-top:14px">
+        <label>ທີ່ຢູ່ຈັດສົ່ງ *</label>
+        <textarea id="c-address" rows="3" placeholder="ບ້ານ, ເມືອງ, ແຂວງ..." required></textarea>
+      </div>
+      <div class="co-field" style="margin-bottom:0">
+        <label>ໝາຍເຫດ</label>
+        <textarea id="c-note" rows="2" placeholder="ໝາຍເຫດເພີ່ມເຕີມ (ບໍ່ຈຳເປັນ)"></textarea>
+      </div>
+    </div>
+
+    <!-- 3. ວິທີຊຳລະ -->
+    <div class="co-card">
+      <div class="co-section-title">
+        <span class="step-num">3</span> ວິທີຊຳລະເງິນ
+      </div>
+      <div class="opt-grid">
+        <div class="opt-card pay-transfer selected" id="pay-card-transfer" onclick="selectPayment('transfer')">
+          <input type="radio" name="payment" value="transfer" id="pay-transfer" checked>
+          <div class="opt-card-icon">💳</div>
+          <div class="opt-card-body">
+            <div class="opt-label">ໂອນເງິນ</div>
+            <div class="opt-sub">ໂອນກ່ອນ</div>
+          </div>
+        </div>
+        <div class="opt-card pay-cod" id="pay-card-cod" onclick="selectPayment('cod')">
+          <input type="radio" name="payment" value="cod" id="pay-cod">
+          <div class="opt-card-icon">📦</div>
+          <div class="opt-card-body">
+            <div class="opt-label">ຈ່າຍປາຍທາງ</div>
+            <div class="opt-sub">ຈ່າຍຕອນຮັບ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3b. QR ໂອນເງິນ -->
+    <div class="co-card" id="qr-section">
+      <div class="co-section-title">
+        <span class="step-num" style="background:#2e7d32">✦</span> QR ໂອນເງິນ
+      </div>
+
+      <!-- QR + amount side-by-side -->
+      <div class="qr-main">
+        <div class="qr-code-box" id="qr-canvas-wrap">
+          <div id="qr-canvas"></div>
+        </div>
+        <div class="qr-right">
+          <div class="qr-amount-card">
+            <div class="qr-label">ຍອດທີ່ຕ້ອງໂອນ</div>
+            <div class="qr-total" id="qr-total-text">₭0</div>
+            <div class="qr-currency">ກີບ (LAK)</div>
+            <button class="qr-copy-btn" id="qr-copy-btn" onclick="copyQrAmount()">
+              <span id="qr-copy-icon">⧉</span>
+              <span id="qr-copy-lbl">ສຳເນົາຈຳນວນ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- bank info -->
+      <div class="qr-bank-info">
+        <div class="qr-bank-row">
+          <span class="qr-bank-icon">🏦</span>
+          <span class="qr-bank-key">ທະນາຄານ</span>
+          <span class="qr-bank-val" id="qr-bank-name">BCEL</span>
+        </div>
+        <div class="qr-bank-row">
+          <span class="qr-bank-icon">👤</span>
+          <span class="qr-bank-key">ຊື່ບັນຊີ</span>
+          <span class="qr-bank-val" id="qr-acct-name">bunnies.bunn</span>
+        </div>
+        <div class="qr-bank-row">
+          <span class="qr-bank-icon">💳</span>
+          <span class="qr-bank-key">ເລກບັນຊີ</span>
+          <span class="qr-bank-val num" id="qr-acct-num">010-2-12345-6</span>
+        </div>
+      </div>
+
+      <!-- notice -->
+      <div class="qr-notice">
+        <span>⚠️</span>
+        <span>ສະແກນ QR ຫຼື ໂອນຕາມຂໍ້ມູນດ້ານເທິງ ຈາກນັ້ນແນບຫຼັກຖານໂອນດ້ານລຸ່ມ. ຄຳສັ່ງຊື້ຈະໄດ້ຮັບການຢືນຢັນຫຼັງຈາກກວດສອບການໂອນ.</span>
+      </div>
+    </div>
+
+    <!-- 4. ຫຼັກຖານໂອນ -->
+    <div class="co-card" id="slip-section">
+      <div class="co-section-title">
+        <span class="step-num">4</span> ຫຼັກຖານໂອນເງິນ
+      </div>
+      <div class="upload-box" id="upload-area" onclick="document.getElementById('slip-file').click()">
+        <div class="upload-icon">📎</div>
+        <p>ຄລິກເພື່ອອັບໂຫຼດສະລິບ</p>
+        <img id="slip-preview" src="">
+      </div>
+      <input type="file" id="slip-file" accept="image/*" style="display:none" onchange="previewSlip(event)">
+    </div>
+
+  </div><!-- /co-left -->
+
+  <!-- ══════════════════ RIGHT SIDEBAR ══════════════════ -->
+  <div class="co-sidebar">
+    <div class="summary-card">
+      <div class="summary-head">ສຳຈັດຄຳສັ່ງ</div>
+      <div class="summary-body">
+        <div id="order-summary-items"></div>
+        <div class="sum-divider"></div>
+        <div id="order-summary-totals"></div>
+        <button class="btn-place" onclick="reviewOrder()">ຢືນຢັນການສັ່ງຊື້ →</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /co-wrap -->
+
+<!-- ══════════════════ REVIEW MODAL ══════════════════ -->
+<div class="review-overlay" id="review-modal" onclick="reviewClose(event)">
+  <div class="review-sheet" onclick="event.stopPropagation()">
+    <div class="rv-handle"></div>
+    <div class="rv-head">
+      <div class="rv-title">ກວດສອບຄຳສັ່ງຊື້</div>
+      <button class="rv-close-btn" onclick="reviewCancel()">✕</button>
+    </div>
+    <div class="rv-body">
+      <!-- Items -->
+      <div class="rv-section">
+        <div class="rv-sec-label">ລາຍການສິນຄ້າ</div>
+        <div class="rv-items" id="rv-items"></div>
+      </div>
+      <hr class="rv-divider">
+      <!-- Customer & shipping -->
+      <div class="rv-section">
+        <div class="rv-sec-label">ຂໍ້ມູນຜູ້ສັ່ງ</div>
+        <div class="rv-info-rows" id="rv-info"></div>
+      </div>
+      <hr class="rv-divider">
+      <!-- Total -->
+      <div class="rv-total-row">
+        <span class="rv-total-key">ລວມທັງໝົດ</span>
+        <span class="rv-total-val" id="rv-total">₭0</span>
+      </div>
+    </div>
+    <div class="rv-stock-warn" id="rv-stock-warn">
+      <div class="rv-stock-warn-title">⚠️ ສິນຄ້າບາງໂຕໝົດສາງ</div>
+      <div id="rv-stock-warn-list"></div>
+    </div>
+    <div class="rv-delivery-note">
+      <span>🚚</span>
+      <span>ຫຼັງຈາກຢືນຢັນຄຳສັ່ງຊື້ ສິນຄ້າຈະຮອດພາຍໃນ <strong>2–3 ວັນ</strong></span>
+    </div>
+    <div class="rv-actions">
+      <button class="rv-btn-cancel" onclick="reviewCancel()">ຍົກເລີກ</button>
+      <button class="rv-btn-confirm" id="rv-confirm-btn" onclick="placeOrder()">ບັນທຶກ ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SUCCESS MODAL ══════════════════ -->
+<div class="success-overlay" id="success-modal">
+  <div class="success-box">
+    <div class="suc-icon">✓</div>
+    <div class="suc-title">ສັ່ງຊື້ສຳເລັດ!</div>
+    <div class="suc-sub">ເລກທີ່ສັ່ງຊື້</div>
+    <div class="suc-num" id="suc-ordernum"></div>
+    <div id="suc-transfer-block" class="suc-amounts">
+      <div class="suc-amt t">
+        <div class="al">ຍອດໂອນ</div>
+        <div class="av" id="suc-transfer"></div>
+      </div>
+      <div class="suc-amt d">
+        <div class="al">ຍອດປາຍທາງ</div>
+        <div class="av" id="suc-dest"></div>
+      </div>
+    </div>
+    <div id="suc-cod-block" class="suc-cod" style="display:none">
+      <div class="cl">ຈ່າຍທັງໝົດຕອນຮັບສິນຄ້າ</div>
+      <div class="cv" id="suc-cod-total"></div>
+    </div>
+    <button class="btn-suc-ok" onclick="successOk()">ຕົກລົງ</button>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+let slipBase64 = '', qrInstance = null;
+
+/* ── PRE-FILL FROM SESSION ── */
+(function() {
+  try {
+    const u = JSON.parse(localStorage.getItem('bunn_user'));
+    if (!u) return;
+    const nameEl  = document.getElementById('c-name');
+    const phoneEl = document.getElementById('c-phone');
+    if (nameEl  && !nameEl.value  && u.name)  nameEl.value  = u.name;
+    if (phoneEl && !phoneEl.value && u.phone) phoneEl.value = u.phone;
+  } catch {}
+})();
+
+/* ── SHIPPING ── */
+function selectShipping(val) {
+  document.getElementById('ship-' + val).checked = true;
+  document.querySelectorAll('[id^="ship-card-"]').forEach(c => c.classList.remove('selected'));
+  document.getElementById('ship-card-' + val).classList.add('selected');
+  showSummary();
+}
+
+/* ── PAYMENT ── */
+function selectPayment(val) {
+  document.getElementById('pay-' + val).checked = true;
+  ['transfer','cod'].forEach(v => document.getElementById('pay-card-' + v).classList.remove('selected'));
+  document.getElementById('pay-card-' + val).classList.add('selected');
+  document.getElementById('slip-section').style.display = val === 'transfer' ? '' : 'none';
+  showSummary();
+}
+
+/* ── SLIP ── */
+function previewSlip(e) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = document.getElementById('slip-preview');
+    img.src = ev.target.result; img.style.display = 'block'; slipBase64 = ev.target.result;
+    document.querySelector('#upload-area p').style.display = 'none';
+    document.querySelector('#upload-area .upload-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(e.target.files[0]);
+}
+
+/* ── SUMMARY ── */
+function showSummary() {
+  const cart       = JSON.parse(localStorage.getItem('cart') || '[]');
+  const grandTotal = cart.reduce((s, i) => s + i.price * (i.qty || i.quantity || 1), 0);
+  const isCod      = document.querySelector('input[name="payment"]:checked')?.value === 'cod';
+  const transferAmt = isCod ? 0 : grandTotal;
+  const destAmt     = isCod ? grandTotal : 0;
+
+  document.getElementById('order-summary-items').innerHTML = cart.map(i =>
+    `<div class="sum-item">
+       <span class="sum-item-name">${i.name || i.name_lo} <span style="color:#aaa">×${i.qty||i.quantity||1}</span></span>
+       <span class="sum-item-price">₭${Number(i.price*(i.qty||i.quantity||1)).toLocaleString()}</span>
+     </div>`
+  ).join('');
+
+  document.getElementById('order-summary-totals').innerHTML = `
+    <div class="sum-row total">
+      <span>ລວມທັງໝົດ</span>
+      <span>₭${grandTotal.toLocaleString()}</span>
+    </div>
+    <div class="sum-row" style="font-size:12px;color:#888;padding-top:4px">
+      <span>${isCod ? '💵 ຈ່າຍປາຍທາງ (COD)' : '💳 ໂອນກ່ອນ'}</span>
+      <span>₭${grandTotal.toLocaleString()}</span>
+    </div>
+  `;
+
+  // Update QR code with grand total
+  updatePaymentQR(grandTotal, isCod);
+}
+
+/* ── BANK ACCOUNT CONFIG ── */
+const QR_BANK = { name: 'BCEL', acctName: 'bunnies.bunn', acctNum: '010-2-12345-6' };
+
+let _qrAmount = 0;
+
+function updatePaymentQR(amount, isCod) {
+  const section = document.getElementById('qr-section');
+  if (isCod) { section.style.display = 'none'; return; }
+  section.style.display = '';
+
+  _qrAmount = amount;
+  document.getElementById('qr-total-text').textContent = '₭' + amount.toLocaleString();
+  document.getElementById('qr-bank-name').textContent  = QR_BANK.name;
+  document.getElementById('qr-acct-name').textContent  = QR_BANK.acctName;
+  document.getElementById('qr-acct-num').textContent   = QR_BANK.acctNum;
+
+  const wrap = document.getElementById('qr-canvas');
+  wrap.innerHTML = '';
+  if (typeof QRCode === 'undefined') return;
+
+  const qrText = `${QR_BANK.acctName}\n${QR_BANK.name} ${QR_BANK.acctNum}\nAmount: ${amount} LAK`;
+
+  new QRCode(wrap, {
+    text: qrText,
+    width: 170,
+    height: 170,
+    colorDark: '#111111',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
+function copyQrAmount() {
+  if (!_qrAmount) return;
+  navigator.clipboard.writeText(String(_qrAmount)).then(() => {
+    const lbl  = document.getElementById('qr-copy-lbl');
+    const icon = document.getElementById('qr-copy-icon');
+    const btn  = document.getElementById('qr-copy-btn');
+    lbl.textContent  = 'ສຳເນົາແລ້ວ!';
+    icon.textContent = '✓';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      lbl.textContent  = 'ສຳເນົາຈຳນວນ';
+      icon.textContent = '⧉';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {});
+}
+
+/* ── REVIEW ORDER ── */
+const SHIP_LABELS = { laopost:'ລາວໂພດ', bcel:'BCEL ພັດສະດຸ', houngaloun:'ຮຸ່ງອາລຸນ' };
+const PAY_LABELS  = { transfer:'ໂອນເງິນກ່ອນ', cod:'ຈ່າຍປາຍທາງ (COD)' };
+
+let _rvStockMap = {};  /* cached stock, reused by rvRemoveItem */
+
+function _rvRenderItems(cart) {
+  const preorderItems = [], lowItems = [];
+  document.getElementById('rv-items').innerHTML = cart.map((item, idx) => {
+    const qty   = item.qty || item.quantity || 1;
+    const stk   = _rvStockMap[String(item.id)] ?? null;
+    const name_ = item.name || item.name_lo || '—';
+    const isOut = stk !== null && stk <= 0;
+    const isLow = stk !== null && stk > 0 && qty > stk;
+
+    const statusDot = isOut
+      ? `<span class="rv-item-status out">✕</span>`
+      : `<span class="rv-item-status ok">✓</span>`;
+
+    let extraTag = '';
+    if (isOut) {
+      extraTag = `<span class="rv-item-out-tag pre">📦 Pre-Order</span>`;
+      preorderItems.push(name_);
+    } else if (isLow) {
+      extraTag = `<span class="rv-item-out-tag low">ເຫຼືອ ${stk}</span>`;
+      lowItems.push({ name: name_, stock: stk, qty });
+    }
+
+    const itemId = String(item.id) + (item.color ? '_' + item.color : '');
+    return `<div class="rv-item${isOut?' out-of-stock':''}" id="rv-row-${idx}">
+      ${statusDot}
+      ${item.image ? `<img class="rv-item-img" src="${item.image}" onerror="this.style.display='none'">` : ''}
+      <span class="rv-item-name">${name_}</span>
+      <span class="rv-item-qty">×${qty}</span>
+      ${extraTag}
+      <span class="rv-item-price">₭${Number(item.price*qty).toLocaleString()}</span>
+      ${isOut ? `<button class="rv-item-remove" onclick="rvRemoveItem(${idx})">✕</button>` : ''}
+    </div>`;
+  }).join('');
+
+  /* total */
+  const grandTotal = cart.reduce((s,i)=>s+i.price*(i.qty||i.quantity||1),0);
+  document.getElementById('rv-total').textContent = '₭' + grandTotal.toLocaleString();
+
+  /* banner */
+  const warnBox  = document.getElementById('rv-stock-warn');
+  const warnList = document.getElementById('rv-stock-warn-list');
+  if (preorderItems.length || lowItems.length) {
+    warnBox.classList.add('show');
+    warnBox.classList.toggle('has-out', preorderItems.length > 0);
+    warnBox.classList.toggle('has-low', preorderItems.length === 0 && lowItems.length > 0);
+    let html = '';
+    if (preorderItems.length) {
+      html += `<div class="rv-stock-warn-title">📦 ມີລາຍການ Pre-Order — ຈັດສົ່ງພາຍໃນ 7–14 ວັນ</div>`;
+      html += preorderItems.map(n => `<div class="rv-stock-warn-item">• <strong>${n}</strong> — ໝົດຊົ່ວຄາວ ສາມາດ Pre-Order ໄດ້</div>`).join('');
+    }
+    if (lowItems.length) {
+      html += lowItems.map(w => `<div class="rv-stock-warn-item">⚠ <strong>${w.name}</strong> — ສັ່ງ ${w.qty} ຊິ້ນ ແຕ່ຍັງເຫຼືອ ${w.stock} ຊິ້ນ</div>`).join('');
+    }
+    warnList.innerHTML = html;
+  } else {
+    warnBox.classList.remove('show','has-out','has-low');
+    warnList.innerHTML = '';
+  }
+
+  /* confirm button */
+  const confirmBtn = document.getElementById('rv-confirm-btn');
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = preorderItems.length ? '📦 ຢືນຢັນ Pre-Order' : 'ບັນທຶກ ✓';
+
+  return { preorderItems, lowItems };
+}
+
+function rvRemoveItem(idx) {
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.splice(idx, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  if (typeof updateCartBadge === 'function') updateCartBadge();
+  showSummary();
+  if (!cart.length) { reviewCancel(); return; }
+  _rvRenderItems(cart);
+}
+
+async function reviewOrder() {
+  const name    = document.getElementById('c-name').value.trim();
+  const phone   = document.getElementById('c-phone').value.trim();
+  const address = document.getElementById('c-address').value.trim();
+  if (!name||!phone||!address){ showToast('ກະລຸນາຕື່ມຂໍ້ມູນທີ່ຈຳເປັນ','error'); return; }
+  const cart = JSON.parse(localStorage.getItem('cart')||'[]');
+  if (!cart.length){ showToast('ກະຕ່າຍັງຫວ່າງ','error'); return; }
+  const shippingEl = document.querySelector('input[name="shipping"]:checked');
+  if (!shippingEl){ showToast('ກະລຸນາເລືອກບໍລິສັດຂົນສົ່ງ','error'); return; }
+  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value||'transfer';
+  const isCod = paymentMethod === 'cod';
+  if (!isCod&&!slipBase64){ showToast('ກະລຸນາແນບຫຼັກຖານໂອນ','error'); return; }
+
+  /* fetch stock once and cache */
+  const ids = [...new Set(cart.map(i => i.id))].join(',');
+  _rvStockMap = {};
+  try {
+    const sd = await fetch(`api/products.php?action=check_stock&ids=${ids}`).then(r=>r.json());
+    sd.forEach(p => { _rvStockMap[String(p.id)] = Number(p.stock ?? 0); });
+  } catch {}
+
+  _rvRenderItems(cart);
+
+  /* build info rows */
+  const slipThumb = !isCod && slipBase64
+    ? `<img class="rv-slip-thumb" src="${slipBase64}">`
+    : '';
+  document.getElementById('rv-info').innerHTML = `
+    <div class="rv-info-row"><span class="rv-info-key">ຊື່</span><span class="rv-info-val">${name}</span></div>
+    <div class="rv-info-row"><span class="rv-info-key">ເບີໂທ</span><span class="rv-info-val">${phone}</span></div>
+    <div class="rv-info-row"><span class="rv-info-key">ທີ່ຢູ່</span><span class="rv-info-val">${address}</span></div>
+    <div class="rv-info-row"><span class="rv-info-key">ຂົນສົ່ງ</span><span class="rv-info-val">${SHIP_LABELS[shippingEl.value]||shippingEl.value}</span></div>
+    <div class="rv-info-row"><span class="rv-info-key">ຊຳລະ</span><span class="rv-info-val" style="display:flex;align-items:center;gap:8px">${PAY_LABELS[paymentMethod]||paymentMethod}${slipThumb}</span></div>`;
+
+  document.getElementById('review-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function reviewCancel() {
+  document.getElementById('review-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function reviewClose(e) {
+  if (e.target === document.getElementById('review-modal')) reviewCancel();
+}
+
+/* ── PLACE ORDER (called from review sheet) ── */
+async function placeOrder() {
+  const name    = document.getElementById('c-name').value.trim();
+  const phone   = document.getElementById('c-phone').value.trim();
+  const address = document.getElementById('c-address').value.trim();
+  const cart    = JSON.parse(localStorage.getItem('cart')||'[]');
+  const shippingEl = document.querySelector('input[name="shipping"]:checked');
+  const grandTotal = cart.reduce((s,i)=>s+i.price*(i.qty||i.quantity||1),0);
+  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value||'transfer';
+  const isCod = paymentMethod === 'cod';
+
+  const confirmBtn = document.getElementById('rv-confirm-btn');
+  confirmBtn.disabled = true; confirmBtn.textContent = 'ກຳລັງດຳເນີນ...';
+
+  let slipPath = '';
+  if (slipBase64) {
+    const blob = await fetch(slipBase64).then(r=>r.blob());
+    const fd   = new FormData(); fd.append('image', blob, 'slip.jpg');
+    const r    = await fetch('api/upload.php', {method:'POST', body:fd});
+    slipPath   = (await r.json()).path || '';
+  }
+  let memberId = null;
+  try { const u = JSON.parse(localStorage.getItem('bunn_user')); memberId = u?.id || null; } catch {}
+
+  const res  = await fetch('api/orders.php', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({name, phone, address, note: document.getElementById('c-note').value,
+      total: grandTotal, items_total: grandTotal, shipping_fee: 0,
+      shipping_company: shippingEl.value,
+      payment_method: paymentMethod, slip: slipPath,
+      member_id: memberId, items: cart})});
+  const data = await res.json();
+
+  confirmBtn.disabled = false; confirmBtn.textContent = 'ບັນທຶກ ✓';
+
+  if (data.success) {
+    reviewCancel();
+    localStorage.removeItem('cart');
+    showSuccessModal(data.order_number, isCod, grandTotal);
+  } else {
+    showToast('ຜິດພາດ: '+(data.error||'ກະລຸນາລອງໃໝ່'), 'error');
+  }
+}
+
+function showSuccessModal(orderNum,isCod,totalAmt) {
+  document.getElementById('suc-ordernum').textContent=orderNum;
+  if (isCod) {
+    document.getElementById('suc-transfer-block').style.display='none';
+    document.getElementById('suc-cod-block').style.display='';
+    document.getElementById('suc-cod-total').textContent='₭'+totalAmt.toLocaleString();
+  } else {
+    document.getElementById('suc-transfer-block').style.display='flex';
+    document.getElementById('suc-cod-block').style.display='none';
+    document.getElementById('suc-transfer').textContent='₭'+totalAmt.toLocaleString();
+    document.getElementById('suc-dest').textContent='—';
+  }
+  document.getElementById('success-modal').classList.add('open');
+}
+function successOk() { document.getElementById('success-modal').classList.remove('open'); location.href='index.html'; }
+
+showSummary();
+updateCartBadge();
+</script>
+</body>
+</html>

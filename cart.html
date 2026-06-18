@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ກະຕ່າສິນຄ້າ — bunnies.bunn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background:#f4f4f2; }
+
+    /* ── NAV ── */
+    .co-nav {
+      background:#fff; border-bottom:1px solid #e8e4de;
+      padding:0 24px; height:56px; display:flex; align-items:center;
+      justify-content:space-between; position:sticky; top:0; z-index:100;
+    }
+    .co-nav-logo {
+      font-family:'Times New Roman',serif; font-size:1.25rem; font-weight:700;
+      letter-spacing:2.5px; text-transform:uppercase;
+      text-decoration:none; color:#000; white-space:nowrap;
+    }
+    .co-nav-logo span { color:#000; }
+    .nav-right { display:flex; align-items:center; gap:16px; }
+    .nav-link { font-size:13px; color:#666; text-decoration:none; transition:color .2s; }
+    .nav-link:hover { color:#111; }
+
+    /* ── WRAP ── */
+    .ct-wrap {
+      max-width:860px; margin:0 auto; padding:52px 40px 100px;
+    }
+
+    /* ── PAGE TITLE ── */
+    .ct-title {
+      font-size:13px; font-weight:700; text-transform:uppercase;
+      letter-spacing:1px; color:#888; margin-bottom:24px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .ct-title-count {
+      background:#111; color:#fff; font-size:11px;
+      padding:2px 8px; border-radius:20px; letter-spacing:0;
+    }
+
+    /* ── ITEM CARD ── */
+    .ct-item {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de;
+      padding:26px; margin-bottom:18px; display:flex; gap:22px; align-items:flex-start;
+      transition:box-shadow .2s;
+    }
+    .ct-item:hover { box-shadow:0 4px 16px rgba(0,0,0,.06); }
+    .ct-img {
+      width:100px; height:100px; border-radius:8px; object-fit:cover;
+      background:#f0ede8; flex-shrink:0;
+    }
+    .ct-img-placeholder {
+      width:100px; height:100px; border-radius:8px; background:#f0ede8;
+      flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      font-size:32px; color:#ccc;
+    }
+    .ct-info { flex:1; min-width:0; }
+    .ct-name { font-size:17px; font-weight:600; margin-bottom:8px; line-height:1.4; }
+    .ct-meta { font-size:13px; color:#999; margin-bottom:16px; }
+    .ct-bottom { display:flex; align-items:center; justify-content:space-between; }
+    .ct-price { font-size:18px; font-weight:700; color:#c9a96e; }
+
+    /* ── QTY ── */
+    .qty-wrap { display:flex; align-items:center; gap:0; }
+    .qty-btn {
+      width:36px; height:36px; border:1.5px solid #ddd; background:#fff;
+      font-size:18px; cursor:pointer; transition:all .15s; color:#333;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    .qty-btn:first-child { border-radius:8px 0 0 8px; }
+    .qty-btn:last-child  { border-radius:0 8px 8px 0; }
+    .qty-btn:hover { background:#111; color:#fff; border-color:#111; }
+    .qty-num {
+      min-width:42px; height:36px; border-top:1.5px solid #ddd; border-bottom:1.5px solid #ddd;
+      display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:600;
+      background:#fff; color:#111;
+    }
+
+    /* ── REMOVE ── */
+    .ct-remove {
+      background:none; border:none; cursor:pointer; color:#ccc;
+      font-size:16px; padding:4px; transition:color .15s; flex-shrink:0; margin-top:2px;
+    }
+    .ct-remove:hover { color:#e74c3c; }
+
+    /* ── EMPTY ── */
+    .ct-empty {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de;
+      padding:60px 20px; text-align:center;
+    }
+    .ct-empty-icon { font-size:52px; margin-bottom:14px; }
+    .ct-empty h3 { font-size:18px; margin-bottom:6px; }
+    .ct-empty p { color:#aaa; font-size:14px; margin-bottom:20px; }
+    .btn-shop {
+      display:inline-block; background:#111; color:#fff; padding:12px 28px;
+      border-radius:8px; text-decoration:none; font-size:14px; font-weight:600;
+      transition:background .2s;
+    }
+    .btn-shop:hover { background:#333; }
+
+    /* ── SIDEBAR ── */
+    .ct-sidebar { margin-top:24px; }
+    .sum-card {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de;
+    }
+    .sum-body { padding:28px 28px; }
+    .sum-row {
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:15px; color:#666; padding:10px 0;
+    }
+    .sum-divider { height:1px; background:#eee; margin:18px 0; }
+    .sum-total {
+      display:flex; justify-content:space-between; align-items:center;
+      font-size:20px; font-weight:700; color:#111; padding:4px 0;
+    }
+    .sum-total-val { color:#c9a96e; }
+    .btn-checkout {
+      display:block; width:100%; padding:16px; background:#111; color:#fff;
+      border:none; border-radius:10px; font-family:'Phetsarath OT',serif;
+      font-size:17px; font-weight:700; cursor:pointer; margin-top:18px;
+      text-align:center; text-decoration:none; transition:background .2s, transform .1s;
+    }
+    .btn-checkout:hover { background:#333; }
+    .btn-checkout:active { transform:scale(.98); }
+    .btn-continue {
+      display:block; width:100%; padding:13px; background:transparent; color:#555;
+      border:1.5px solid #ddd; border-radius:10px; font-family:'Phetsarath OT',serif;
+      font-size:15px; cursor:pointer; margin-top:10px; text-align:center;
+      text-decoration:none; transition:border-color .2s, color .2s;
+    }
+    .btn-continue:hover { border-color:#999; color:#111; }
+
+    /* ── PROMO ROW ── */
+    .promo-row {
+      display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px solid #eee;
+    }
+    .promo-input {
+      flex:1; padding:9px 12px; border:1.5px solid #ddd; border-radius:8px;
+      font-family:'Phetsarath OT',serif; font-size:13px; outline:none;
+      transition:border-color .2s;
+    }
+    .promo-input:focus { border-color:#c9a96e; }
+    .btn-promo {
+      background:#111; color:#fff; border:none; padding:0 14px; border-radius:8px;
+      font-family:'Phetsarath OT',serif; font-size:13px; cursor:pointer; white-space:nowrap;
+      transition:background .2s;
+    }
+    .btn-promo:hover { background:#333; }
+
+    /* ── TRUST BADGES ── */
+    .trust-badges {
+      display:flex; justify-content:center; gap:20px; margin-top:16px;
+      padding-top:14px; border-top:1px solid #eee;
+    }
+    .trust-badge { font-size:11px; color:#bbb; text-align:center; }
+    .trust-badge .ti { font-size:18px; margin-bottom:2px; }
+
+    /* ── font size boost ── */
+    .ct-name   { font-size:20px; }
+    .ct-meta   { font-size:15px; }
+    .ct-price  { font-size:21px; }
+    .qty-num   { font-size:17px; }
+    .sum-row   { font-size:17px; }
+    .sum-total { font-size:22px; }
+    .btn-checkout { font-size:19px; }
+    .btn-continue { font-size:16px; }
+    .ct-title  { font-size:15px; }
+    .nav-link  { font-size:15px; }
+    .ct-empty h3 { font-size:20px; }
+    .ct-empty p  { font-size:16px; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="co-nav">
+  <a class="co-nav-logo" href="index.html">bunnies<span>.bunn</span></a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="index.html#shop" class="nav-link">Shop</a>
+  </div>
+</nav>
+
+<div class="ct-wrap">
+
+  <!-- LEFT: ITEMS -->
+  <div class="ct-left">
+    <div class="ct-title">
+      ກະຕ່າສິນຄ້າ
+      <span class="ct-title-count" id="ct-count">0</span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="ct-empty" id="ct-empty" style="display:none">
+      <div class="ct-empty-icon">🛒</div>
+      <h3>ກະຕ່າຍັງວ່າງຢູ່</h3>
+      <p>ໄປເລືອກສິນຄ້າທີ່ທ່ານຊອບກ່ອນ</p>
+      <a href="index.html#shop" class="btn-shop">ຊ້ອບດຽວນີ້ →</a>
+    </div>
+
+    <!-- Items list -->
+    <div id="ct-items"></div>
+  </div>
+
+  <!-- RIGHT: SUMMARY -->
+  <div class="ct-sidebar">
+    <div class="ct-title">
+      ສຳຫລວດຄຳສັ່ງ
+      <span class="ct-title-count">2</span>
+    </div>
+    <div class="sum-card">
+      <div class="sum-body">
+        <div id="sum-rows"></div>
+        <div class="sum-divider"></div>
+        <div class="sum-total">
+          <span>ລວມທັງໝົດ</span>
+          <span class="sum-total-val" id="sum-total">₭0</span>
+        </div>
+
+        <a href="checkout.html" class="btn-checkout" id="btn-checkout">ຊຳລະ →</a>
+        <a href="index.html#shop" class="btn-continue">← ຊ້ອບຕໍ່</a>
+
+        <div class="trust-badges">
+          <div class="trust-badge"><div class="ti">🔒</div>ປອດໄພ</div>
+          <div class="trust-badge"><div class="ti">🚚</div>ຈັດສົ່ງໄວ</div>
+          <div class="trust-badge"><div class="ti">↩️</div>ຄືນໄດ້</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/main.js"></script>
+<script>
+function renderCart() {
+  const items = Cart.get();
+  const count = items.reduce((s,i) => s + (i.quantity||1), 0);
+
+  document.getElementById('ct-count').textContent = count;
+
+  const emptyEl   = document.getElementById('ct-empty');
+  const itemsEl   = document.getElementById('ct-items');
+  const sumRows   = document.getElementById('sum-rows');
+  const btnCo     = document.getElementById('btn-checkout');
+
+  if (!items.length) {
+    emptyEl.style.display = '';
+    itemsEl.innerHTML = '';
+    sumRows.innerHTML = '';
+    document.getElementById('sum-total').textContent = '₭0';
+    if (btnCo) btnCo.style.opacity = '.4';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  if (btnCo) btnCo.style.opacity = '';
+
+  itemsEl.innerHTML = items.map(item => {
+    const safeKey = item.key.replace(/[^a-z0-9]/gi, '-');
+    const imgTag  = item.image_url
+      ? `<img class="ct-img" src="${item.image_url}" alt="${item.name_lo||item.name}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const placeholder = `<div class="ct-img-placeholder" style="${item.image_url?'display:none':''}">📦</div>`;
+    return `
+    <div class="ct-item" id="ci-${safeKey}">
+      ${imgTag}${placeholder}
+      <div class="ct-info">
+        <div class="ct-name">${item.name_lo||item.name}</div>
+        <div class="ct-meta">${item.color ? 'ສີ: '+item.color+' · ' : ''}₭${Number(item.price).toLocaleString()} / ຊິ້ນ</div>
+        <div class="ct-bottom">
+          <div class="qty-wrap">
+            <button class="qty-btn" onclick="changeQty('${item.key}',${item.quantity-1})">−</button>
+            <div class="qty-num">${item.quantity}</div>
+            <button class="qty-btn" onclick="changeQty('${item.key}',${item.quantity+1})">+</button>
+          </div>
+          <div class="ct-price">₭${Number(item.price * item.quantity).toLocaleString()}</div>
+        </div>
+      </div>
+      <button class="ct-remove" onclick="removeItem('${item.key}')" title="ລຶບ">✕</button>
+    </div>`;
+  }).join('');
+
+  sumRows.innerHTML = items.map(i =>
+    `<div class="sum-row">
+       <span>${i.name_lo||i.name} <span style="color:#bbb">×${i.quantity}</span></span>
+       <span>₭${Number(i.price*i.quantity).toLocaleString()}</span>
+     </div>`
+  ).join('');
+
+  document.getElementById('sum-total').textContent = '₭' + Number(Cart.total()).toLocaleString();
+}
+
+function changeQty(key, qty) {
+  if (qty < 1) { removeItem(key); return; }
+  Cart.updateQty(key, qty);
+  renderCart();
+}
+
+function removeItem(key) {
+  Cart.remove(key);
+  renderCart();
+  showToast('ລຶບອອກຈາກກະຕ່າ', 'info');
+}
+
+renderCart();
+</script>
+</body>
+</html>

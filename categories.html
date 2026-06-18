@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ຈັດການໝວດໝູ່ - bunnies.bunn</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .cat-card {
+      background: white;
+      border: 1px solid #e8e8e8;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: box-shadow 0.2s;
+    }
+    .cat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .cat-card .cat-name { font-size: 17px; font-weight: bold; }
+    .cat-card .cat-desc { font-size: 13px; color: #777; min-height: 36px; }
+    .cat-card .cat-count {
+      font-size: 12px; background: #f0f0f0;
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; color: #555; width: fit-content;
+    }
+    .cat-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #aaa; font-size: 16px; }
+    .toast {
+      position: fixed; bottom: 32px; right: 32px;
+      background: #222; color: white; padding: 14px 24px;
+      font-size: 14px; z-index: 9999; opacity: 0;
+      transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+    .toast.error { background: #cc3333; }
+  </style>
+</head>
+<body>
+<div class="admin-layout">
+  <div class="sidebar">
+    <div class="logo" style="padding:0 20px 24px;font-family:'Times New Roman',serif;">bunnies.bunn</div>
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="products.html">📦 ສິນຄ້າ</a>
+    <a href="categories.html" class="active">🗂️ ໝວດໝູ່</a>
+    <a href="orders.html">🛒 ຄຳສັ່ງຊື້</a>
+    <a href="../index.html">🌐 ໜ້າຮ້ານ</a>
+  </div>
+  <div class="admin-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h2>ຈັດການໝວດໝູ່</h2>
+      <button class="btn btn-primary" onclick="openModal()">+ ເພີ່ມໝວດໝູ່</button>
+    </div>
+    <p style="color:#777;font-size:13px;margin-bottom:4px">ໝວດໝູ່ທີ່ມີສິນຄ້າຢູ່ ຈະບໍ່ສາມາດລຶບໄດ້</p>
+    <div class="cat-grid" id="cat-grid">
+      <p style="color:#aaa">ກຳລັງໂຫຼດ...</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal" style="max-width:480px">
+    <button class="close-btn" onclick="closeModal()">×</button>
+    <h2 id="modal-title">ເພີ່ມໝວດໝູ່</h2>
+    <input type="hidden" id="cat-id">
+    <div class="form-group">
+      <label>ຊື່ໝວດໝູ່ <span style="color:#c00">*</span></label>
+      <input type="text" id="cat-name" placeholder="ຊື່ໝວດໝູ່..." maxlength="100">
+    </div>
+    <div class="form-group">
+      <label>ຄຳອະທິບາຍ</label>
+      <textarea id="cat-desc" rows="3" placeholder="ລາຍລະອຽດ (ສາມາດຫວ່າງໄດ້)..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn" style="flex:1;padding:12px;background:#eee" onclick="closeModal()">ຍົກເລີກ</button>
+      <button class="btn btn-primary" style="flex:2;padding:12px" onclick="saveCategory()">💾 ບັນທຶກ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="../js/admin.js"></script>
+<script>
+  loadCategories();
+  document.getElementById('modal').addEventListener('click', e => { if(e.target===document.getElementById('modal')) closeModal(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>

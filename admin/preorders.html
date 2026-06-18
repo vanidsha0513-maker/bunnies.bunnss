@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pre-Order — bunnies.bunn</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { background:#f4f4f2; margin:0; }
+
+    /* SIDEBAR */
+    .adm-sidebar { width:220px; background:#111; min-height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; z-index:100; }
+    .adm-logo { padding:24px 20px 20px; font-family:'Times New Roman',serif; font-size:.85rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#fff; border-bottom:1px solid rgba(255,255,255,.08); }
+    .adm-logo span { color:#c9a96e; }
+    .adm-nav { padding:12px 0; flex:1; }
+    .adm-nav a { display:flex; align-items:center; gap:10px; padding:12px 20px; font-size:.82rem; color:rgba(255,255,255,.6); text-decoration:none; transition:all .18s; border-left:3px solid transparent; }
+    .adm-nav a:hover { color:#fff; background:rgba(255,255,255,.05); }
+    .adm-nav a.active { color:#c9a96e; border-left-color:#c9a96e; background:rgba(201,169,110,.08); }
+    .adm-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,.08); }
+    .adm-footer a { display:flex; align-items:center; gap:8px; font-size:.78rem; color:rgba(255,255,255,.4); text-decoration:none; }
+    .adm-footer a:hover { color:#c9a96e; }
+
+    /* LAYOUT */
+    .adm-main { margin-left:220px; padding:28px 32px 60px; }
+    .adm-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+    .adm-header h1 { font-family:'Noto Sans Lao',sans-serif; font-size:1.3rem; font-weight:700; color:#111; display:flex; align-items:center; gap:10px; }
+    .po-badge { background:#6366f1; color:#fff; font-size:.62rem; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.5px; }
+
+    /* KPI */
+    .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+    .kpi-card { background:#fff; border-radius:12px; border:1px solid #e8e4de; padding:18px 20px; position:relative; overflow:hidden; }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:3px; }
+    .kpi-card.indigo::before { background:#6366f1; }
+    .kpi-card.gold::before   { background:#c9a96e; }
+    .kpi-card.blue::before   { background:#3b82f6; }
+    .kpi-card.green::before  { background:#22c55e; }
+    .kpi-icon  { font-size:1.4rem; margin-bottom:8px; }
+    .kpi-lbl   { font-size:.66rem; text-transform:uppercase; letter-spacing:1px; color:#bbb; font-weight:600; margin-bottom:4px; }
+    .kpi-val   { font-size:1.5rem; font-weight:700; color:#111; line-height:1.15; font-family:'Times New Roman',serif; }
+    .kpi-sub   { font-size:.7rem; color:#bbb; margin-top:3px; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      background:#fff; border:1px solid #e8e4de; border-radius:12px;
+      padding:14px 18px; margin-bottom:18px;
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .filter-bar label { font-size:.68rem; color:#aaa; font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-right:2px; }
+    .fbar-select {
+      border:1.5px solid #e8e4de; border-radius:8px; padding:7px 12px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; color:#333;
+      background:#fff; outline:none; cursor:pointer; transition:border-color .18s;
+    }
+    .fbar-select:focus { border-color:#6366f1; }
+    .fbar-search {
+      display:flex; align-items:center; gap:7px;
+      border:1.5px solid #e8e4de; border-radius:8px;
+      padding:7px 13px; flex:1; min-width:180px; transition:border-color .18s;
+    }
+    .fbar-search:focus-within { border-color:#6366f1; }
+    .fbar-search input { border:none; outline:none; background:transparent; width:100%;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.82rem; color:#333; }
+    .fbar-search input::placeholder { color:#ccc; }
+    .fbar-spacer { flex:1; }
+    .fbar-count { font-size:.73rem; color:#888; font-weight:700; background:#f0ede8; padding:5px 14px; border-radius:20px; white-space:nowrap; }
+
+    /* SECTION */
+    .section { background:#fff; border-radius:12px; border:1px solid #e8e4de; margin-bottom:20px; overflow:hidden; }
+    .section-head {
+      padding:11px 18px; background:#6366f1;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .section-head h2 { font-size:.8rem; font-weight:700; color:#fff; letter-spacing:.3px; }
+
+    /* EXPORT BUTTON + DROPDOWN */
+    .exp-wrap { position:relative; }
+    .btn-export {
+      display:inline-flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.95); color:#4f46e5;
+      border:none; padding:6px 14px; border-radius:8px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.76rem; font-weight:700;
+      cursor:pointer; transition:all .18s; white-space:nowrap;
+      box-shadow:0 1px 5px rgba(0,0,0,.12);
+    }
+    .btn-export:hover { background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.15); }
+    .exp-caret { font-size:.6rem; opacity:.5; }
+
+    /* DROPDOWN */
+    .exp-menu {
+      display:none; position:fixed; z-index:99999;
+      background:#fff; border:1px solid #e8e4de; border-radius:14px;
+      box-shadow:0 8px 40px rgba(0,0,0,.16); padding:6px; min-width:224px;
+      animation:expPop .15s cubic-bezier(.34,1.4,.64,1);
+    }
+    @keyframes expPop { from{opacity:0;transform:scale(.93) translateY(-6px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .exp-menu-lbl { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:#ccc; padding:8px 12px 6px; }
+    .fmt-btn {
+      display:flex; align-items:center; gap:10px; width:100%; padding:10px 13px;
+      border:none; background:none; border-radius:9px; cursor:pointer;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.83rem; font-weight:600;
+      color:#222; text-align:left; transition:background .12s;
+    }
+    .fmt-btn:hover { background:#f0eeff; }
+    .fmt-icon { font-size:1.1rem; width:24px; text-align:center; flex-shrink:0; }
+    .fmt-text small { display:block; font-size:.65rem; color:#bbb; font-weight:400; margin-top:1px; }
+    .fmt-badge { font-size:.58rem; font-weight:700; padding:2px 8px; border-radius:20px; background:#eef2ff; color:#6366f1; margin-left:auto; flex-shrink:0; }
+
+    /* TABLE */
+    .rpt-table { width:100%; border-collapse:collapse; }
+    .rpt-table th { padding:10px 16px; text-align:left; font-size:.67rem; text-transform:uppercase; letter-spacing:1px; color:#aaa; background:#fafafa; border-bottom:1px solid #f0f0f0; font-weight:600; white-space:nowrap; }
+    .rpt-table td { padding:11px 16px; border-bottom:1px solid #f7f7f7; font-size:.83rem; color:#333; vertical-align:middle; }
+    .rpt-table tr:last-child td { border-bottom:none; }
+    .rpt-table tr:hover td { background:#fafaf8; }
+    .td-name { font-weight:600; color:#111; }
+    .empty-row { text-align:center; padding:32px; color:#bbb; font-size:.84rem; }
+
+    /* STATUS */
+    .st { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; white-space:nowrap; }
+    .st-pending   { background:#fff8e1; color:#856404; }
+    .st-confirmed { background:#e3f2fd; color:#1565c0; }
+    .st-shipped   { background:#f3e5f5; color:#6a1b9a; }
+    .st-delivered { background:#e8f5e9; color:#2e7d32; }
+    .st-cancelled { background:#fce4ec; color:#c62828; }
+
+    /* PRE-ORDER PILL */
+    .po-pill {
+      background:#ede9fe; color:#6366f1; font-weight:800;
+      padding:3px 12px; border-radius:20px; font-size:.78rem;
+    }
+
+    /* RANK */
+    .rank-num { width:24px; height:24px; border-radius:50%; background:#111; color:#fff;
+      font-size:.68rem; font-weight:700; display:inline-flex; align-items:center;
+      justify-content:center; }
+    .rank-num.top3 { background:#6366f1; }
+
+    /* TABS (inner) */
+    .po-tabs { display:flex; gap:0; border-bottom:2px solid #eee; padding:0 18px; background:#fff; }
+    .po-tab-btn {
+      padding:10px 18px; font-family:'Noto Sans Lao',sans-serif; font-size:.82rem;
+      font-weight:700; color:#aaa; background:none; border:none; cursor:pointer;
+      border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .18s;
+    }
+    .po-tab-btn:hover { color:#555; }
+    .po-tab-btn.active { color:#6366f1; border-bottom-color:#6366f1; }
+    .po-tab-panel { display:none; }
+    .po-tab-panel.active { display:block; }
+
+    /* PERIOD SELECTOR */
+    .period-bar {
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      padding:14px 18px; background:#fff; border-bottom:1px solid #eee;
+    }
+    .period-btn {
+      padding:7px 18px; border-radius:20px; border:1.5px solid #e8e4de;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.8rem; font-weight:700;
+      cursor:pointer; background:#fff; color:#888; transition:all .16s;
+    }
+    .period-btn:hover  { border-color:#6366f1; color:#6366f1; }
+    .period-btn.active { background:#6366f1; color:#fff; border-color:#6366f1; }
+    .period-spacer { flex:1; }
+    .period-select {
+      border:1.5px solid #e8e4de; border-radius:8px; padding:7px 12px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.8rem; color:#333;
+      background:#fff; outline:none; cursor:pointer; transition:border-color .18s;
+    }
+    .period-select:focus { border-color:#6366f1; }
+
+    /* CHART BARS */
+    .time-chart { padding:16px 20px; }
+    .tc-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+    .tc-label { font-size:.72rem; color:#888; text-align:right; flex-shrink:0; width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .tc-bar-wrap { flex:1; background:#f5f3f0; border-radius:5px; height:22px; overflow:hidden; cursor:default; position:relative; }
+    .tc-bar { height:100%; background:linear-gradient(90deg,#6366f1,#818cf8); border-radius:5px; transition:width .5s ease; min-width:2px; }
+    .tc-bar-val { font-size:.72rem; font-weight:700; color:#444; width:80px; flex-shrink:0; text-align:right; }
+    .tc-bar-units { font-size:.65rem; color:#bbb; width:60px; flex-shrink:0; text-align:right; }
+
+    /* TIME TABLE */
+    .time-table { width:100%; border-collapse:collapse; }
+    .time-table th { padding:9px 16px; text-align:left; font-size:.66rem; text-transform:uppercase; letter-spacing:1px; color:#aaa; background:#fafafa; border-bottom:1px solid #f0f0f0; font-weight:600; white-space:nowrap; }
+    .time-table td { padding:10px 16px; border-bottom:1px solid #f7f7f7; font-size:.83rem; color:#333; vertical-align:middle; }
+    .time-table tr:last-child td { border-bottom:none; }
+    .time-table tr:hover td { background:#fafaf8; }
+    .tt-total td { background:#f0eeff!important; font-weight:700; border-top:2px solid #c7d2fe; }
+
+    /* PRODUCT CARD BAR */
+    .prod-bar { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid #f5f5f5; }
+    .prod-bar:last-child { border-bottom:none; }
+    .prod-bar:hover { background:#fafaf8; }
+    .prod-bar-img { width:44px; height:44px; border-radius:8px; object-fit:cover; border:1px solid #eee; flex-shrink:0; }
+    .prod-bar-info { flex:1; min-width:0; }
+    .prod-bar-name { font-weight:700; font-size:.83rem; color:#111; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .prod-bar-sku  { font-size:.7rem; color:#bbb; }
+    .prod-bar-right { text-align:right; flex-shrink:0; }
+    .prod-bar-qty  { font-size:1rem; font-weight:800; color:#6366f1; }
+    .prod-bar-ord  { font-size:.7rem; color:#aaa; }
+    .prod-bar-pct  { height:5px; background:#ede9fe; border-radius:3px; margin-top:4px; }
+    .prod-bar-fill { height:100%; background:#6366f1; border-radius:3px; transition:width .6s ease; }
+
+    /* CUSTOMER TABLE */
+    .cust-avatar { width:30px; height:30px; border-radius:50%; background:#6366f1;
+      color:#fff; font-size:.75rem; font-weight:700; display:inline-flex;
+      align-items:center; justify-content:center; flex-shrink:0; }
+  </style>
+</head>
+<body>
+
+<aside class="adm-sidebar">
+  <div class="adm-logo">bunnies<span>.bunn</span></div>
+  <nav class="adm-nav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="products.html">🛍️ ຈັດການສິນຄ້າ</a>
+    <a href="categories.html">🗂️ ໝວດໝູ່</a>
+    <a href="orders.html">📦 ລາຍງານການສັ່ງຊື້</a>
+    <a href="reports.html">📈 ລາຍງານສະຫຼຸບ</a>
+    <a href="preorders.html" class="active">🟣 Pre-Order</a>
+    <a href="banners.html">🖼️ Banners</a>
+  </nav>
+  <div class="adm-footer"><a href="../index.html">← ກັບໜ້າຮ້ານ</a></div>
+</aside>
+
+<main class="adm-main">
+
+  <div class="adm-header">
+    <h1>🟣 ລາຍງານ Pre-Order <span class="po-badge">PRE-ORDER</span></h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select class="fbar-select" id="statusFilter" onchange="applyFilters()">
+        <option value="">ທຸກສະຖານະ</option>
+        <option value="pending">⏳ ລໍຖ້າ</option>
+        <option value="confirmed">✅ ຢືນຢັນ</option>
+        <option value="shipped">🚚 ກຳລັງສົ່ງ</option>
+        <option value="delivered">📬 ສົ່ງແລ້ວ</option>
+      </select>
+      <button style="background:#fff;border:1.5px solid #ddd;padding:8px 16px;border-radius:8px;font-family:'Noto Sans Lao',sans-serif;font-size:.8rem;cursor:pointer" onclick="reload()">↻ ໂຫຼດໃໝ່</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi-card indigo">
+      <div class="kpi-icon">🟣</div>
+      <div class="kpi-lbl">ລາຍການ Pre-Order</div>
+      <div class="kpi-val" id="kpi-lines">—</div>
+      <div class="kpi-sub" id="kpi-products">— ສິນຄ້າ</div>
+    </div>
+    <div class="kpi-card indigo">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-lbl">ຈຳນວນຊິ້ນທັງໝົດ</div>
+      <div class="kpi-val" id="kpi-units">—</div>
+      <div class="kpi-sub">ຊິ້ນ</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-lbl">ມູນຄ່າ Pre-Order</div>
+      <div class="kpi-val" id="kpi-value" style="font-size:1.2rem">—</div>
+      <div class="kpi-sub">ລວມຂາຍ</div>
+    </div>
+    <div class="kpi-card blue">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-lbl">ລູກຄ້າ Pre-Order</div>
+      <div class="kpi-val" id="kpi-customers">—</div>
+      <div class="kpi-sub">ຄົນ</div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <label>ຄົ້ນຫາ</label>
+    <div class="fbar-search">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="ຊື່ສິນຄ້າ / ເລກອໍເດີ / ລູກຄ້າ / ເບີໂທ..." oninput="applyFilters()">
+    </div>
+    <div class="fbar-spacer"></div>
+    <span id="fbar-count" class="fbar-count">—</span>
+  </div>
+
+  <!-- MAIN REPORT (tabbed) -->
+  <div class="section">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#fff;border-bottom:2px solid #eee">
+      <div class="po-tabs" style="padding:0;border:none;flex:1">
+        <button class="po-tab-btn active" onclick="switchPoTab('time',this)">📅 ຕາມເວລາ</button>
+        <button class="po-tab-btn" onclick="switchPoTab('products',this)">📦 ຕາມສິນຄ້າ</button>
+        <button class="po-tab-btn" onclick="switchPoTab('customers',this)">👥 ຕາມລູກຄ້າ</button>
+        <button class="po-tab-btn" onclick="switchPoTab('detail',this)">📋 ລາຍການທັງໝົດ</button>
+      </div>
+      <div class="exp-wrap">
+        <button class="btn-export" onclick="openExpMenu(event)" style="background:#6366f1;color:#fff">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export <span class="exp-caret">▾</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB: BY TIME -->
+    <div class="po-tab-panel active" id="pot-time">
+      <div class="period-bar">
+        <button class="period-btn" onclick="setPeriod('day',this)">ມື້</button>
+        <button class="period-btn active" onclick="setPeriod('month',this)">ເດືອນ</button>
+        <button class="period-btn" onclick="setPeriod('week',this)">ອາທິດ</button>
+        <button class="period-btn" onclick="setPeriod('year',this)">ປີ</button>
+        <div class="period-spacer"></div>
+        <select class="period-select" id="yearSel" onchange="loadTimeReport()">
+          <option value="">ທຸກປີ</option>
+        </select>
+        <select class="period-select" id="monthSel" onchange="loadTimeReport()" style="display:none">
+          <option value="">ທຸກເດືອນ</option>
+        </select>
+      </div>
+      <!-- chart -->
+      <div class="time-chart" id="time-chart"><div style="text-align:center;padding:28px;color:#ccc">ກຳລັງໂຫຼດ...</div></div>
+      <!-- table -->
+      <table class="time-table">
+        <thead id="time-thead"></thead>
+        <tbody id="time-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: BY PRODUCT -->
+    <div class="po-tab-panel" id="pot-products">
+      <div id="prod-list"><div style="text-align:center;padding:28px;color:#ccc">ກຳລັງໂຫຼດ...</div></div>
+    </div>
+
+    <!-- TAB: BY CUSTOMER -->
+    <div class="po-tab-panel" id="pot-customers">
+      <table class="rpt-table">
+        <thead>
+          <tr><th>#</th><th>ລູກຄ້າ</th><th>ເບີໂທ</th><th style="text-align:center">ລາຍການ</th><th style="text-align:center">ຊິ້ນລວມ</th><th style="text-align:right">ມູນຄ່າ</th></tr>
+        </thead>
+        <tbody id="cust-body"><tr><td colspan="6" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- TAB: DETAIL -->
+    <div class="po-tab-panel" id="pot-detail">
+      <table class="rpt-table">
+        <thead>
+          <tr>
+            <th>#</th><th>ຮູບ</th><th>ສິນຄ້າ</th><th>ເລກອໍເດີ</th>
+            <th>ລູກຄ້າ</th><th>ເບີໂທ</th>
+            <th style="text-align:center">ຊິ້ນ</th>
+            <th style="text-align:right">ລາຄາ/ຊິ້ນ</th>
+            <th style="text-align:right">ລວມ</th>
+            <th>ສະຖານະ</th><th>ວັນທີ</th>
+          </tr>
+        </thead>
+        <tbody id="detail-body"><tr><td colspan="11" class="empty-row">ກຳລັງໂຫຼດ...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- EXPORT DROPDOWN -->
+<div id="exp-menu" class="exp-menu" onclick="event.stopPropagation()">
+  <div class="exp-menu-lbl">ເລືອກຮູບແບບ</div>
+  <button class="fmt-btn" onclick="doExport('excel')">
+    <span class="fmt-icon">📊</span>
+    <span class="fmt-text">Excel (.xls)<small>ເປີດດ້ວຍ Microsoft Excel / Google Sheets</small></span>
+    <span class="fmt-badge">XLS</span>
+  </button>
+  <button class="fmt-btn" onclick="doExport('csv')">
+    <span class="fmt-icon">📄</span>
+    <span class="fmt-text">CSV<small>ໄຟລ໌ text ທຸກ program ເປີດໄດ້</small></span>
+    <span class="fmt-badge">CSV</span>
+  </button>
+  <button class="fmt-btn" onclick="doExport('pdf')">
+    <span class="fmt-icon">🖨️</span>
+    <span class="fmt-text">PDF / ພິມ<small>ເປີດ print preview ໃນ browser</small></span>
+    <span class="fmt-badge">PDF</span>
+  </button>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+const fmt = n => '₭' + Number(n||0).toLocaleString();
+const STATUS_LO = { pending:'ລໍຖ້າ', confirmed:'ຢືນຢັນ', shipped:'ກຳລັງສົ່ງ', delivered:'ສົ່ງແລ້ວ', cancelled:'ຍົກເລີກ' };
+
+let _rawRows    = [];
+let _filtered   = [];
+let _curPoTab   = 'time';
+let _period     = 'month';
+let _timeRows   = [];
+let _availYears = [];
+
+/* ── LOAD ── */
+async function reload() {
+  _rawRows = [];
+  document.getElementById('prod-list').innerHTML   = '<div style="text-align:center;padding:28px;color:#ccc">ກຳລັງໂຫຼດ...</div>';
+  document.getElementById('cust-body').innerHTML   = '<tr><td colspan="6" class="empty-row">ກຳລັງໂຫຼດ...</td></tr>';
+  document.getElementById('detail-body').innerHTML = '<tr><td colspan="11" class="empty-row">ກຳລັງໂຫຼດ...</td></tr>';
+  try {
+    const d = await fetch('../api/reports.php?type=preorders').then(r => r.json());
+    _rawRows = d.rows || [];
+    updateKpi(d.summary || {});
+    applyFilters();
+  } catch(e) {
+    document.getElementById('prod-list').innerHTML = '<div style="text-align:center;padding:28px;color:#e74c3c">ໂຫຼດຂໍ້ມູນບໍ່ໄດ້</div>';
+  }
+}
+
+function updateKpi(s) {
+  document.getElementById('kpi-lines').textContent     = Number(s.total_lines||0).toLocaleString();
+  document.getElementById('kpi-products').textContent  = Number(s.unique_products||0) + ' ສິນຄ້າ';
+  document.getElementById('kpi-units').textContent     = Number(s.total_units||0).toLocaleString();
+  document.getElementById('kpi-value').textContent     = fmt(s.total_value);
+  document.getElementById('kpi-customers').textContent = Number(s.unique_customers||0).toLocaleString();
+}
+
+/* ── FILTERS ── */
+function applyFilters() {
+  const st = document.getElementById('statusFilter').value;
+  const q  = document.getElementById('searchInput').value.toLowerCase().trim();
+  _filtered = _rawRows.filter(r => {
+    if (st && r.status !== st) return false;
+    if (q && !(
+      (r.product_name||'').toLowerCase().includes(q) ||
+      (r.order_number||'').toLowerCase().includes(q) ||
+      (r.customer_name||'').toLowerCase().includes(q) ||
+      (r.customer_phone||'').includes(q)
+    )) return false;
+    return true;
+  });
+  document.getElementById('fbar-count').textContent = `${_filtered.length} ລາຍການ`;
+  renderAll();
+}
+
+/* ── RENDER ── */
+function renderAll() {
+  renderProducts();
+  renderCustomers();
+  renderDetail();
+}
+
+function renderProducts() {
+  const map = {};
+  _filtered.forEach(r => {
+    if (!map[r.product_id]) map[r.product_id] = { name:r.product_name, img:r.product_image, sku:r.sku, units:0, orders:new Set(), revenue:0 };
+    map[r.product_id].units   += +r.quantity||0;
+    map[r.product_id].revenue += (+r.quantity||0) * (+r.price||0);
+    map[r.product_id].orders.add(r.order_id);
+  });
+  const items = Object.values(map).sort((a,b) => b.units - a.units);
+  const maxUnits = items[0]?.units || 1;
+  const el = document.getElementById('prod-list');
+  if (!items.length) { el.innerHTML = '<div style="text-align:center;padding:28px;color:#bbb">ບໍ່ພົບລາຍການ</div>'; return; }
+  el.innerHTML = items.map((p,i) => `
+    <div class="prod-bar">
+      <span class="rank-num ${i<3?'top3':''}">${i+1}</span>
+      <img class="prod-bar-img" src="../${p.img||'images/placeholder.jpg'}" onerror="this.src='../images/placeholder.jpg'">
+      <div class="prod-bar-info">
+        <div class="prod-bar-name">${p.name||'—'}</div>
+        <div class="prod-bar-sku">${p.sku||'—'}</div>
+        <div class="prod-bar-pct"><div class="prod-bar-fill" style="width:${Math.round(p.units/maxUnits*100)}%"></div></div>
+      </div>
+      <div class="prod-bar-right">
+        <div class="prod-bar-qty">${p.units} ຊິ້ນ</div>
+        <div class="prod-bar-ord">${p.orders.size} ອໍເດີ</div>
+        <div style="font-size:.72rem;color:#c9a96e;font-weight:700;margin-top:2px">${fmt(p.revenue)}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderCustomers() {
+  const map = {};
+  _filtered.forEach(r => {
+    const k = r.customer_phone||r.customer_name||'unknown';
+    if (!map[k]) map[k] = { name:r.customer_name, phone:r.customer_phone, lines:0, units:0, value:0 };
+    map[k].lines++;
+    map[k].units += +r.quantity||0;
+    map[k].value += (+r.quantity||0) * (+r.price||0);
+  });
+  const items = Object.values(map).sort((a,b) => b.units - a.units);
+  const tbody = document.getElementById('cust-body');
+  if (!items.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-row">ບໍ່ພົບລາຍການ</td></tr>'; return; }
+  tbody.innerHTML = items.map((c,i) => {
+    const init = (c.name||'?').trim()[0]?.toUpperCase()||'?';
+    return `<tr>
+      <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div class="cust-avatar">${init}</div>
+          <span style="font-weight:600;font-size:.83rem">${c.name||'—'}</span>
+        </div>
+      </td>
+      <td style="color:#888;font-size:.78rem">${c.phone||'—'}</td>
+      <td style="text-align:center"><span class="po-pill">${c.lines}</span></td>
+      <td style="text-align:center;font-weight:700;color:#6366f1">${c.units} ຊິ້ນ</td>
+      <td style="text-align:right;font-weight:700;color:#c9a96e">${fmt(c.value)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDetail() {
+  const tbody = document.getElementById('detail-body');
+  if (!_filtered.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty-row">ບໍ່ພົບລາຍການ</td></tr>'; return; }
+  tbody.innerHTML = _filtered.map((r,i) => {
+    const date = new Date(r.created_at).toLocaleDateString('lo-LA',{year:'numeric',month:'short',day:'numeric'});
+    const line = (+r.quantity||0) * (+r.price||0);
+    return `<tr>
+      <td style="color:#bbb;font-size:.75rem">${i+1}</td>
+      <td><img src="../${r.product_image||'images/placeholder.jpg'}" onerror="this.src='../images/placeholder.jpg'" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #eee"></td>
+      <td class="td-name" style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.product_name||'—'}</td>
+      <td style="font-size:.76rem;font-weight:700;color:#6366f1">${r.order_number}</td>
+      <td style="font-size:.83rem">${r.customer_name||'—'}</td>
+      <td style="color:#888;font-size:.78rem">${r.customer_phone||'—'}</td>
+      <td style="text-align:center"><span class="po-pill">${r.quantity}</span></td>
+      <td style="text-align:right;font-size:.8rem">${fmt(r.price)}</td>
+      <td style="text-align:right;font-weight:700">${fmt(line)}</td>
+      <td><span class="st st-${r.status||'pending'}">${STATUS_LO[r.status]||r.status}</span></td>
+      <td style="color:#aaa;font-size:.75rem;white-space:nowrap">${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── INNER TABS ── */
+function switchPoTab(id, btn) {
+  _curPoTab = id;
+  document.querySelectorAll('.po-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.po-tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pot-' + id)?.classList.add('active');
+  if (id === 'time' && !_timeRows.length) loadTimeReport();
+}
+
+/* ── TIME REPORT ── */
+function setPeriod(p, btn) {
+  _period = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // show month selector only for "day" period
+  document.getElementById('monthSel').style.display = p === 'day' ? '' : 'none';
+  // hide year selector for "year" period
+  document.getElementById('yearSel').style.display  = p === 'year' ? 'none' : '';
+  loadTimeReport();
+}
+
+async function loadTimeReport() {
+  document.getElementById('time-chart').innerHTML = '<div style="text-align:center;padding:24px;color:#ccc">ກຳລັງໂຫຼດ...</div>';
+  document.getElementById('time-tbody').innerHTML = '';
+  document.getElementById('time-thead').innerHTML = '';
+
+  const year  = document.getElementById('yearSel').value  || new Date().getFullYear();
+  const month = document.getElementById('monthSel').value || '';
+  let url = `../api/reports.php?type=preorder_time&period=${_period}&year=${year}`;
+  if (_period === 'day' && month) url += `&month=${month}`;
+
+  try {
+    const d = await fetch(url).then(r => r.json());
+    _timeRows   = d.rows  || [];
+    _availYears = d.years || [];
+    _populateYearSel();
+    _populateMonthSel();
+    renderTimeReport();
+  } catch(e) {
+    document.getElementById('time-chart').innerHTML = '<div style="text-align:center;padding:24px;color:#e74c3c">ໂຫຼດຂໍ້ມູນບໍ່ໄດ້</div>';
+  }
+}
+
+function _populateYearSel() {
+  const sel = document.getElementById('yearSel');
+  const cur = sel.value || String(new Date().getFullYear());
+  const years = _availYears.length ? _availYears : [new Date().getFullYear()];
+  sel.innerHTML = years.map(y => `<option value="${y}" ${String(y)===cur?'selected':''}>${y}</option>`).join('');
+}
+
+function _populateMonthSel() {
+  const sel = document.getElementById('monthSel');
+  if (_period !== 'day') return;
+  const year = document.getElementById('yearSel').value || new Date().getFullYear();
+  const curM = sel.value;
+  const MONTHS = ['ມັງກອນ','ກຸມພາ','ມີນາ','ເມສາ','ພຶດສະພາ','ມິຖຸນາ','ກໍລະກົດ','ສິງຫາ','ກັນຍາ','ຕຸລາ','ພະຈິກ','ທັນວາ'];
+  sel.innerHTML = MONTHS.map((m,i) => {
+    const val = `${year}-${String(i+1).padStart(2,'0')}`;
+    return `<option value="${val}" ${val===curM?'selected':''}>${m}</option>`;
+  }).join('');
+  if (!curM) sel.value = `${year}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+}
+
+function renderTimeReport() {
+  const rows = _timeRows;
+  const maxVal = Math.max(...rows.map(r => +r.total_value||0), 1);
+
+  // chart
+  const chartEl = document.getElementById('time-chart');
+  if (!rows.length) {
+    chartEl.innerHTML = '<div style="text-align:center;padding:28px;color:#bbb">ບໍ່ມີຂໍ້ມູນໃນຊ່ວງເວລານີ້</div>';
+  } else {
+    chartEl.innerHTML = rows.map(r => `
+      <div class="tc-row">
+        <div class="tc-label" title="${r.period_label}">${r.period_label}</div>
+        <div class="tc-bar-wrap" title="${fmt(r.total_value)}">
+          <div class="tc-bar" style="width:${Math.round((+r.total_value/maxVal)*100)}%"></div>
+        </div>
+        <div class="tc-bar-val">${fmt(r.total_value)}</div>
+        <div class="tc-bar-units">${r.total_units} ຊິ້ນ</div>
+      </div>`).join('');
+  }
+
+  // table
+  const periodLabel = { day:'ວັນທີ', week:'ອາທິດ', month:'ເດືອນ', year:'ປີ' }[_period] || 'ໄລຍະ';
+  document.getElementById('time-thead').innerHTML = `
+    <tr>
+      <th>#</th><th>${periodLabel}</th>
+      <th style="text-align:center">ຈຳນວນ ອໍເດີ</th>
+      <th style="text-align:center">ຊິ້ນລວມ</th>
+      <th style="text-align:right">ມູນຄ່າ (₭)</th>
+      <th style="text-align:right">ສ່ວນ %</th>
+    </tr>`;
+
+  const totVal   = rows.reduce((s,r) => s + (+r.total_value||0), 0);
+  const totUnits = rows.reduce((s,r) => s + (+r.total_units||0), 0);
+  const totOrd   = rows.reduce((s,r) => s + (+r.order_count||0), 0);
+
+  const bodyRows = rows.map((r,i) => {
+    const pct = totVal > 0 ? ((+r.total_value/totVal)*100).toFixed(1) : '0.0';
+    return `<tr>
+      <td style="color:#bbb;font-size:.74rem">${i+1}</td>
+      <td style="font-weight:600">${r.period_label}</td>
+      <td style="text-align:center"><span class="po-pill">${r.order_count}</span></td>
+      <td style="text-align:center;font-weight:700;color:#6366f1">${Number(r.total_units).toLocaleString()}</td>
+      <td style="text-align:right;font-weight:700;color:#c9a96e">${fmt(r.total_value)}</td>
+      <td style="text-align:right">
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px">
+          <div style="width:48px;background:#f0eeff;border-radius:3px;height:6px;overflow:hidden">
+            <div style="height:100%;background:#6366f1;width:${pct}%"></div>
+          </div>
+          <span style="font-size:.75rem;color:#888;width:36px;text-align:right">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const totRow = `<tr class="tt-total">
+    <td></td><td>ລວມທັງໝົດ</td>
+    <td style="text-align:center">${totOrd}</td>
+    <td style="text-align:center;color:#6366f1">${Number(totUnits).toLocaleString()}</td>
+    <td style="text-align:right;color:#c9a96e">${fmt(totVal)}</td>
+    <td style="text-align:right">100%</td>
+  </tr>`;
+
+  document.getElementById('time-tbody').innerHTML = bodyRows + (rows.length ? totRow : '');
+}
+
+/* ── TIME EXPORT DATA BUILDER ── */
+function _buildTimeData() {
+  const periodLabel = { day:'ວັນທີ', week:'ອາທິດ', month:'ເດືອນ', year:'ປີ' }[_period] || 'ໄລຍະ';
+  const cols = [
+    {label:'#',           type:'num', w:5 },
+    {label:periodLabel,   type:'str', w:20},
+    {label:'ຈຳນວນ ອໍເດີ', type:'num', w:12},
+    {label:'ຊິ້ນລວມ',     type:'num', w:12},
+    {label:'ມູນຄ່າ (₭)',   type:'num', w:18},
+  ];
+  const rows = _timeRows.map((r,i) => [i+1, r.period_label, +r.order_count, +r.total_units, Math.round(+r.total_value)]);
+  const totVal   = _timeRows.reduce((s,r)=>s+(+r.total_value||0),0);
+  const totUnits = _timeRows.reduce((s,r)=>s+(+r.total_units||0),0);
+  const totOrd   = _timeRows.reduce((s,r)=>s+(+r.order_count||0),0);
+  const tot = ['','ລວມທັງໝົດ', totOrd, totUnits, Math.round(totVal)];
+  tot.__total = true;
+  const pLabel = { day:'ລາຍມື້', week:'ລາຍອາທິດ', month:'ລາຍເດືອນ', year:'ລາຍປີ' }[_period]||'';
+  return { title:`Pre-Order ${pLabel}`, cols, rows:[...rows, tot], filename:`po_time_${_period}_${_today()}.xlsx` };
+}
+
+/* ── EXPORT MENU ── */
+function openExpMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('exp-menu');
+  const rect = e.currentTarget.getBoundingClientRect();
+  const menuW = 240;
+  let left = rect.right - menuW;
+  if (left < 8) left = 8;
+  menu.style.top  = (rect.bottom + 6) + 'px';
+  menu.style.left = left + 'px';
+  menu.style.display = 'block';
+}
+document.addEventListener('click', () => {
+  document.getElementById('exp-menu').style.display = 'none';
+});
+
+/* ── EXPORT DATA BUILDERS ── */
+function _buildProductsData() {
+  const map = {};
+  _filtered.forEach(r => {
+    if (!map[r.product_id]) map[r.product_id] = { name:r.product_name, sku:r.sku, units:0, orders:new Set(), revenue:0 };
+    map[r.product_id].units   += +r.quantity||0;
+    map[r.product_id].revenue += (+r.quantity||0) * (+r.price||0);
+    map[r.product_id].orders.add(r.order_id);
+  });
+  const items = Object.values(map).sort((a,b) => b.units - a.units);
+  const cols = [
+    {label:'#',             type:'num', w:5 },
+    {label:'ສິນຄ້າ',        type:'str', w:26},
+    {label:'SKU',           type:'str', w:14},
+    {label:'ຊິ້ນທັງໝົດ',    type:'num', w:12},
+    {label:'ຈຳນວນອໍເດີ',   type:'num', w:12},
+    {label:'ລາຍໄດ້ (₭)',    type:'num', w:16},
+  ];
+  const rows = items.map((p,i) => [i+1, p.name, p.sku||'', p.units, p.orders.size, Math.round(p.revenue)]);
+  const totUnits = items.reduce((s,p)=>s+p.units,0);
+  const totRev   = items.reduce((s,p)=>s+p.revenue,0);
+  const tot = ['','ລວມ','',totUnits,'',Math.round(totRev)];
+  tot.__total = true;
+  return { title:'Pre-Order ຕາມສິນຄ້າ', cols, rows:[...rows, tot], filename:`po_products_${_today()}.xlsx` };
+}
+
+function _buildCustomersData() {
+  const map = {};
+  _filtered.forEach(r => {
+    const k = r.customer_phone||r.customer_name||'?';
+    if (!map[k]) map[k] = { name:r.customer_name, phone:r.customer_phone, lines:0, units:0, value:0 };
+    map[k].lines++; map[k].units += +r.quantity||0;
+    map[k].value += (+r.quantity||0) * (+r.price||0);
+  });
+  const items = Object.values(map).sort((a,b) => b.units - a.units);
+  const cols = [
+    {label:'#',          type:'num', w:5 },
+    {label:'ລູກຄ້າ',     type:'str', w:18},
+    {label:'ເບີໂທ',      type:'str', w:16},
+    {label:'ລາຍການ',    type:'num', w:10},
+    {label:'ຊິ້ນລວມ',   type:'num', w:10},
+    {label:'ມູນຄ່າ (₭)', type:'num', w:16},
+  ];
+  const rows = items.map((c,i) => [i+1, c.name||'', c.phone||'', c.lines, c.units, Math.round(c.value)]);
+  return { title:'Pre-Order ຕາມລູກຄ້າ', cols, rows, filename:`po_customers_${_today()}.xlsx` };
+}
+
+function _buildDetailData() {
+  const cols = [
+    {label:'#',             type:'num', w:5 },
+    {label:'ສິນຄ້າ',        type:'str', w:24},
+    {label:'ເລກອໍເດີ',     type:'str', w:20},
+    {label:'ລູກຄ້າ',        type:'str', w:16},
+    {label:'ເບີໂທ',          type:'str', w:14},
+    {label:'ຊິ້ນ',           type:'num', w:8 },
+    {label:'ລາຄາ/ຊິ້ນ (₭)', type:'num', w:14},
+    {label:'ລວມ (₭)',        type:'num', w:14},
+    {label:'ສະຖານະ',        type:'str', w:14},
+    {label:'ວັນທີ',          type:'str', w:16},
+  ];
+  const rows = _filtered.map((r,i) => [
+    i+1, r.product_name||'', r.order_number||'',
+    r.customer_name||'', r.customer_phone||'',
+    +r.quantity||0, +r.price||0,
+    Math.round((+r.quantity||0)*(+r.price||0)),
+    STATUS_LO[r.status]||r.status, r.created_at?.slice(0,10)||''
+  ]);
+  const totUnits = _filtered.reduce((s,r)=>s+(+r.quantity||0),0);
+  const totVal   = _filtered.reduce((s,r)=>s+(+r.quantity||0)*(+r.price||0),0);
+  const tot = ['','ລວມ','','','',totUnits,'',Math.round(totVal),'',''];
+  tot.__total = true;
+  return { title:'Pre-Order ລາຍການທັງໝົດ', cols, rows:[...rows, tot], filename:`po_detail_${_today()}.xlsx` };
+}
+
+function _today() { return new Date().toISOString().slice(0,10); }
+
+/* ── EXPORT EXECUTE ── */
+function doExport(fmt_type) {
+  document.getElementById('exp-menu').style.display = 'none';
+  const builders = {
+    time:      _buildTimeData,
+    products:  _buildProductsData,
+    customers: _buildCustomersData,
+    detail:    _buildDetailData
+  };
+  const { title, cols, rows, filename } = builders[_curPoTab]();
+  if (!rows.filter(r=>!r.__total).length) { alert('ບໍ່ມີຂໍ້ມູນ'); return; }
+  if (fmt_type === 'excel') downloadXLS(title, cols, rows, filename);
+  else if (fmt_type === 'csv') downloadCSV(title, cols, rows, filename);
+  else if (fmt_type === 'pdf') openPrint(title, cols, rows);
+}
+
+/* ── EXCEL ── */
+function downloadXLS(title, cols, rows, filename) {
+  const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const nCol = cols.length;
+  const today = new Date().toLocaleDateString('lo-LA',{year:'numeric',month:'long',day:'numeric'});
+  const headCells = cols.map(c => `<td style="background:#6366f1;color:#fff;font-weight:bold;padding:9px 14px;border:1px solid #4f46e5;font-size:11pt;text-align:center;mso-number-format:'@'">${esc(c.label)}</td>`).join('');
+  const bodyRows = rows.map((row,ri) => {
+    const isTot = row.__total === true;
+    const bg = isTot ? '#EEF2FF' : ri%2===0 ? '#FFFFFF' : '#F8F8FD';
+    const fw = isTot ? 'bold' : 'normal';
+    const topBdr = isTot ? 'border-top:2px solid #C7D2FE;' : '';
+    const cells = cols.map((col,ci) => {
+      const val = row[ci]??'';
+      const isNum = col.type === 'num';
+      const fmt2 = isNum ? "mso-number-format:'#,##0';text-align:right;" : "mso-number-format:'@';";
+      return `<td style="background:${bg};${topBdr}padding:7px 13px;border:1px solid #F0EEFF;font-size:10pt;font-weight:${fw};${fmt2}">${esc(String(val))}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>table{border-collapse:collapse}td{font-family:Calibri,sans-serif;vertical-align:middle}</style></head><body><table>
+<tr><td colspan="${nCol}" style="background:#111;color:#C9A96E;font-weight:bold;font-size:14pt;padding:14px 18px;mso-number-format:'@'">bunnies.bunn — ${esc(title)}</td></tr>
+<tr><td colspan="${nCol}" style="background:#2C2C2C;color:#AAA;font-size:9pt;padding:4px 18px;font-style:italic;mso-number-format:'@'">Export: ${today}</td></tr>
+<tr>${headCells}</tr>${bodyRows}</table></body></html>`;
+  const blob = new Blob(['﻿'+html], {type:'application/vnd.ms-excel;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename.replace('.xlsx','.xls'); a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ── CSV ── */
+function downloadCSV(title, cols, rows, filename) {
+  const esc = v => '"' + String(v??'').replace(/"/g,'""') + '"';
+  const head = cols.map(c => esc(c.label)).join(',');
+  const body = rows.filter(r => !r.__total).map(row => cols.map((_,ci) => esc(row[ci]??'')).join(',')).join('\n');
+  const blob = new Blob(['﻿'+head+'\n'+body], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename.replace(/\.xlsx?$/i,'.csv'); a.click(); URL.revokeObjectURL(a.href);
+}
+
+/* ── PDF / PRINT ── */
+function openPrint(title, cols, rows) {
+  const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const today = new Date().toLocaleDateString('lo-LA',{year:'numeric',month:'long',day:'numeric'});
+  const head = cols.map(c => `<th>${esc(c.label)}</th>`).join('');
+  const body = rows.map((row,ri) => {
+    const isTot = row.__total === true;
+    const cells = cols.map((_,ci) => `<td${isTot?' class="tot"':''}>${esc(String(row[ci]??''))}</td>`).join('');
+    return `<tr class="${isTot?'tot-row':ri%2===0?'even':'odd'}">${cells}</tr>`;
+  }).join('');
+  const w = window.open('','_blank','width=980,height=680');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#111;padding:24px 32px}
+  .topbar{background:#111;color:#fff;padding:12px 20px;border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .topbar h1{font-size:13pt;font-family:Georgia,serif;color:#c9a96e}
+  .topbar .date{font-size:8pt;color:rgba(255,255,255,.4)}
+  .print-btn{background:#6366f1;color:#fff;border:none;padding:8px 22px;border-radius:6px;font-size:9.5pt;font-weight:700;cursor:pointer;white-space:nowrap}
+  table{width:100%;border-collapse:collapse}
+  th{background:#6366f1;color:#fff;padding:8px 11px;text-align:left;font-size:8.5pt;font-weight:700;white-space:nowrap;border:1px solid #4f46e5}
+  td{padding:7px 11px;font-size:9pt;border:1px solid #f0ede8;vertical-align:middle}
+  .even td{background:#fff}.odd td{background:#f8f8fd}
+  .tot-row td{background:#eef2ff!important;font-weight:700;border-top:2px solid #c7d2fe}
+  @media print{.print-btn{display:none}body{padding:10px 16px}}
+</style></head><body>
+<div class="topbar">
+  <h1>bunnies.bunn — ${esc(title)}</h1>
+  <span class="date">${esc(today)}</span>
+  <button class="print-btn" onclick="window.print()">🖨️ ພິມ / Save PDF</button>
+</div>
+<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+</body></html>`);
+  w.document.close();
+}
+
+/* ── INIT ── */
+reload();
+</script>
+</body>
+</html>

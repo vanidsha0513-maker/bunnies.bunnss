@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bunnies.bunn — ຮ້ານຂາຍເຄື່ອງອອນໄລ</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── ANNOUNCEMENT BAR ── */
+
+    /* ── HERO SLIDER ── */
+    .hero-slider { position:relative; overflow:hidden; width:100%; background:#111; }
+    .hs-track { display:flex; transition:transform .65s cubic-bezier(.77,0,.18,1); will-change:transform; }
+    .hs-slide {
+      min-width:100%; height:clamp(300px, 38vw, 500px);
+      position:relative; overflow:hidden; background:#111;
+    }
+    .hs-img {
+      position:absolute; inset:0; z-index:2;
+      width:100%; height:100%;
+      object-fit:cover; object-position:center center;
+      display:block;
+    }
+    .hs-slide-1 { background:#0e0e0e; }
+    .hs-slide-2 { background:#0e0e0e; }
+    .hs-slide-3 { background:#0e0e0e; }
+    .hs-arrow {
+      position:absolute; top:50%; transform:translateY(-50%); z-index:20;
+      background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.22);
+      color:#fff; width:48px; height:48px; border-radius:50%; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.6rem; line-height:1; transition:all .2s; backdrop-filter:blur(6px);
+    }
+    .hs-arrow:hover { background:rgba(201,169,110,.9); border-color:#c9a96e; }
+    .hs-prev { left:20px; }
+    .hs-next { right:20px; }
+    .hs-dots {
+      position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+      display:flex; gap:8px; z-index:20;
+    }
+    .hs-dot {
+      width:8px; height:8px; border-radius:4px;
+      background:rgba(255,255,255,.4); border:none; cursor:pointer;
+      padding:0; transition:all .35s;
+    }
+    .hs-dot.active { width:28px; background:#c9a96e; }
+    .hs-progress {
+      position:absolute; bottom:0; left:0; height:3px;
+      background:#c9a96e; z-index:20; width:0%;
+    }
+    .hs-promo-hint {
+      position:absolute; bottom:50px; right:24px; z-index:10;
+      background:rgba(201,169,110,.92); color:#fff;
+      font-size:.78rem; font-weight:700; padding:8px 18px;
+      border-radius:24px; letter-spacing:.5px;
+      backdrop-filter:blur(4px);
+      box-shadow:0 4px 14px rgba(0,0,0,.2);
+      pointer-events:none;
+    }
+    @media(max-width:768px) {
+      .hs-slide { height:clamp(180px, 45vw, 300px); }
+      .hs-promo-hint { font-size:.7rem; padding:6px 14px; bottom:40px; right:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- =========================================================
+     ANNOUNCEMENT BAR
+     ========================================================= -->
+
+<!-- =========================================================
+     NAVBAR — minimal Outstock style
+     ========================================================= -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <!-- Logo -->
+    <a href="index.html" class="logo">
+      bunnies<span>.bunn</span>
+    </a>
+
+    <!-- Nav Links -->
+    <ul class="nav-links">
+      <li><a href="index.html" class="active" data-i18n="nav.home">Home</a></li>
+      <li><a href="#shop" data-i18n="nav.shop">Shop</a></li>
+      <li><a href="about.html" data-i18n="nav.about">About</a></li>
+      <li><a href="#" data-i18n="nav.contact">Contact</a></li>
+    </ul>
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <!-- Language toggle -->
+      <div class="lang-toggle">
+        <button class="lang-btn" data-lang="lo" onclick="setLang('lo')">ລາວ</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+      <!-- Search -->
+      <button class="nav-icon-btn" id="searchToggle" title="ຄົ້ນຫາ">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span data-i18n="nav.search">ຄົ້ນຫາ</span>
+      </button>
+
+      <!-- User Dropdown -->
+      <div class="user-dropdown-wrap" id="userDropWrap">
+        <button class="nav-icon-btn user-icon-btn" id="userIconBtn" onclick="toggleUserDrop(event)" title="ບັນຊີ">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
+          <span id="navUserLabel" data-i18n="nav.account">ບັນຊີ</span>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-avatar">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
+            </div>
+            <div class="dd-welcome" id="ddWelcome" data-i18n="dd.welcome">ຍິນດີຕ້ອນຮັບ</div>
+            <div class="dd-name" id="ddName">bunnies.bunn</div>
+          </div>
+          <div class="dd-guest" id="ddGuest">
+            <a class="dd-item" onclick="openAuth('login')">
+              <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              <span data-i18n="dd.login">ເຂົ້າສູ່ລະບົບ</span>
+            </a>
+            <div class="dd-divider"></div>
+            <a class="dd-item" onclick="openAuth('register')">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              <span data-i18n="dd.register">ສະໝັກສະມາຊິກ</span>
+            </a>
+          </div>
+          <div class="dd-loggedin" id="ddLoggedin">
+            <a class="dd-item" href="profile.html">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span data-i18n="dd.profile">ໂປຣໄຟລ໌ຂອງຂ້ອຍ</span>
+            </a>
+            <a class="dd-item" onclick="openOrders()" style="cursor:pointer">
+              <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <span data-i18n="dd.orders">ລາຍການສັ່ງຊື້</span>
+            </a>
+            <div class="dd-divider"></div>
+            <button class="dd-item danger" onclick="doLogout()">
+              <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span data-i18n="dd.logout">ອອກຈາກລະບົບ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart -->
+      <a href="cart.html" class="nav-icon-btn cart-nav-btn" title="ກະຕ່າ">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart (<span class="cart-count-inline">0</span>)</span>
+        <span class="cart-count" style="display:none">0</span>
+      </a>
+
+      <!-- Hamburger -->
+      <button class="hamburger" id="hamBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Bar Drop -->
+  <div class="nav-search-bar" id="navSearchBar">
+    <div class="nav-inner">
+      <div class="nav-search-inner">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearch" placeholder="ຄົ້ນຫາສິນຄ້າ..." oninput="onGlobalSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch()">
+        <button onclick="closeSearch()">✕</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <ul>
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="#shop">🛍️ Shop</a></li>
+    <li><a href="cart.html">🛒 ກະຕ່າ</a></li>
+    <li><a onclick="openAuth('login')" style="cursor:pointer">👤 ເຂົ້າສູ່ລະບົບ</a></li>
+    <li><a onclick="openAuth('register')" style="cursor:pointer">✍️ ສະໝັກ</a></li>
+  </ul>
+</div>
+
+<!-- =========================================================
+     AUTH MODAL
+     ========================================================= -->
+<style>
+.otp-boxes { display:flex; gap:10px; justify-content:center; margin:18px 0; }
+.otp-box {
+  width:44px; height:52px; border:2px solid #e0dbd4; border-radius:8px;
+  text-align:center; font-size:1.4rem; font-weight:700; color:#111;
+  outline:none; transition:border .18s; background:#fafafa;
+}
+.otp-box:focus { border-color:#c9a96e; background:#fff; }
+.otp-box.filled { border-color:#c9a96e; background:#fdf9f4; }
+.otp-hint { text-align:center; font-size:.78rem; color:#aaa; margin-bottom:4px; }
+.otp-phone-display { text-align:center; font-size:.88rem; color:#555; margin-bottom:2px; }
+.otp-phone-display strong { color:#111; }
+.resend-row { text-align:center; margin-top:10px; font-size:.78rem; color:#aaa; }
+.resend-btn { background:none; border:none; color:#c9a96e; cursor:pointer; font-size:.78rem; padding:0; text-decoration:underline; }
+.resend-btn:disabled { color:#ccc; cursor:default; text-decoration:none; }
+.step-dots { display:flex; justify-content:center; gap:6px; margin-bottom:18px; }
+.step-dot { width:8px; height:8px; border-radius:50%; background:#e0dbd4; transition:background .2s; }
+.step-dot.active { background:#c9a96e; width:20px; border-radius:4px; }
+.step-dot.done { background:#27ae60; }
+.auth-back { background:none; border:none; color:#aaa; font-size:.78rem; cursor:pointer; padding:0 0 12px; display:flex; align-items:center; gap:4px; }
+.auth-back:hover { color:#c9a96e; }
+</style>
+
+<div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
+  <div class="auth-box">
+    <button class="auth-close" onclick="closeAuth()">×</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin"    onclick="switchAuthTab('login')">ເຂົ້າສູ່ລະບົບ</button>
+      <button class="auth-tab"        id="tabRegister" onclick="switchAuthTab('register')">ສະໝັກສະມາຊິກ</button>
+    </div>
+    <div class="auth-body">
+      <div class="auth-icon-area">
+        <div class="auth-big-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <p class="auth-subtitle" id="authSubtitle">ເຂົ້າສູ່ລະບົບ bunnies.bunn</p>
+      </div>
+      <div class="auth-msg error"   id="authError"></div>
+      <div class="auth-msg success" id="authSuccess"></div>
+
+      <!-- ══ LOGIN FORM ══ -->
+      <div id="loginForm">
+        <div class="auth-fg">
+          <label>ເບີໂທ</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
+            <input type="tel" id="loginPhone" placeholder="020 XXXX XXXX" style="flex:1"
+                   inputmode="numeric" autocomplete="username"
+                   oninput="this.value=this.value.replace(/\D/g,'')"
+                   onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
+          </div>
+        </div>
+        <div class="auth-fg">
+          <label>ລະຫັດຜ່ານ</label>
+          <input type="password" id="loginPassword" placeholder="••••••••"
+                 autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <p style="text-align:right;margin-bottom:10px;font-size:.78rem">
+          <a onclick="openReset()" style="color:var(--primary);cursor:pointer">ລືມລະຫັດ?</a>
+        </p>
+        <button class="auth-btn" onclick="doLogin()">ເຂົ້າສູ່ລະບົບ →</button>
+        <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-muted)">
+          ຍັງບໍ່ມີ? <a onclick="switchAuthTab('register')" style="color:var(--primary);cursor:pointer">ສະໝັກ</a>
+        </p>
+      </div>
+
+      <!-- ══ RESET PASSWORD FORM ══ -->
+      <div id="resetForm" style="display:none">
+        <div class="step-dots">
+          <div class="step-dot active" id="rstDot1"></div>
+          <div class="step-dot"        id="rstDot2"></div>
+          <div class="step-dot"        id="rstDot3"></div>
+        </div>
+
+        <!-- Step 1: Phone -->
+        <div id="rstStep1">
+          <div class="auth-fg">
+            <label>ເບີໂທທີ່ສະໝັກໄວ້</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
+              <input type="tel" id="rstPhone" placeholder="020 XXXX XXXX" style="flex:1" inputmode="numeric"
+                     oninput="this.value=this.value.replace(/\D/g,'')"
+                     onkeydown="if(event.key==='Enter')rstSendOtp()">
+            </div>
+          </div>
+          <button class="auth-btn" onclick="rstSendOtp()">ສົ່ງ OTP →</button>
+          <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-muted)">
+            <a onclick="switchAuthTab('login')" style="color:var(--primary);cursor:pointer">← ກັບໄປເຂົ້າສູ່ລະບົບ</a>
+          </p>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="rstStep2" style="display:none">
+          <button class="auth-back" onclick="rstBack(1)">← ປ່ຽນເບີ</button>
+          <div class="otp-phone-display">ສົ່ງ OTP ໄປທີ່ <strong id="rstPhoneDisplay"></strong></div>
+          <div class="otp-hint">ໃສ່ລະຫັດ 6 ຕົວ</div>
+          <div class="otp-boxes" id="rstOtpBoxes">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+          </div>
+          <button class="auth-btn" onclick="rstVerifyOtp()">ຢືນຢັນ →</button>
+          <div class="resend-row">
+            ບໍ່ໄດ້ຮັບ? <button class="resend-btn" id="rstResendBtn" onclick="rstSendOtp(true)">ສົ່ງໃໝ່</button>
+            <span id="rstResendTimer"></span>
+          </div>
+        </div>
+
+        <!-- Step 3: New Password -->
+        <div id="rstStep3" style="display:none">
+          <button class="auth-back" onclick="rstBack(2)">← ກັບຄືນ</button>
+          <div class="auth-fg">
+            <label>ລະຫັດຜ່ານໃໝ່</label>
+            <input type="password" id="rstPass" placeholder="ຢ່າງໜ້ອຍ 6 ຕົວ...">
+          </div>
+          <div class="auth-fg">
+            <label>ຢືນຢັນລະຫັດ</label>
+            <input type="password" id="rstPass2" placeholder="ໃສ່ລະຫັດອີກຄັ້ງ..."
+                   onkeydown="if(event.key==='Enter')rstComplete()">
+          </div>
+          <button class="auth-btn" onclick="rstComplete()">ຕັ້ງລະຫັດໃໝ່ →</button>
+        </div>
+      </div>
+
+      <!-- ══ REGISTER FORM ══ -->
+      <div id="registerForm" style="display:none">
+        <!-- Step indicators -->
+        <div class="step-dots">
+          <div class="step-dot active" id="regDot1"></div>
+          <div class="step-dot" id="regDot2"></div>
+          <div class="step-dot" id="regDot3"></div>
+        </div>
+
+        <!-- Step 1: Phone -->
+        <div id="regStep1">
+          <div class="auth-fg">
+            <label>ເບີໂທ</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
+              <input type="tel" id="regPhone" placeholder="020 XXXX XXXX" style="flex:1" inputmode="numeric"
+                     onkeydown="if(event.key==='Enter')regSendOtp()">
+            </div>
+          </div>
+          <button class="auth-btn" onclick="regSendOtp()">ສົ່ງລະຫັດ OTP →</button>
+          <p style="text-align:center;margin-top:12px;font-size:.8rem;color:var(--text-muted)">
+            ມີແລ້ວ? <a onclick="switchAuthTab('login')" style="color:var(--primary);cursor:pointer">ເຂົ້າ</a>
+          </p>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="regStep2" style="display:none">
+          <button class="auth-back" onclick="regBack(1)">← ປ່ຽນເບີ</button>
+          <div class="otp-phone-display">ສົ່ງ OTP ໄປທີ່ <strong id="regPhoneDisplay"></strong></div>
+          <div class="otp-hint">ໃສ່ລະຫັດ 6 ຕົວ</div>
+          <div class="otp-boxes" id="regOtpBoxes">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]">
+          </div>
+          <button class="auth-btn" onclick="regVerifyOtp()">ຢືນຢັນ →</button>
+          <div class="resend-row">
+            ບໍ່ໄດ້ຮັບ? <button class="resend-btn" id="regResendBtn" onclick="regSendOtp(true)">ສົ່ງໃໝ່</button>
+            <span id="regResendTimer"></span>
+          </div>
+        </div>
+
+        <!-- Step 3: Name + Password -->
+        <div id="regStep3" style="display:none">
+          <button class="auth-back" onclick="regBack(2)">← ກັບຄືນ</button>
+          <div class="auth-fg">
+            <label>ຊື່ - ນາມສະກຸນ</label>
+            <input type="text" id="regName" placeholder="ຊື່ຂອງທ່ານ...">
+          </div>
+          <div class="auth-fg">
+            <label>ລະຫັດຜ່ານ</label>
+            <input type="password" id="regPass" placeholder="ຢ່າງໜ້ອຍ 6 ຕົວ...">
+          </div>
+          <div class="auth-fg">
+            <label>ຢືນຢັນລະຫັດ</label>
+            <input type="password" id="regPass2" placeholder="ໃສ່ລະຫັດອີກຄັ້ງ..."
+                   onkeydown="if(event.key==='Enter')regComplete()">
+          </div>
+          <button class="auth-btn" onclick="regComplete()">ສ້າງບັນຊີ →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     HERO SLIDER
+     ========================================================= -->
+<section class="hero-slider" id="heroSlider">
+  <div class="hs-track" id="hsTrack">
+    <!-- slides injected by JS -->
+  </div>
+  <button class="hs-arrow hs-prev" id="hsPrev">‹</button>
+  <button class="hs-arrow hs-next" id="hsNext">›</button>
+  <div class="hs-progress" id="hsProgress"></div>
+  <div class="hs-dots" id="hsDots"></div>
+</section>
+
+<!-- =========================================================
+     SHOP MAIN — Sidebar + Product Grid
+     ========================================================= -->
+<section class="shop-section" id="shop">
+  <div class="shop-container">
+
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <aside class="shop-sidebar" id="shopSidebar">
+
+      <!-- Product Categories -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.cats">ໝວດໝູ່ສິນຄ້າ</h3>
+        <ul class="sidebar-cat-list" id="sidebarCatList">
+          <li class="active"><a href="#" onclick="filterCat(0,this)" data-i18n="sb.all">ທັງໝົດ</a><span class="cat-count" id="totalCount">0</span></li>
+        </ul>
+      </div>
+
+      <!-- Filter By Price -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.price">ກັ່ນຕອງລາຄາ</h3>
+        <div class="price-range-wrap">
+          <div class="price-slider-track">
+            <div class="price-slider-fill" id="sliderFill"></div>
+            <input type="range" id="priceMin" min="0" max="1000" value="0" class="price-range-input" oninput="updatePriceRange()">
+            <input type="range" id="priceMax" min="0" max="1000" value="500" class="price-range-input" oninput="updatePriceRange()">
+          </div>
+          <div class="price-range-labels">
+            <button class="filter-apply-btn" onclick="applyPriceFilter()" data-i18n="sb.filter">ກັ່ນຕອງ</button>
+            <span class="price-range-display" id="priceDisplay">Price: $0 — $500</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Any Size -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.size">ຂະໜາດ</h3>
+        <div class="size-options">
+          <button class="size-btn" onclick="toggleSize(this)">S</button>
+          <button class="size-btn active" onclick="toggleSize(this)">M</button>
+          <button class="size-btn" onclick="toggleSize(this)">L</button>
+          <button class="size-btn" onclick="toggleSize(this)">XL</button>
+          <button class="size-btn" onclick="toggleSize(this)">XXL</button>
+        </div>
+      </div>
+
+      <!-- Choose Color -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.color">ສີ</h3>
+        <div class="color-filter-row" id="colorFilters">
+          <button class="color-filter active" style="background:#d4a017" title="Gold" onclick="toggleColor(this,'Gold')"></button>
+          <button class="color-filter" style="background:#ff85a1" title="Pink" onclick="toggleColor(this,'Pink')"></button>
+          <button class="color-filter" style="background:#48cae4" title="Turquoise" onclick="toggleColor(this,'Turquoise')"></button>
+          <button class="color-filter" style="background:#27ae60" title="Green" onclick="toggleColor(this,'Green')"></button>
+          <button class="color-filter" style="background:#3498db" title="Blue" onclick="toggleColor(this,'Blue')"></button>
+          <button class="color-filter" style="background:#9b59b6" title="Purple" onclick="toggleColor(this,'Purple')"></button>
+          <button class="color-filter" style="background:#e74c3c" title="Red" onclick="toggleColor(this,'Red')"></button>
+          <button class="color-filter" style="background:#2c2c2c" title="Black" onclick="toggleColor(this,'Black')"></button>
+        </div>
+      </div>
+
+      <!-- Brand -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.brand">ແບຣນ</h3>
+        <ul class="sidebar-brand-list">
+          <li><label><input type="checkbox" checked> All Brands</label></li>
+          <li><label><input type="checkbox"> bunnies.bunn</label></li>
+          <li><label><input type="checkbox"> Premium</label></li>
+          <li><label><input type="checkbox"> Handmade</label></li>
+        </ul>
+      </div>
+
+      <!-- Featured Products -->
+      <div class="sidebar-block">
+        <h3 class="sidebar-title" data-i18n="sb.featured">ສິນຄ້າແນະນຳ</h3>
+        <div class="sidebar-featured" id="sidebarFeatured">
+          <div class="sidebar-spin"><div class="spin"></div></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== RIGHT: PRODUCTS ===== -->
+    <div class="shop-main">
+
+      <!-- Toolbar -->
+      <div class="shop-toolbar">
+        <div class="toolbar-left">
+          <span class="result-count" id="resultCount">ກຳລັງໂຫຼດ...</span>
+        </div>
+        <div class="toolbar-right">
+          <select class="sort-select" id="sortSelect" onchange="applySorting()">
+            <option value="default"    data-i18n="tb.sort.default">ຈັດລຽງປົກກະຕິ</option>
+            <option value="price-asc"  data-i18n="tb.sort.price.asc">ລາຄາ: ຕ່ຳ → ສູງ</option>
+            <option value="price-desc" data-i18n="tb.sort.price.desc">ລາຄາ: ສູງ → ຕ່ຳ</option>
+            <option value="name-asc"   data-i18n="tb.sort.name">ຊື່: ກ → ຮ</option>
+          </select>
+          <button class="view-btn active" id="viewGrid" onclick="setView('grid')" title="Grid View">
+            <svg viewBox="0 0 24 24" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+          <button class="view-btn" id="viewList" onclick="setView('list')" title="List View">
+            <svg viewBox="0 0 24 24" width="16" height="16"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+          <!-- Mobile filter toggle -->
+          <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+            <svg viewBox="0 0 24 24" width="16" height="16"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+            <span data-i18n="tb.filter">Filter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Grid -->
+      <div class="shop-grid" id="productGrid">
+        <div class="shop-spinner"><div class="spin"></div></div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display:none">
+        <div class="icon">🔍</div>
+        <h3>ບໍ່ພົບສິນຄ້າ</h3>
+        <p>ລອງຄົ້ນຫາດ້ວຍຄຳອື່ນ ຫຼື ປ່ຽນ filter</p>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrap" id="paginationWrap" style="display:none">
+        <div class="pagination" id="pagination"></div>
+        <span class="pagination-info" id="paginationInfo"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     NEWSLETTER SECTION
+     ========================================================= -->
+<section class="newsletter-section">
+  <div class="newsletter-inner">
+    <h2 class="newsletter-title">Get Discount Info</h2>
+    <p class="newsletter-sub">Subscribe to the bunnies.bunn mailing list to receive updates on new arrivals, special offers and other discount information.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Subscribe to our newsletter..." class="newsletter-input">
+      <button class="newsletter-btn">SUBSCRIBE</button>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     FOOTER — Outstock dark style
+     ========================================================= -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-col footer-brand-col">
+      <div class="footer-logo">bunnies<span>.bunn</span></div>
+      <p>bunnies.bunn ແມ່ນຮ້ານຄ້າອອນໄລທີ່ຈຳໜ່າຍສິນຄ້າ ທີ່ handcrafted, easy to use ແລະ fully responsive.</p>
+      <div class="footer-contact-list">
+        <div class="footer-contact-item">📍 <span>ນະຄອນຫຼວງວຽງຈັນ, ລາວ</span></div>
+        <div class="footer-contact-item">📧 <span>contact@bunnies.bunn</span></div>
+        <div class="footer-contact-item">📞 <span>(020) 000-0000</span></div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Information</h4>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Delivery Information</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms & Condition</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Customer Service</h4>
+      <ul>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Help & Contact Us</a></li>
+        <li><a href="#">Returns & Refunds</a></li>
+        <li><a href="#">Order Status</a></li>
+        <li><a href="#">Terms & Conditions</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>Copyright © bunnies.bunn All rights reserved.</span>
+    <div class="footer-socials">
+      <!-- Instagram -->
+      <a class="footer-social" href="https://www.instagram.com/bunnies.bunn?igsh=MWhmbzVwNXhnYnk0ZA%3D%3D&utm_source=qr" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+      <!-- TikTok -->
+      <a class="footer-social" href="https://www.tiktok.com/@bunnies.bunnn?_r=1&_t=ZS-96S2OxIrrXU" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9a8.19 8.19 0 004.84 1.56V7.12a4.85 4.85 0 01-1.07-.43z"/></svg>
+      </a>
+      <!-- Facebook -->
+      <a class="footer-social" href="https://www.facebook.com/share/1HVcwKP7Tv/?mibextid=wwXIfr" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </a>
+      <!-- WhatsApp -->
+      <a class="footer-social" href="https://wa.me/8562095457843" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/main.js"></script>
+<script>
+/* ============================================================
+   AUTH SYSTEM
+   ============================================================ */
+const AUTH_KEY = 'bunn_user', USERS_KEY = 'bunn_users';
+function getUser() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; } }
+function setUser(u) { localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
+function clearUser() { localStorage.removeItem(AUTH_KEY); }
+
+function updateUserNav() {
+  const u = getUser();
+  const btn = document.getElementById('userIconBtn');
+  const lbl = document.getElementById('navUserLabel');
+  const g = document.getElementById('ddGuest'), l = document.getElementById('ddLoggedin');
+  const w = document.getElementById('ddWelcome'), n = document.getElementById('ddName');
+  if (u) {
+    btn.classList.add('logged-in');
+    if (lbl) lbl.textContent = u.name?.split(' ')[0] || u.phone || 'Me';
+    g.style.display = 'none'; l.style.display = 'block';
+    w.textContent = 'ສະບາຍດີ,'; n.textContent = u.name || u.phone || u.email;
+  } else {
+    btn.classList.remove('logged-in');
+    if (lbl) lbl.textContent = 'Account';
+    g.style.display = 'block'; l.style.display = 'none';
+    w.textContent = 'ຍິນດີຕ້ອນຮັບ'; n.textContent = 'bunnies.bunn';
+  }
+}
+function toggleUserDrop(e) { e.stopPropagation(); document.getElementById('userDropdown').classList.toggle('open'); }
+document.addEventListener('click', e => { const w = document.getElementById('userDropWrap'); if (!w?.contains(e.target)) document.getElementById('userDropdown')?.classList.remove('open'); });
+function openAuth(tab = 'login') {
+  document.getElementById('userDropdown').classList.remove('open');
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  switchAuthTab(tab); clearMsgs();
+}
+function closeAuth() { document.getElementById('authOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeAuth(); closeSearch(); } });
+
+function switchAuthTab(tab) {
+  const l = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', l);
+  document.getElementById('tabRegister').classList.toggle('active', !l);
+  document.getElementById('loginForm').style.display    = l ? 'block' : 'none';
+  document.getElementById('registerForm').style.display = l ? 'none'  : 'block';
+  document.getElementById('resetForm').style.display    = 'none';
+  document.getElementById('authSubtitle').textContent   = l ? 'ເຂົ້າສູ່ລະບົບ bunnies.bunn' : 'ສ້າງບັນຊີໃໝ່';
+  clearMsgs();
+}
+function openReset() {
+  document.getElementById('loginForm').style.display    = 'none';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('resetForm').style.display    = 'block';
+  document.getElementById('authSubtitle').textContent   = 'ຕັ້ງລະຫັດໃໝ່';
+  document.getElementById('tabLogin').classList.remove('active');
+  document.getElementById('tabRegister').classList.remove('active');
+  rstReset(); clearMsgs();
+}
+function showErr(m) { const e = document.getElementById('authError'); e.textContent = m; e.style.display = 'block'; document.getElementById('authSuccess').style.display = 'none'; }
+function showOk(m)  { const e = document.getElementById('authSuccess'); e.textContent = m; e.style.display = 'block'; document.getElementById('authError').style.display = 'none'; }
+function clearMsgs(){ document.getElementById('authError').style.display = 'none'; document.getElementById('authSuccess').style.display = 'none'; }
+
+/* ── OTP box helpers ── */
+function initOtpBoxes(containerId, onComplete) {
+  const boxes = document.querySelectorAll('#' + containerId + ' .otp-box');
+  boxes.forEach((box, i) => {
+    box.value = '';
+    box.classList.remove('filled');
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/\D/g,'').slice(-1);
+      box.classList.toggle('filled', !!box.value);
+      if (box.value && i < boxes.length - 1) boxes[i+1].focus();
+      if ([...boxes].every(b => b.value)) onComplete?.();
+    });
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !box.value && i > 0) boxes[i-1].focus();
+    });
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData('text').match(/\d/g)||[]).slice(0,6);
+      digits.forEach((d,j) => { if(boxes[j]){ boxes[j].value=d; boxes[j].classList.add('filled'); }});
+      boxes[Math.min(digits.length, boxes.length-1)].focus();
+      if (digits.length === 6) onComplete?.();
+    });
+  });
+  boxes[0]?.focus();
+}
+function getOtp(containerId) {
+  return [...document.querySelectorAll('#' + containerId + ' .otp-box')].map(b=>b.value).join('');
+}
+
+/* ── Resend countdown ── */
+let resendTimers = {};
+function startResendTimer(btnId, timerId, seconds = 60) {
+  const btn = document.getElementById(btnId);
+  const span = document.getElementById(timerId);
+  btn.disabled = true;
+  clearInterval(resendTimers[btnId]);
+  let s = seconds;
+  span.textContent = ` (${s}s)`;
+  resendTimers[btnId] = setInterval(() => {
+    s--;
+    if (s <= 0) { clearInterval(resendTimers[btnId]); btn.disabled = false; span.textContent = ''; }
+    else span.textContent = ` (${s}s)`;
+  }, 1000);
+}
+
+/* ═══════════════════════════════
+   LOGIN FLOW (phone + password)
+═══════════════════════════════ */
+async function doLogin() {
+  const phone = document.getElementById('loginPhone').value.replace(/\D/g,'');
+  const pass  = document.getElementById('loginPassword').value;
+  if (!phone || phone.length < 8) { showErr('ກະລຸນາໃສ່ເບີໂທໃຫ້ຖືກຕ້ອງ'); return; }
+  if (!pass) { showErr('ກະລຸນາໃສ່ລະຫັດຜ່ານ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'login', phone, password: pass })
+    });
+    const d = await r.json();
+    if (d.success) {
+      setUser({ name: d.name, phone: d.phone, id: d.id });
+      showOk('ເຂົ້າສູ່ລະບົບສຳເລັດ! 🎉');
+      updateUserNav();
+      setTimeout(closeAuth, 1200);
+    } else {
+      showErr(d.error || 'ເບີໂທ ຫຼື ລະຫັດຜ່ານບໍ່ຖືກ');
+    }
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+/* ═══════════════════════════════
+   RESET PASSWORD FLOW (3 steps)
+═══════════════════════════════ */
+let rstToken = null;
+
+function setRstDots(step) {
+  [1,2,3].forEach(i => {
+    const d = document.getElementById('rstDot'+i);
+    d.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  });
+}
+function rstReset() {
+  document.getElementById('rstStep1').style.display = 'block';
+  document.getElementById('rstStep2').style.display = 'none';
+  document.getElementById('rstStep3').style.display = 'none';
+  document.getElementById('rstPhone').value = '';
+  setRstDots(1); rstToken = null;
+}
+function rstBack(toStep) {
+  document.getElementById('rstStep1').style.display = toStep === 1 ? 'block' : 'none';
+  document.getElementById('rstStep2').style.display = toStep === 2 ? 'block' : 'none';
+  setRstDots(toStep); clearMsgs();
+}
+
+async function rstSendOtp(resend = false) {
+  const phone = document.getElementById('rstPhone').value.replace(/\D/g,'');
+  if (!phone || phone.length < 8) { showErr('ກະລຸນາໃສ່ເບີໂທໃຫ້ຖືກຕ້ອງ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'send_otp', phone, mode: 'reset' })
+    });
+    const d = await r.json();
+    if (!d.success) { showErr(d.error || 'ຜິດພາດ'); return; }
+    document.getElementById('rstStep1').style.display = 'none';
+    document.getElementById('rstStep2').style.display = 'block';
+    document.getElementById('rstPhoneDisplay').textContent = '0' + phone.slice(-9);
+    setRstDots(2);
+    initOtpBoxes('rstOtpBoxes', rstVerifyOtp);
+    startResendTimer('rstResendBtn', 'rstResendTimer');
+    if (d.otp_debug) showOk('DEV — OTP: ' + d.otp_debug);
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+async function rstVerifyOtp() {
+  const phone = document.getElementById('rstPhone').value.replace(/\D/g,'');
+  const otp   = getOtp('rstOtpBoxes');
+  if (otp.length < 6) { showErr('ກະລຸນາໃສ່ລະຫັດ 6 ຕົວ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'verify_otp', phone, otp, mode: 'reset' })
+    });
+    const d = await r.json();
+    if (!d.verified) { showErr(d.error || 'OTP ບໍ່ຖືກ'); return; }
+    rstToken = d.token;
+    document.getElementById('rstStep2').style.display = 'none';
+    document.getElementById('rstStep3').style.display = 'block';
+    setRstDots(3); clearMsgs();
+    document.getElementById('rstPass').focus();
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+async function rstComplete() {
+  const phone = document.getElementById('rstPhone').value.replace(/\D/g,'');
+  const pass  = document.getElementById('rstPass').value;
+  const pass2 = document.getElementById('rstPass2').value;
+  if (pass.length < 6)    { showErr('ລະຫັດຢ່າງໜ້ອຍ 6 ຕົວ'); return; }
+  if (pass !== pass2)     { showErr('ລະຫັດຜ່ານບໍ່ຕົງກັນ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'reset_password', phone, token: rstToken, password: pass })
+    });
+    const d = await r.json();
+    if (!d.success) { showErr(d.error || 'ຜິດພາດ'); return; }
+    showOk('ຕັ້ງລະຫັດໃໝ່ສຳເລັດ! 🎉');
+    setTimeout(() => { switchAuthTab('login'); }, 1400);
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+/* ═══════════════════════════════
+   REGISTER FLOW (3 steps)
+═══════════════════════════════ */
+let regToken = null;
+
+function setRegDots(step) {
+  [1,2,3].forEach(i => {
+    const dot = document.getElementById('regDot'+i);
+    dot.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  });
+}
+
+async function regSendOtp(resend = false) {
+  const phone = document.getElementById('regPhone').value.replace(/\D/g,'');
+  if (!phone || phone.length < 8) { showErr('ກະລຸນາໃສ່ເບີໂທໃຫ້ຖືກຕ້ອງ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'send_otp', phone, mode: 'register' })
+    });
+    const d = await r.json();
+    if (!d.success) { showErr(d.error || 'ຜິດພາດ'); return; }
+    document.getElementById('regStep1').style.display = 'none';
+    document.getElementById('regStep2').style.display = 'block';
+    document.getElementById('regPhoneDisplay').textContent = '0' + phone.slice(-9);
+    setRegDots(2);
+    initOtpBoxes('regOtpBoxes', regVerifyOtp);
+    startResendTimer('regResendBtn', 'regResendTimer');
+    if (d.otp_debug) showOk('DEV — OTP: ' + d.otp_debug);
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+async function regVerifyOtp() {
+  const phone = document.getElementById('regPhone').value.replace(/\D/g,'');
+  const otp   = getOtp('regOtpBoxes');
+  if (otp.length < 6) { showErr('ກະລຸນາໃສ່ລະຫັດ 6 ຕົວ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'verify_otp', phone, otp, mode: 'register' })
+    });
+    const d = await r.json();
+    if (!d.verified) { showErr(d.error || 'OTP ບໍ່ຖືກ'); return; }
+    regToken = d.token;
+    document.getElementById('regStep2').style.display = 'none';
+    document.getElementById('regStep3').style.display = 'block';
+    setRegDots(3); clearMsgs();
+    document.getElementById('regName').focus();
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+function regBack(fromStep) {
+  clearMsgs();
+  if (fromStep === 1) {
+    document.getElementById('regStep2').style.display = 'none';
+    document.getElementById('regStep1').style.display = 'block';
+    setRegDots(1);
+  } else {
+    document.getElementById('regStep3').style.display = 'none';
+    document.getElementById('regStep2').style.display = 'block';
+    setRegDots(2);
+  }
+}
+
+async function regComplete() {
+  const phone = document.getElementById('regPhone').value.replace(/\D/g,'');
+  const name  = document.getElementById('regName').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  const pass2 = document.getElementById('regPass2').value;
+  if (!name)           { showErr('ກະລຸນາໃສ່ຊື່'); return; }
+  if (!pass || pass.length < 6) { showErr('ລະຫັດຢ່າງໜ້ອຍ 6 ຕົວ'); return; }
+  if (pass !== pass2)  { showErr('ລະຫັດຜ່ານບໍ່ກົງກັນ'); return; }
+  if (!regToken)       { showErr('ກະລຸນາຢືນຢັນ OTP ກ່ອນ'); return; }
+  clearMsgs();
+  try {
+    const r = await fetch('api/auth.php', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'complete_register', phone, token: regToken, name, password: pass })
+    });
+    const d = await r.json();
+    if (d.success) {
+      setUser({ name: d.name, phone: d.phone, id: d.id });
+      showOk('ສ້າງບັນຊີສຳເລັດ! 🎉'); updateUserNav(); setTimeout(closeAuth, 1400);
+    } else showErr(d.error || 'ຜິດພາດ');
+  } catch { showErr('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+function doLogout() { clearUser(); updateUserNav(); document.getElementById('userDropdown').classList.remove('open'); }
+
+/* ============================================================
+   SEARCH BAR TOGGLE
+   ============================================================ */
+function toggleSearch() { document.getElementById('navSearchBar').classList.toggle('open'); if (document.getElementById('navSearchBar').classList.contains('open')) document.getElementById('globalSearch').focus(); }
+function closeSearch() { document.getElementById('navSearchBar').classList.remove('open'); }
+document.getElementById('searchToggle').addEventListener('click', toggleSearch);
+
+/* ============================================================
+   SHOP DATA & STATE
+   ============================================================ */
+let allProducts = [];
+let filteredProducts = [];
+let currentCatId = 0;
+let currentPage = 1;
+const PER_PAGE = 9;
+let currentView = 'grid';
+let priceMin = 0, priceMax = Infinity;
+let priceRangeReady = false;
+let selectedColor = '';
+let sortMode = 'default';
+let searchQuery = '';
+
+/* --- Load categories into sidebar --- */
+async function loadSidebarCats() {
+  try {
+    const data = await API.get('categories.php');
+    if (!data || !data.length) return;
+    const list = document.getElementById('sidebarCatList');
+    data.forEach(c => {
+      const li = document.createElement('li');
+      li.innerHTML = `<a href="#" onclick="filterCat(${c.id},this)">${c.name}</a><span class="cat-count">${c.product_count || 0}</span>`;
+      list.appendChild(li);
+    });
+  } catch { /* ignore */ }
+}
+
+/* --- Load products --- */
+async function loadProducts(catId = 0, search = '') {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '<div class="shop-spinner"><div class="spin"></div></div>';
+  document.getElementById('emptyState').style.display = 'none';
+
+  let url = 'products.php';
+  const params = [];
+  if (catId) params.push('category=' + catId);
+  if (search) params.push('search=' + encodeURIComponent(search));
+  if (params.length) url += '?' + params.join('&');
+
+  const data = await API.get(url);
+  allProducts = data?.products || [];
+  document.getElementById('totalCount').textContent = allProducts.length;
+
+  /* init price slider range once from actual product prices */
+  if (allProducts.length && !priceRangeReady) {
+    const prices = allProducts.map(p => parseFloat(p.price));
+    const hi = Math.ceil(Math.max(...prices) / 10000) * 10000;
+    const lo = Math.floor(Math.min(...prices) / 10000) * 10000;
+    ['priceMin','priceMax'].forEach(id => {
+      const el = document.getElementById(id);
+      el.min = lo; el.max = hi;
+    });
+    document.getElementById('priceMin').value = lo;
+    document.getElementById('priceMax').value = hi;
+    priceMin = lo; priceMax = hi;
+    priceRangeReady = true;
+    updatePriceRange();
+  }
+
+  applyFiltersAndRender();
+  loadFeaturedProducts();
+}
+
+/* --- Apply filters, sort, paginate --- */
+function applyFiltersAndRender() {
+  filteredProducts = allProducts.filter(p => {
+    const price = parseFloat(p.price);
+    if (price < priceMin || price > priceMax) return false;
+    if (selectedColor) {
+      const colors = Array.isArray(p.colors) ? p.colors : [];
+      if (!colors.includes(selectedColor)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  if (sortMode === 'price-asc') filteredProducts.sort((a, b) => a.price - b.price);
+  else if (sortMode === 'price-desc') filteredProducts.sort((a, b) => b.price - a.price);
+  else if (sortMode === 'name-asc') filteredProducts.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  currentPage = 1;
+  renderPage();
+}
+
+function renderPage() {
+  const grid = document.getElementById('productGrid');
+  const empty = document.getElementById('emptyState');
+  const total = filteredProducts.length;
+  const start = (currentPage - 1) * PER_PAGE;
+  const pageItems = filteredProducts.slice(start, start + PER_PAGE);
+
+  document.getElementById('resultCount').textContent =
+    `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of ${total} results`;
+
+  if (!total) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    document.getElementById('paginationWrap').style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+
+  if (currentView === 'list') {
+    grid.className = 'shop-grid list-view';
+    grid.innerHTML = pageItems.map(buildListCard).join('');
+  } else {
+    grid.className = 'shop-grid';
+    grid.innerHTML = pageItems.map(buildShopCard).join('');
+  }
+
+  renderPagination(total);
+}
+
+/* --- Wishlist helpers --- */
+const WISH_KEY = 'bunn_wishlist';
+function getWishlist() { try { return JSON.parse(localStorage.getItem(WISH_KEY)) || []; } catch { return []; } }
+function toggleWish(id, btn) {
+  let list = getWishlist();
+  const idx = list.indexOf(id);
+  if (idx === -1) {
+    list.push(id); btn.classList.add('wished');
+    showToast('ເພີ່ມໃສ່ລາຍການໂປດ ♥', 'success');
+  } else {
+    list.splice(idx, 1); btn.classList.remove('wished');
+    showToast('ລຶບອອກຈາກລາຍການໂປດ', 'info');
+  }
+  localStorage.setItem(WISH_KEY, JSON.stringify(list));
+}
+
+/* --- Outstock-style product card --- */
+function buildShopCard(p) {
+  const old      = p.old_price ? `<span class="card-old-price">${Utils.fmt(p.old_price)}</span>` : '';
+  const isPreorder = (p.stock ?? 1) <= 0 || parseInt(p.pre_order) === 1;
+  const badge    = isPreorder ? '<span class="card-badge pre-badge">PRE-ORDER</span>'
+                 : p.is_new   ? '<span class="card-badge new-badge">NEW</span>'
+                 : p.old_price ? '<span class="card-badge sale-badge">SALE</span>' : '';
+  const img   = p.image_url || p.image || '';
+  const name  = JSON.stringify(p.name_lo || p.name);
+  const iUrl  = JSON.stringify(img);
+
+  let label = '';
+  if (isPreorder) label = `<div class="shop-card-label label-pre">${t('card.label.pre')}</div>`;
+  else if (p.is_new) label = `<div class="shop-card-label label-sale">${t('card.label.new')}</div>`;
+  else if (p.old_price) label = `<div class="shop-card-label label-sale">${t('card.label.sale')}</div>`;
+  else if (p.category_name) label = `<div class="shop-card-label label-cat">${p.category_name}</div>`;
+
+  const desc = p.description ? `<div class="shop-card-desc">${p.description}</div>` : '';
+  const wished = getWishlist().includes(p.id);
+  const cartCall  = `quickAddToCart(${p.id},${name},${p.price},${iUrl},${isPreorder})`;
+  const cartLbl   = isPreorder ? t('card.pre')     : t('card.add');
+  const mobileLbl = isPreorder ? t('card.pre.mob') : t('card.add.mob');
+
+  return `
+    <div class="shop-card" onclick="location.href='product.html?id=${p.id}'">
+      <div class="shop-card-img-wrap">
+        ${badge}
+        <img src="${img}" alt="${p.name_lo||p.name}" loading="lazy"
+             style="width:100%;height:100%;object-fit:cover"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:3rem;color:#ccc">🛍️</div>
+        <div class="shop-card-overlay">
+          <button class="overlay-btn overlay-view"
+                  onclick="event.stopPropagation();location.href='product.html?id=${p.id}'">
+            ${t('card.view')}
+          </button>
+          <button class="overlay-btn overlay-cart${isPreorder?' overlay-pre':''}"
+                  onclick="event.stopPropagation();${cartCall}">
+            ${cartLbl}
+          </button>
+        </div>
+      </div>
+      <div class="shop-card-body">
+        ${label}
+        <div class="shop-card-name">${p.name_lo || p.name}</div>
+        ${desc}
+        <div class="shop-card-price-row">
+          <span class="shop-card-price">${Utils.fmt(p.price)}</span>
+          ${old}
+          <button class="card-wish-btn${wished?' wished':''}"
+                  onclick="event.stopPropagation();toggleWish(${p.id},this)" title="ລາຍການໂປດ">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <button class="mobile-cart-btn${isPreorder?' mobile-pre-btn':''}"
+                onclick="event.stopPropagation();${cartCall}">
+          ${mobileLbl}
+        </button>
+      </div>
+    </div>`;
+}
+
+/* List view card */
+function buildListCard(p) {
+  return `
+    <div class="shop-list-card" onclick="location.href='product.html?id=${p.id}'">
+      <div class="list-card-img">
+        <img src="${p.image_url||''}" alt="${p.name_lo||p.name}" loading="lazy"
+             style="width:160px;height:160px;object-fit:cover"
+             onerror="this.style.display='none'">
+      </div>
+      <div class="list-card-body">
+        <div class="list-card-cat">${p.category_name || ''}</div>
+        <div class="list-card-name">${p.name_lo || p.name}</div>
+        <div class="list-card-price">${Utils.fmt(p.price)}</div>
+        <p class="list-card-desc">${p.description || 'ສິນຄ້າຄຸນນະພາບສູງ'}</p>
+        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();quickAddToCart(${p.id},${JSON.stringify(p.name_lo||p.name)},${p.price},${JSON.stringify(p.image_url||p.image||'')},${(p.stock??1)===0})">${(p.stock??1)===0?'📦 Pre-Order':'🛒 ໃສ່ກະຕ່າ'}</button>
+      </div>
+    </div>`;
+}
+
+/* --- Pagination --- */
+function renderPagination(total) {
+  const totalPages = Math.ceil(total / PER_PAGE);
+  const wrap = document.getElementById('paginationWrap');
+  const pg = document.getElementById('pagination');
+  const info = document.getElementById('paginationInfo');
+
+  if (totalPages <= 1) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+
+  let html = '';
+  if (currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage - 1})">‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if (currentPage < totalPages) html += `<button class="page-btn" onclick="goPage(${currentPage + 1})">›</button>`;
+  pg.innerHTML = html;
+
+  const start = (currentPage - 1) * PER_PAGE;
+  info.textContent = `Showing ${start + 1}–${Math.min(start + PER_PAGE, total)} of ${total} results`;
+}
+
+function goPage(p) { currentPage = p; renderPage(); window.scrollTo({ top: document.getElementById('shop').offsetTop - 80, behavior: 'smooth' }); }
+
+/* --- Filter functions --- */
+function filterCat(id, el) {
+  currentCatId = id;
+  document.querySelectorAll('.sidebar-cat-list li').forEach(li => li.classList.remove('active'));
+  el.closest('li').classList.add('active');
+  loadProducts(id, searchQuery);
+}
+
+function updatePriceRange() {
+  let min = parseInt(document.getElementById('priceMin').value);
+  let max = parseInt(document.getElementById('priceMax').value);
+  const sliderMax = parseInt(document.getElementById('priceMax').max) || max;
+  if (min > max) { const t = min; min = max; max = t; }
+  const fmt = n => '₭' + Number(n).toLocaleString();
+  document.getElementById('priceDisplay').textContent = `${fmt(min)} — ${fmt(max)}`;
+  const pct1 = sliderMax ? (min / sliderMax) * 100 : 0;
+  const pct2 = sliderMax ? (max / sliderMax) * 100 : 100;
+  document.getElementById('sliderFill').style.left = pct1 + '%';
+  document.getElementById('sliderFill').style.width = (pct2 - pct1) + '%';
+}
+
+function applyPriceFilter() {
+  priceMin = parseInt(document.getElementById('priceMin').value);
+  priceMax = parseInt(document.getElementById('priceMax').value);
+  if (priceMin > priceMax) { const t = priceMin; priceMin = priceMax; priceMax = t; }
+  applyFiltersAndRender();
+}
+
+function toggleSize(btn) {
+  document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleColor(btn, color) {
+  const wasActive = btn.classList.contains('active');
+  document.querySelectorAll('.color-filter').forEach(b => b.classList.remove('active'));
+  if (!wasActive) { btn.classList.add('active'); selectedColor = color; }
+  else selectedColor = '';
+  applyFiltersAndRender();
+}
+
+function applySorting() {
+  sortMode = document.getElementById('sortSelect').value;
+  applyFiltersAndRender();
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('viewGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('viewList').classList.toggle('active', v === 'list');
+  renderPage();
+}
+
+function toggleSidebar() {
+  document.getElementById('shopSidebar').classList.toggle('open');
+}
+
+/* --- Featured Products (sidebar) --- */
+async function loadFeaturedProducts() {
+  const box = document.getElementById('sidebarFeatured');
+  const featured = allProducts.slice(0, 4);
+  if (!featured.length) { box.innerHTML = '<p style="color:#aaa;font-size:0.8rem">ບໍ່ມີຂໍ້ມູນ</p>'; return; }
+  box.innerHTML = featured.map(p => `
+    <div class="feat-item" onclick="location.href='product.html?id=${p.id}'">
+      <img src="${p.image_url || 'https://via.placeholder.com/60x60'}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/60x60'">
+      <div class="feat-info">
+        <div class="feat-name">${p.name_lo || p.name}</div>
+        <div class="feat-price">${Utils.fmt(p.price)} ${p.old_price ? `<s style="color:#aaa;font-size:0.75rem">${Utils.fmt(p.old_price)}</s>` : ''}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* --- Global search --- */
+const onGlobalSearch = Utils.debounce(val => {
+  searchQuery = val;
+  loadProducts(currentCatId, val);
+}, 400);
+
+function doSearch() {
+  closeSearch();
+  loadProducts(currentCatId, document.getElementById('globalSearch').value);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+updateUserNav();
+updatePriceRange();
+loadSidebarCats();
+loadProducts();
+
+// Hamburger
+document.getElementById('hamBtn').addEventListener('click', () => {
+  document.getElementById('mobileNav').classList.toggle('open');
+});
+
+/* ============================================================
+   HERO SLIDER — dynamic
+   ============================================================ */
+const SLIDER_KEY  = 'bunn_banners';
+const SLIDER_FALLBACK = [
+  { img:'uploads/banners/slide1.jpg', link:'' },
+  { img:'uploads/banners/slide2.jpg', link:'' },
+  { img:'uploads/banners/slide3.jpg', link:'' }
+];
+const INTERVAL = 5000;
+let sliderCur = 0, sliderTotal = 0, sliderTimer;
+
+function getBannerData() {
+  try {
+    const saved = localStorage.getItem(SLIDER_KEY);
+    if (saved) {
+      const arr = JSON.parse(saved);
+      if (Array.isArray(arr) && arr.length) {
+        // normalize: support both string[] and {img,link}[]
+        return arr.map(item =>
+          typeof item === 'string' ? { img: item, link: '' } : item
+        );
+      }
+    }
+    // migrate old bunn_banner_1/2/3
+    const old = [];
+    for (let i = 1; i <= 10; i++) {
+      const d = localStorage.getItem('bunn_banner_' + i);
+      if (d) old.push({ img: d, link: '' }); else break;
+    }
+    if (old.length) return old;
+  } catch {}
+  return SLIDER_FALLBACK;
+}
+
+function buildSlider() {
+  const slides = getBannerData();
+  sliderTotal  = slides.length;
+
+  const track  = document.getElementById('hsTrack');
+  const dotsEl = document.getElementById('hsDots');
+
+  track.innerHTML = slides.map((s, i) => {
+    const inner = `<img class="hs-img" src="${s.img}" alt="Banner ${i+1}" onerror="this.style.display='none'">`;
+    if (s.link) {
+      return `<div class="hs-slide" style="cursor:pointer" onclick="location.href='${s.link}'">
+        ${inner}
+        <div class="hs-promo-hint">ກົດເພື່ອເບິ່ງ →</div>
+      </div>`;
+    }
+    return `<div class="hs-slide">${inner}</div>`;
+  }).join('');
+
+  dotsEl.innerHTML = slides.map((_, i) => `
+    <button class="hs-dot${i===0?' active':''}" data-idx="${i}"></button>`).join('');
+
+  initSliderEvents();
+}
+
+function sliderGoTo(n) {
+  const track  = document.getElementById('hsTrack');
+  const dotsEl = document.getElementById('hsDots');
+  const bar    = document.getElementById('hsProgress');
+  sliderCur = ((n % sliderTotal) + sliderTotal) % sliderTotal;
+  track.style.transform = `translateX(-${sliderCur * 100}%)`;
+  dotsEl.querySelectorAll('.hs-dot').forEach((d,i) => d.classList.toggle('active', i===sliderCur));
+  if (bar) {
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      bar.style.transition = `width ${INTERVAL}ms linear`; bar.style.width = '100%';
+    }));
+  }
+}
+
+function sliderStart() {
+  sliderTimer = setInterval(() => sliderGoTo(sliderCur + 1), INTERVAL);
+  sliderGoTo(0);
+}
+function sliderStop() {
+  clearInterval(sliderTimer);
+  const bar = document.getElementById('hsProgress');
+  if (bar) { bar.style.transition = 'none'; }
+}
+
+function initSliderEvents() {
+  const sl = document.getElementById('heroSlider');
+  document.getElementById('hsPrev').onclick = () => { sliderStop(); sliderGoTo(sliderCur-1); sliderStart(); };
+  document.getElementById('hsNext').onclick = () => { sliderStop(); sliderGoTo(sliderCur+1); sliderStart(); };
+  document.getElementById('hsDots').querySelectorAll('.hs-dot').forEach(d => {
+    d.onclick = () => { sliderStop(); sliderGoTo(+d.dataset.idx); sliderStart(); };
+  });
+  sl.addEventListener('mouseenter', sliderStop);
+  sl.addEventListener('mouseleave', sliderStart);
+  let tx = 0;
+  sl.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  sl.addEventListener('touchend',   e => {
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) { sliderStop(); sliderGoTo(sliderCur + (dx < 0 ? 1 : -1)); sliderStart(); }
+  });
+  sliderStart();
+}
+
+buildSlider();
+
+// Sync cart count inline
+function syncCartInline() {
+  const c = Cart.count();
+  document.querySelectorAll('.cart-count-inline').forEach(el => el.textContent = c);
+}
+const origUpdate = Cart.updateBadge;
+Cart.updateBadge = function() { origUpdate.call(this); syncCartInline(); };
+syncCartInline();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     ORDER HISTORY DRAWER
+════════════════════════════════════════════ -->
+<style>
+.ord-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:2000;
+  display:none; justify-content:flex-end;
+}
+.ord-overlay.open { display:flex; }
+.ord-drawer {
+  background:#fff; width:100%; max-width:480px; height:100%;
+  display:flex; flex-direction:column; overflow:hidden;
+  animation:slideInRight .28s ease;
+}
+@keyframes slideInRight { from{transform:translateX(100%)} to{transform:translateX(0)} }
+
+/* shared header */
+.ord-head {
+  padding:16px 20px; border-bottom:1px solid #eee;
+  display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+.ord-head h3 { font-size:15px; font-weight:700; margin:0; flex:1; }
+.ord-close {
+  background:none; border:none; font-size:22px; color:#aaa; cursor:pointer; line-height:1;
+}
+.ord-close:hover { color:#333; }
+.ord-back-btn {
+  background:none; border:none; font-size:20px; color:#555; cursor:pointer;
+  padding:0 4px; line-height:1; display:flex; align-items:center;
+}
+.ord-back-btn:hover { color:#111; }
+.ord-head-title { flex:1; font-size:13px; font-weight:700; color:#111; }
+.ord-head-sub   { font-size:11px; color:#aaa; font-weight:400; }
+
+/* search bar */
+.ord-search {
+  padding:10px 20px; border-bottom:1px solid #eee;
+  display:flex; gap:8px; flex-shrink:0;
+}
+.ord-search input {
+  flex:1; border:1px solid #ddd; border-radius:8px;
+  padding:8px 12px; font-size:13px; outline:none; font-family:inherit;
+}
+.ord-search input:focus { border-color:#c9a96e; }
+.ord-search button {
+  background:#c9a96e; color:#fff; border:none; border-radius:8px;
+  padding:8px 14px; font-size:13px; cursor:pointer; white-space:nowrap; font-family:inherit;
+}
+.ord-search button:hover { background:#b8955c; }
+
+/* two-panel viewport */
+.ord-viewport { flex:1; overflow:hidden; position:relative; }
+.ord-slide {
+  display:flex; height:100%;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.ord-slide.show-detail { transform:translateX(-50%); }
+.ord-panel { width:50%; flex-shrink:0; overflow-y:auto; padding:16px 20px; box-sizing:border-box; }
+
+/* list screen */
+.ord-loading { text-align:center; padding:40px; color:#aaa; font-size:13px; }
+.ord-empty { text-align:center; padding:60px 0; color:#aaa; font-size:14px; }
+.ord-empty .ord-empty-icon { font-size:48px; margin-bottom:12px; }
+
+/* order card (list) */
+.ord-card {
+  border:1px solid #e8e4de; border-radius:14px; margin-bottom:12px;
+  overflow:hidden; cursor:pointer; transition:box-shadow .2s, transform .15s;
+}
+.ord-card:hover { box-shadow:0 4px 18px rgba(0,0,0,.09); transform:translateY(-1px); }
+.ord-card-head {
+  padding:13px 16px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.ord-num  { font-size:12px; font-weight:700; color:#111; letter-spacing:.3px; }
+.ord-date { font-size:11px; color:#bbb; margin-top:2px; }
+.ord-card-body { padding:0 16px 13px; }
+.ord-amount-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding-top:10px; border-top:1px solid #f0f0f0; margin-top:2px;
+}
+.ord-amount-label { font-size:11px; color:#aaa; text-transform:uppercase; letter-spacing:.8px; }
+.ord-amount-val   { font-size:1.05rem; font-weight:700; color:#111; }
+.ord-meta-row { display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap; }
+.ord-pay-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px;
+}
+.ord-pay-tag.transfer { background:#e3f2fd; color:#1565c0; }
+.ord-pay-tag.cod      { background:#f3e5f5; color:#6a1b9a; }
+.ord-chevron-right { font-size:14px; color:#ccc; margin-left:4px; }
+
+/* status badge */
+.ord-status {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; padding:4px 11px; border-radius:20px; font-weight:700; white-space:nowrap;
+}
+.ord-status.pending   { background:#fff8e1; color:#856404; }
+.ord-status.confirmed { background:#e3f2fd; color:#1565c0; }
+.ord-status.shipped   { background:#f3e5f5; color:#6a1b9a; }
+.ord-status.delivered { background:#e8f5e9; color:#2e7d32; }
+.ord-status.cancelled { background:#fce4ec; color:#c62828; }
+
+/* detail panel */
+.ord-detail-section { margin-bottom:18px; }
+.ord-detail-label {
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+  color:#bbb; margin-bottom:8px;
+}
+.ord-status-big {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:14px; padding:8px 18px; border-radius:30px; font-weight:700;
+}
+.ord-status-big.pending   { background:#fff8e1; color:#856404; }
+.ord-status-big.confirmed { background:#e3f2fd; color:#1565c0; }
+.ord-status-big.shipped   { background:#f3e5f5; color:#6a1b9a; }
+.ord-status-big.delivered { background:#e8f5e9; color:#2e7d32; }
+.ord-status-big.cancelled { background:#fce4ec; color:#c62828; }
+
+.ord-item-row {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid #f5f5f5;
+}
+.ord-item-row:last-child { border-bottom:none; }
+.ord-item-img {
+  width:52px; height:52px; object-fit:cover;
+  border-radius:10px; flex-shrink:0; border:1px solid #eee;
+}
+.ord-item-info { flex:1; min-width:0; }
+.ord-item-name { font-size:13px; color:#222; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ord-item-unit { font-size:11px; color:#aaa; margin-top:2px; }
+.ord-item-price { font-size:13px; font-weight:700; color:#111; white-space:nowrap; }
+
+.ord-total-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 0; font-size:13px; color:#555;
+}
+.ord-total-row.grand {
+  border-top:2px solid #111; margin-top:4px; padding-top:12px;
+  font-size:15px; font-weight:700; color:#111;
+}
+
+.ord-info-row {
+  display:flex; gap:10px; padding:9px 0;
+  border-bottom:1px solid #f7f7f5; font-size:13px;
+}
+.ord-info-row:last-child { border-bottom:none; }
+.ord-info-key { color:#aaa; min-width:90px; flex-shrink:0; }
+.ord-info-val { color:#222; font-weight:500; }
+
+.ord-action-row {
+  display:flex; gap:10px; margin-top:18px;
+}
+.ord-cancel-btn {
+  flex:1; padding:10px 0; background:#fff; color:#c62828;
+  border:1.5px solid #f5c6cb; border-radius:10px;
+  font-family:inherit; font-size:.82rem; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.ord-cancel-btn:hover { background:#fce4ec; border-color:#c62828; }
+.ord-edit-addr-btn {
+  flex:1; padding:10px 0; background:#fff; color:#333;
+  border:1.5px solid #ddd; border-radius:10px;
+  font-family:inherit; font-size:.82rem; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.ord-edit-addr-btn:hover { border-color:#111; color:#111; }
+.ord-addr-edit-wrap {
+  display:none; margin-top:8px;
+  background:#f9f9f7; border-radius:10px; padding:12px;
+}
+.ord-addr-edit-wrap.open { display:block; }
+.ord-addr-edit-wrap textarea {
+  width:100%; border:1.5px solid #ddd; border-radius:8px;
+  padding:9px 11px; font-family:inherit; font-size:13px;
+  resize:vertical; outline:none; box-sizing:border-box; background:#fff;
+}
+.ord-addr-edit-wrap textarea:focus { border-color:#c9a96e; }
+.ord-addr-save-btn {
+  margin-top:8px; width:100%; padding:9px 0;
+  background:#111; color:#fff; border:none; border-radius:8px;
+  font-family:inherit; font-size:.82rem; font-weight:700;
+  cursor:pointer; transition:background .15s;
+}
+.ord-addr-save-btn:hover { background:#333; }
+.ord-addr { font-size:11px; color:#aaa; display:flex; align-items:center; gap:4px; }
+</style>
+
+<div class="ord-overlay" id="ordOverlay" onclick="if(event.target===this)closeOrders()">
+  <div class="ord-drawer">
+
+    <!-- LIST HEADER -->
+    <div class="ord-head" id="ordListHead">
+      <h3>ລາຍການສັ່ງຊື້</h3>
+      <button class="ord-close" onclick="closeOrders()">×</button>
+    </div>
+
+    <!-- DETAIL HEADER (hidden) -->
+    <div class="ord-head" id="ordDetailHead" style="display:none">
+      <button class="ord-back-btn" onclick="backToOrderList()" title="ກັບຄືນ">&#8249;</button>
+      <div class="ord-head-title" id="ordDetailTitle">
+        <span id="ordDetailNum"></span><br>
+        <span class="ord-head-sub" id="ordDetailDate"></span>
+      </div>
+      <button class="ord-close" onclick="closeOrders()">×</button>
+    </div>
+
+    <!-- SEARCH (list only) -->
+    <div class="ord-search" id="ordSearchBar">
+      <input type="tel" id="ordPhoneInput" placeholder="ຄົ້ນຫາດ້ວຍເບີໂທ..." inputmode="numeric"
+             oninput="this.value=this.value.replace(/\D/g,'')"
+             onkeydown="if(event.key==='Enter')searchOrdersByPhone()">
+      <button onclick="searchOrdersByPhone()">ຄົ້ນຫາ</button>
+    </div>
+
+    <!-- VIEWPORT -->
+    <div class="ord-viewport">
+      <div class="ord-slide" id="ordSlide" style="width:200%">
+        <!-- LIST PANEL -->
+        <div class="ord-panel" id="ordListPanel">
+          <div class="ord-loading">ກຳລັງໂຫຼດ...</div>
+        </div>
+        <!-- DETAIL PANEL -->
+        <div class="ord-panel" id="ordDetailPanel"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const STATUS_LO = {
+  pending:    'ລໍຖ້າການຢືນຢັນ',
+  confirmed:  'ຢືນຢັນແລ້ວ',
+  processing: 'ກຳລັງດຳເນີນ',
+  shipped:    'ກຳລັງສົ່ງ',
+  delivered:  'ສົ່ງແລ້ວ',
+  completed:  'ສຳເລັດ',
+  cancelled:  'ຍົກເລີກ'
+};
+const STATUS_DOT = {pending:'🟡',confirmed:'🔵',processing:'🟠',shipped:'🟣',delivered:'🟢',completed:'✅',cancelled:'🔴'};
+
+function openOrders() {
+  const u = getUser();
+  if (!u) { openAuth('login'); return; }
+  document.getElementById('ordOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  closeUserDrop();
+  backToOrderList(false);
+  const phoneInput = document.getElementById('ordPhoneInput');
+  phoneInput.value = u.phone || '';
+  if (u.id)         loadOrders({ member_id: u.id });
+  else if (u.phone) loadOrders({ phone: u.phone });
+  else document.getElementById('ordListPanel').innerHTML =
+    '<div class="ord-empty"><p>ໃສ່ເບີໂທເພື່ອຄົ້ນຫາ</p></div>';
+}
+
+function searchOrdersByPhone() {
+  const phone = document.getElementById('ordPhoneInput').value.replace(/\D/g, '');
+  if (!phone || phone.length < 7) {
+    document.getElementById('ordListPanel').innerHTML =
+      '<div class="ord-empty"><p>ກະລຸນາໃສ່ເບີໂທໃຫ້ຖືກຕ້ອງ</p></div>';
+    return;
+  }
+  loadOrders({ phone });
+}
+
+function closeOrders() {
+  document.getElementById('ordOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function backToOrderList(animate=true) {
+  document.getElementById('ordSlide').classList.remove('show-detail');
+  document.getElementById('ordListHead').style.display   = 'flex';
+  document.getElementById('ordDetailHead').style.display = 'none';
+  document.getElementById('ordSearchBar').style.display  = 'flex';
+}
+
+let _ordOpts = {};
+
+function cancelOrder(ordId) {
+  showConfirm('ຕ້ອງການຍົກເລີກຄຳສັ່ງຊື້ນີ້ແທ້ບໍ?', async () => {
+    try {
+      const r = await fetch('api/orders.php', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ordId, action: 'cancel' })
+      });
+      const d = await r.json();
+      if (d.success) {
+        showToast('ຍົກເລີກຄຳສັ່ງສຳເລັດ', 'info');
+        backToOrderList();
+        loadOrders(_ordOpts);
+      } else {
+        showAlert(d.error || 'ຍົກເລີກບໍ່ໄດ້');
+      }
+    } catch { showAlert('ເຊື່ອມ server ບໍ່ໄດ້'); }
+  }, { okLabel: 'ຍົກເລີກຄຳສັ່ງ', title: 'ຢືນຢັນຍົກເລີກ' });
+}
+
+async function loadOrders(opts) {
+  _ordOpts = opts;
+  const panel = document.getElementById('ordListPanel');
+  panel.innerHTML = '<div class="ord-loading">ກຳລັງໂຫຼດ...</div>';
+  const qs = opts.member_id
+    ? 'member_id=' + opts.member_id
+    : 'phone=' + encodeURIComponent(opts.phone || '');
+  try {
+    const r   = await fetch('api/orders.php?' + qs);
+    const raw = await r.text();
+    let orders;
+    try { orders = JSON.parse(raw); } catch {
+      panel.innerHTML = `<div class="ord-empty"><p>API error:<br><small style="font-size:10px;word-break:break-all">${raw.slice(0,200)}</small></p></div>`;
+      return;
+    }
+    if (!Array.isArray(orders)) {
+      panel.innerHTML = `<div class="ord-empty"><p>ຜິດພາດ: ${orders.error||JSON.stringify(orders)}</p></div>`;
+      return;
+    }
+    if (!orders.length) {
+      panel.innerHTML = `<div class="ord-empty"><div class="ord-empty-icon">📦</div><p>ຍັງບໍ່ມີລາຍການສັ່ງຊື້</p></div>`;
+      return;
+    }
+    panel.innerHTML = orders.map(o => {
+      const date    = new Date(o.created_at).toLocaleDateString('lo-LA',{year:'numeric',month:'short',day:'numeric'});
+      const st      = o.status || 'pending';
+      const isCod   = o.payment_method === 'cod';
+      const payIcon = isCod ? '🚚' : '🏦';
+      const payLbl  = isCod ? 'COD' : 'ໂອນເງິນ';
+      const payCls  = isCod ? 'cod' : 'transfer';
+      return `
+      <div class="ord-card" onclick="openOrderDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+        <div class="ord-card-head">
+          <div>
+            <div class="ord-num">${o.order_number}</div>
+            <div class="ord-date">${date}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="ord-status ${st}">${STATUS_DOT[st]||''} ${STATUS_LO[st]||st}</span>
+            <span class="ord-chevron-right">›</span>
+          </div>
+        </div>
+        <div class="ord-card-body">
+          <div class="ord-amount-row">
+            <span class="ord-amount-label">ຍອດລວມ</span>
+            <span class="ord-amount-val">₭${Number(o.total_amount).toLocaleString()}</span>
+          </div>
+          <div class="ord-meta-row">
+            <span class="ord-pay-tag ${payCls}">${payIcon} ${payLbl}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch {
+    panel.innerHTML = '<div class="ord-empty"><p>ເຊື່ອມຕໍ່ບໍ່ໄດ້</p></div>';
+  }
+}
+
+async function openOrderDetail(o) {
+  if (typeof o === 'string') o = JSON.parse(o);
+  const panel   = document.getElementById('ordDetailPanel');
+  const st      = o.status || 'pending';
+  const isCod   = o.payment_method === 'cod';
+  const date    = new Date(o.created_at).toLocaleDateString('lo-LA',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  /* update header */
+  document.getElementById('ordDetailNum').textContent  = o.order_number;
+  document.getElementById('ordDetailDate').textContent = date;
+  document.getElementById('ordListHead').style.display   = 'none';
+  document.getElementById('ordDetailHead').style.display = 'flex';
+  document.getElementById('ordSearchBar').style.display  = 'none';
+  document.getElementById('ordSlide').classList.add('show-detail');
+
+  panel.innerHTML = '<div class="ord-loading">ກຳລັງໂຫຼດ...</div>';
+
+  /* fetch items */
+  let items = [];
+  try {
+    const r = await fetch('api/orders.php?id=' + o.id);
+    items = await r.json();
+  } catch { items = []; }
+
+  const itemsHtml = Array.isArray(items) && items.length ? items.map(it => {
+    const img = it.product_image || '';
+    return `
+    <div class="ord-item-row">
+      <img class="ord-item-img" src="${img}" onerror="this.style.opacity='.2'" style="${img?'':'display:none'}" onload="this.style.opacity='1'">
+      <div class="ord-item-info">
+        <div class="ord-item-name">${it.product_name || 'ສິນຄ້າ'}</div>
+        <div class="ord-item-unit">₭${Number(it.price).toLocaleString()} × ${it.quantity}</div>
+      </div>
+      <div class="ord-item-price">₭${Number(it.price * it.quantity).toLocaleString()}</div>
+    </div>`;
+  }).join('') : '<div style="font-size:12px;color:#bbb;padding:12px 0">ບໍ່ມີລາຍການ</div>';
+
+  const itemsTotal  = Number(o.items_total  || o.total_amount);
+  const shippingFee = Number(o.shipping_fee || 0);
+  const grandTotal  = Number(o.total_amount);
+
+  panel.innerHTML = `
+    <!-- STATUS -->
+    <div class="ord-detail-section">
+      <div class="ord-detail-label">ສະຖານະ</div>
+      <span class="ord-status-big ${st}">${STATUS_DOT[st]||''} ${STATUS_LO[st]||st}</span>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="ord-detail-section">
+      <div class="ord-detail-label">ລາຍການສິນຄ້າ</div>
+      ${itemsHtml}
+    </div>
+
+    <!-- TOTALS -->
+    <div class="ord-detail-section">
+      <div class="ord-detail-label">ຍອດເງິນ</div>
+      ${shippingFee > 0 ? `
+      <div class="ord-total-row"><span>ລວມສິນຄ້າ</span><span>₭${itemsTotal.toLocaleString()}</span></div>
+      <div class="ord-total-row"><span>ຄ່າສົ່ງ</span><span>₭${shippingFee.toLocaleString()}</span></div>` : ''}
+      <div class="ord-total-row grand"><span>ຍອດທັງໝົດ</span><span>₭${grandTotal.toLocaleString()}</span></div>
+    </div>
+
+    <!-- INFO -->
+    <div class="ord-detail-section">
+      <div class="ord-detail-label">ຂໍ້ມູນ</div>
+      <div class="ord-info-row">
+        <span class="ord-info-key">ການຊຳລະ</span>
+        <span class="ord-info-val">${isCod ? '🚚 ຈ່າຍປາຍທາງ (COD)' : '🏦 ໂອນເງິນ'}</span>
+      </div>
+      ${o.customer_name ? `<div class="ord-info-row"><span class="ord-info-key">ຊື່</span><span class="ord-info-val">${o.customer_name}</span></div>` : ''}
+      ${o.customer_phone ? `<div class="ord-info-row"><span class="ord-info-key">ເບີໂທ</span><span class="ord-info-val">${o.customer_phone}</span></div>` : ''}
+      <div class="ord-info-row"><span class="ord-info-key">ທີ່ຢູ່</span><span class="ord-info-val" data-addr>${o.customer_address || '—'}</span></div>
+      ${o.note ? `<div class="ord-info-row"><span class="ord-info-key">ໝາຍເຫດ</span><span class="ord-info-val">${o.note}</span></div>` : ''}
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="ord-action-row">
+      ${st === 'pending' ? `<button class="ord-cancel-btn" onclick="cancelOrder(${o.id})">✕ ຍົກເລີກ</button>` : ''}
+      ${st === 'pending' ? `<button class="ord-edit-addr-btn" onclick="toggleAddrEdit(${o.id})">✎ ແກ້ໄຂທີ່ຢູ່</button>` : ''}
+    </div>
+    ${st === 'pending' ? `
+    <div class="ord-addr-edit-wrap" id="addrWrap-${o.id}">
+      <textarea id="addrInput-${o.id}" rows="3" placeholder="ໃສ່ທີ່ຢູ່ໃໝ່...">${o.customer_address || ''}</textarea>
+      <button class="ord-addr-save-btn" onclick="saveAddress(${o.id})">ບັນທຶກທີ່ຢູ່</button>
+    </div>` : ''}
+    <div style="height:24px"></div>
+  `;
+}
+
+function toggleAddrEdit(ordId) {
+  const wrap = document.getElementById('addrWrap-' + ordId);
+  if (!wrap) return;
+  wrap.classList.toggle('open');
+  if (wrap.classList.contains('open')) {
+    const ta = document.getElementById('addrInput-' + ordId);
+    if (ta) { ta.focus(); ta.selectionStart = ta.value.length; }
+  }
+}
+
+async function saveAddress(ordId) {
+  const ta = document.getElementById('addrInput-' + ordId);
+  if (!ta) return;
+  const addr = ta.value.trim();
+  try {
+    const r = await fetch('api/orders.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: ordId, action: 'update_address', address: addr })
+    });
+    const d = await r.json();
+    if (d.success) {
+      showToast('ບັນທຶກທີ່ຢູ່ສຳເລັດ', 'success');
+      document.getElementById('addrWrap-' + ordId).classList.remove('open');
+      /* update the info row in-place */
+      const infoVal = document.querySelector(`#ordDetailPanel .ord-info-val[data-addr]`);
+      if (infoVal) infoVal.textContent = addr || '—';
+    } else {
+      alert(d.error || 'ບັນທຶກບໍ່ໄດ້');
+    }
+  } catch { alert('ເຊື່ອມ server ບໍ່ໄດ້'); }
+}
+
+function closeUserDrop() {
+  const d = document.getElementById('userDropdown');
+  if (d) d.classList.remove('open');
+}
+
+</script>
+<script src="js/confirm.js"></script>
+</body>
+</html>

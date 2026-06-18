@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ໂປຣໄຟລ໌ — bunnies.bunn</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { background:#f5f5f3; }
+    .pf-wrap { max-width:540px; margin:0 auto; padding:16px 16px 60px; }
+
+    /* ── USER HEADER ── */
+    .pf-hero {
+      background:#111; border-radius:14px; padding:24px 20px;
+      display:flex; align-items:center; gap:16px; margin-bottom:16px;
+    }
+    .pf-avatar {
+      width:56px; height:56px; border-radius:50%;
+      background:#c9a96e; display:flex; align-items:center; justify-content:center;
+      font-size:1.4rem; color:#fff; font-weight:800; flex-shrink:0;
+      font-family:'Times New Roman',serif;
+    }
+    .pf-hero-name { font-size:1rem; font-weight:700; color:#fff; margin-bottom:3px; }
+    .pf-hero-phone { font-size:.78rem; color:rgba(255,255,255,.45); }
+    .pf-hero-tag {
+      margin-left:auto; background:rgba(201,169,110,.15);
+      color:#c9a96e; font-size:.65rem; font-weight:700;
+      letter-spacing:1px; padding:4px 10px; border-radius:20px;
+      border:1px solid rgba(201,169,110,.3);
+    }
+
+    /* ── SECTION CARD ── */
+    .sec-card {
+      background:#fff; border-radius:12px; border:1px solid #e8e4de;
+      margin-bottom:12px; overflow:hidden;
+    }
+    .sec-title {
+      padding:14px 18px; font-size:.88rem; font-weight:700; color:#111;
+      border-bottom:1px solid #f2f2f0; display:flex; align-items:center; gap:10px;
+    }
+    .sec-title-icon { font-size:1rem; }
+
+    /* ── SHIPPING CARDS ── */
+    .ship-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:14px 16px 16px; }
+    .ship-card { border:2px solid #e8e4de; border-radius:8px; padding:12px; transition:border-color .2s; }
+    .ship-card.saved { border-color:#c9a96e; background:#fffdf8; }
+    .ship-name { font-weight:700; font-size:.82rem; margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+    .ship-card input {
+      width:100%; border:1px solid #ddd; padding:7px 10px;
+      font-family:'Noto Sans Lao',sans-serif; font-size:.78rem;
+      border-radius:5px; margin-bottom:8px; outline:none; box-sizing:border-box;
+    }
+    .ship-card input:focus { border-color:#c9a96e; }
+    .btn-ship-save {
+      width:100%; background:#111; color:#fff; border:none;
+      padding:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.78rem;
+      border-radius:5px; cursor:pointer; transition:background .2s;
+    }
+    .btn-ship-save:hover { background:#c9a96e; }
+    .ship-saved-lbl { font-size:.68rem; color:#856404; background:#fff3cd;
+      padding:2px 8px; border-radius:3px; margin-top:5px; display:none; }
+    .ship-saved-lbl.show { display:inline-block; }
+    .ship-hint { padding:0 16px 14px; font-size:.72rem; color:#bbb; }
+
+    /* ── MENU LIST ── */
+    .menu-list { background:#fff; border-radius:12px; border:1px solid #e8e4de; overflow:hidden; }
+    .menu-item {
+      display:flex; align-items:center; gap:13px;
+      padding:15px 18px; border-bottom:1px solid #f2f2f0;
+      cursor:pointer; transition:background .15s; text-decoration:none;
+      color:#111;
+    }
+    .menu-item:last-child { border-bottom:none; }
+    .menu-item:hover { background:#fafaf8; }
+    .menu-item.active { background:#fdf9f4; }
+    .menu-icon { font-size:1.1rem; width:22px; text-align:center; flex-shrink:0; }
+    .menu-label { flex:1; font-size:.88rem; font-weight:500; }
+    .menu-arrow { color:#ccc; font-size:.8rem; transition:transform .2s; }
+    .menu-item.active .menu-arrow { transform:rotate(90deg); color:#c9a96e; }
+    .menu-item.danger .menu-label { color:#dc2626; }
+
+    /* ── ACCORDION PANEL ── */
+    .acc-panel {
+      display:none; border-bottom:1px solid #f2f2f0;
+      background:#fafaf8; padding:16px 18px;
+    }
+    .acc-panel.open { display:block; }
+
+    /* ── PROFILE EDIT ── */
+    .pf-field { margin-bottom:12px; }
+    .pf-field label { font-size:.74rem; color:#888; font-weight:600; display:block; margin-bottom:5px; }
+    .pf-field input {
+      width:100%; border:1.5px solid #e8e4de; padding:10px 12px;
+      border-radius:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.88rem;
+      outline:none; box-sizing:border-box; transition:border-color .18s;
+    }
+    .pf-field input:focus { border-color:#c9a96e; }
+    .pf-field input:disabled { background:#f5f5f3; color:#aaa; }
+    .btn-pf-save {
+      background:#111; color:#fff; border:none; padding:11px 28px;
+      border-radius:8px; font-family:'Noto Sans Lao',sans-serif; font-size:.85rem;
+      font-weight:700; cursor:pointer; transition:background .2s;
+    }
+    .btn-pf-save:hover { background:#c9a96e; }
+
+    /* ── ORDERS LIST ── */
+    .order-card {
+      background:#fff; border:1px solid #e8e4de; border-radius:8px;
+      padding:12px 14px; margin-bottom:8px;
+    }
+    .order-card:last-child { margin-bottom:0; }
+    .order-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .order-num { font-size:.78rem; font-weight:700; color:#111; }
+    .order-date { font-size:.7rem; color:#aaa; }
+    .order-amount { font-size:.9rem; font-weight:800; color:#c9a96e; font-family:'Times New Roman',serif; }
+    .order-st { display:inline-block; padding:2px 10px; border-radius:20px; font-size:.68rem; font-weight:700; }
+    .st-pending   { background:#fef3c7; color:#92400e; }
+    .st-confirmed { background:#dbeafe; color:#1e40af; }
+    .st-shipped   { background:#ede9fe; color:#5b21b6; }
+    .st-delivered { background:#dcfce7; color:#166534; }
+    .st-cancelled { background:#fee2e2; color:#991b1b; }
+    .orders-empty { text-align:center; color:#bbb; font-size:.82rem; padding:20px 0; }
+    .orders-loading { text-align:center; color:#ccc; font-size:.8rem; padding:16px 0; }
+
+    /* ── SETTINGS ── */
+    .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f2f2f0; }
+    .setting-row:last-child { border-bottom:none; }
+    .setting-label { font-size:.85rem; color:#333; font-weight:500; }
+    .lang-btns { display:flex; gap:6px; }
+    .lang-btn-pf {
+      padding:5px 14px; border-radius:6px; border:1.5px solid #e8e4de;
+      font-size:.76rem; font-weight:700; cursor:pointer; background:#fff;
+      transition:all .18s; color:#555;
+    }
+    .lang-btn-pf.active { background:#111; color:#fff; border-color:#111; }
+
+    /* ── TOAST ── */
+    #pf-toast {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      background:#111; color:#fff; padding:10px 24px; border-radius:8px;
+      font-size:.82rem; z-index:9999; opacity:0; transition:opacity .3s;
+      pointer-events:none; white-space:nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR minimal -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">bunnies<span>.bunn</span></a>
+    <div class="nav-actions">
+      <a href="index.html" class="nav-icon-btn" style="gap:5px">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        <span>ກັບໄປ</span>
+      </a>
+      <a href="cart.html" class="nav-icon-btn cart-nav-btn">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span>Cart (<span class="cart-count-inline">0</span>)</span>
+        <span class="cart-count" style="display:none">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="pf-wrap">
+
+  <!-- USER HERO -->
+  <div class="pf-hero">
+    <div class="pf-avatar" id="pfAvatar">?</div>
+    <div>
+      <div class="pf-hero-name" id="pfName">ກຳລັງໂຫຼດ...</div>
+      <div class="pf-hero-phone" id="pfPhone"></div>
+    </div>
+    <div class="pf-hero-tag">MEMBER</div>
+  </div>
+
+  <!-- SHIPPING CARDS -->
+  <div class="sec-card">
+    <div class="sec-title">
+      <span class="sec-title-icon">🚚</span>
+      ລົງທະບຽນເລກສະມາຊິກຂົນສົ່ງ
+    </div>
+    <div class="ship-grid">
+      <div class="ship-card" id="card-anousith">
+        <div class="ship-name">🚚 ອານຸສິດ</div>
+        <input type="text" id="mem-anousith" placeholder="ANS-00000" oninput="checkSaved('anousith')">
+        <button class="btn-ship-save" onclick="saveMember('anousith')">ບັນທຶກ / ອັບເດດ</button>
+        <div class="ship-saved-lbl" id="badge-anousith">✓ ບັນທຶກແລ້ວ</div>
+      </div>
+      <div class="ship-card" id="card-houngaloun">
+        <div class="ship-name">🚛 ຮຸ່ງອາລຸນ</div>
+        <input type="text" id="mem-houngaloun" placeholder="HA-00000" oninput="checkSaved('houngaloun')">
+        <button class="btn-ship-save" onclick="saveMember('houngaloun')">ບັນທຶກ / ອັບເດດ</button>
+        <div class="ship-saved-lbl" id="badge-houngaloun">✓ ບັນທຶກແລ້ວ</div>
+      </div>
+    </div>
+    <div class="ship-hint">* ເລກສະມາຊິກຈະຖືກ auto-fill ອັດຕະໂນມັດຕອນ checkout</div>
+  </div>
+
+  <!-- MENU -->
+  <div class="menu-list">
+
+    <!-- ໂປຣໄຟລ -->
+    <div class="menu-item" onclick="toggleAcc('acc-profile', this)">
+      <span class="menu-icon">👤</span>
+      <span class="menu-label">ໂປຣໄຟລ໌</span>
+      <span class="menu-arrow">›</span>
+    </div>
+    <div class="acc-panel" id="acc-profile">
+      <div class="pf-field">
+        <label>ຊື່ - ນາມສະກຸນ</label>
+        <input type="text" id="edit-name" placeholder="ຊື່ຂອງທ່ານ">
+      </div>
+      <div class="pf-field">
+        <label>ເບີໂທ (ໃຊ້ login)</label>
+        <input type="text" id="edit-phone" disabled>
+      </div>
+      <button class="btn-pf-save" onclick="saveProfile()">ບັນທຶກ</button>
+    </div>
+
+    <!-- ປະຫວັດການສັ່ງຊື້ -->
+    <div class="menu-item" onclick="toggleAcc('acc-orders', this); loadOrders('all')">
+      <span class="menu-icon">🕐</span>
+      <span class="menu-label">ປະຫວັດການສັ່ງຊື້</span>
+      <span class="menu-arrow">›</span>
+    </div>
+    <div class="acc-panel" id="acc-orders">
+      <div id="orders-list-all"><div class="orders-loading">ກຳລັງໂຫຼດ...</div></div>
+    </div>
+
+    <!-- ລໍຖ້າ -->
+    <div class="menu-item" onclick="toggleAcc('acc-pending', this); loadOrders('pending')">
+      <span class="menu-icon">⏳</span>
+      <span class="menu-label">ອໍເດີທີ່ກຳລັງລໍຖ້າ</span>
+      <span class="menu-arrow">›</span>
+    </div>
+    <div class="acc-panel" id="acc-pending">
+      <div id="orders-list-pending"><div class="orders-loading">ກຳລັງໂຫຼດ...</div></div>
+    </div>
+
+    <!-- ສຳເລັດ -->
+    <div class="menu-item" onclick="toggleAcc('acc-done', this); loadOrders('done')">
+      <span class="menu-icon">✅</span>
+      <span class="menu-label">ອໍເດີທີ່ສຳເລັດ</span>
+      <span class="menu-arrow">›</span>
+    </div>
+    <div class="acc-panel" id="acc-done">
+      <div id="orders-list-done"><div class="orders-loading">ກຳລັງໂຫຼດ...</div></div>
+    </div>
+
+    <!-- ຕັ້ງຄ່າ -->
+    <div class="menu-item" onclick="toggleAcc('acc-settings', this)">
+      <span class="menu-icon">⚙️</span>
+      <span class="menu-label">ຕັ້ງຄ່າທົ່ວໄປ</span>
+      <span class="menu-arrow">›</span>
+    </div>
+    <div class="acc-panel" id="acc-settings">
+      <div class="setting-row">
+        <span class="setting-label">ພາສາ / Language</span>
+        <div class="lang-btns">
+          <button class="lang-btn-pf" id="lbLo" onclick="setLangPf('lo')">ລາວ</button>
+          <button class="lang-btn-pf" id="lbEn" onclick="setLangPf('en')">EN</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">ລຶບ cache ຂໍ້ມູນ</span>
+        <button class="lang-btn-pf" onclick="clearCache()">ລຶບ</button>
+      </div>
+    </div>
+
+    <!-- ອອກຈາກລະບົບ -->
+    <div class="menu-item danger" onclick="doLogout()">
+      <span class="menu-icon">🚪</span>
+      <span class="menu-label">ອອກຈາກລະບົບ</span>
+    </div>
+
+  </div>
+</div>
+
+<div id="pf-toast"></div>
+
+<script src="js/main.js"></script>
+<script>
+/* ── USER DATA ── */
+const AUTH_KEY = 'bunn_user';
+function getUser() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; } }
+
+function initProfile() {
+  const u = getUser();
+  if (!u) { window.location.href = 'index.html'; return; }
+  const name  = u.name  || u.full_name || '';
+  const phone = u.phone || '';
+  const initials = name ? name.trim()[0].toUpperCase() : (phone ? phone.slice(-2) : '?');
+  document.getElementById('pfAvatar').textContent  = initials;
+  document.getElementById('pfName').textContent    = name || 'ສະມາຊິກ';
+  document.getElementById('pfPhone').textContent   = '+856 ' + phone;
+  document.getElementById('edit-name').value  = name;
+  document.getElementById('edit-phone').value = phone;
+
+  // lang button state
+  const lang = localStorage.getItem('bunn_lang') || 'lo';
+  document.getElementById('lbLo').classList.toggle('active', lang === 'lo');
+  document.getElementById('lbEn').classList.toggle('active', lang === 'en');
+}
+
+function saveProfile() {
+  const u = getUser() || {};
+  const name = document.getElementById('edit-name').value.trim();
+  if (!name) { toast('ກະລຸນາໃສ່ຊື່'); return; }
+  u.name = name;
+  localStorage.setItem(AUTH_KEY, JSON.stringify(u));
+  document.getElementById('pfName').textContent = name;
+  document.getElementById('pfAvatar').textContent = name[0].toUpperCase();
+  toast('ບັນທຶກໂປຣໄຟລ໌ສຳເລັດ ✓');
+}
+
+function doLogout() {
+  if (!confirm('ຕ້ອງການອອກຈາກລະບົບບໍ?')) return;
+  localStorage.removeItem(AUTH_KEY);
+  window.location.href = 'index.html';
+}
+
+/* ── ACCORDION ── */
+function toggleAcc(id, el) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+  // close all
+  document.querySelectorAll('.acc-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  if (!isOpen) {
+    panel.classList.add('open');
+    el.classList.add('active');
+  }
+}
+
+/* ── ORDERS ── */
+const STATUS_LO = { pending:'ລໍຖ້າ', confirmed:'ຢືນຢັນ', shipped:'ກຳລັງສົ່ງ', delivered:'ສົ່ງແລ້ວ', cancelled:'ຍົກເລີກ' };
+const fmt = n => '₭' + Number(n||0).toLocaleString();
+let ordersCache = null;
+
+async function loadOrders(type) {
+  const u = getUser();
+  if (!u || !u.phone) return;
+
+  if (!ordersCache) {
+    try {
+      const phone = u.phone;
+      ordersCache = await fetch('api/orders.php?phone=' + encodeURIComponent(phone)).then(r => r.json());
+    } catch {
+      ordersCache = [];
+    }
+  }
+
+  const all = Array.isArray(ordersCache) ? ordersCache : [];
+  let filtered;
+  if (type === 'pending') {
+    filtered = all.filter(o => ['pending','confirmed','shipped'].includes(o.status));
+  } else if (type === 'done') {
+    filtered = all.filter(o => o.status === 'delivered');
+  } else {
+    filtered = all;
+  }
+
+  const containerId = 'orders-list-' + type;
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="orders-empty">ບໍ່ມີລາຍການ</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(o => {
+    const date = new Date(o.created_at).toLocaleDateString('lo-LA', { year:'numeric', month:'short', day:'numeric' });
+    const stCls = 'st-' + (o.status || 'pending');
+    const stTxt = STATUS_LO[o.status] || o.status;
+    return `<div class="order-card">
+      <div class="order-top">
+        <span class="order-num">${o.order_number}</span>
+        <span class="order-date">${date}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span class="order-amount">${fmt(o.total_amount)}</span>
+        <span class="order-st ${stCls}">${stTxt}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── SHIPPING MEMBERS ── */
+const SHIP_KEY = 'bb_shipping_members';
+function loadShipMembers() {
+  const data = JSON.parse(localStorage.getItem(SHIP_KEY) || '{}');
+  ['anousith','houngaloun'].forEach(c => {
+    if (data[c]) {
+      document.getElementById('mem-' + c).value = data[c];
+      document.getElementById('card-' + c).classList.add('saved');
+      document.getElementById('badge-' + c).classList.add('show');
+    }
+  });
+}
+function saveMember(c) {
+  const val = document.getElementById('mem-' + c).value.trim();
+  const data = JSON.parse(localStorage.getItem(SHIP_KEY) || '{}');
+  if (val) {
+    data[c] = val;
+    document.getElementById('card-' + c).classList.add('saved');
+    document.getElementById('badge-' + c).classList.add('show');
+  } else {
+    delete data[c];
+    document.getElementById('card-' + c).classList.remove('saved');
+    document.getElementById('badge-' + c).classList.remove('show');
+  }
+  localStorage.setItem(SHIP_KEY, JSON.stringify(data));
+  toast('ບັນທຶກ ' + (c === 'anousith' ? 'ອານຸສິດ' : 'ຮຸ່ງອາລຸນ') + ' ສຳເລັດ ✓');
+}
+function checkSaved(c) {
+  const val = document.getElementById('mem-' + c).value.trim();
+  const data = JSON.parse(localStorage.getItem(SHIP_KEY) || '{}');
+  if (!data[c] || val !== data[c]) {
+    document.getElementById('card-' + c).classList.remove('saved');
+    document.getElementById('badge-' + c).classList.remove('show');
+  }
+}
+
+/* ── SETTINGS ── */
+function setLangPf(lang) {
+  localStorage.setItem('bunn_lang', lang);
+  document.getElementById('lbLo').classList.toggle('active', lang === 'lo');
+  document.getElementById('lbEn').classList.toggle('active', lang === 'en');
+  if (typeof setLang === 'function') setLang(lang);
+  toast('ປ່ຽນພາສາສຳເລັດ ✓');
+}
+function clearCache() {
+  if (!confirm('ລຶບ cache ທຸກຢ່າງ (ຮູບ banner, ຂໍ້ມູນ) ບໍ?')) return;
+  const keep = [AUTH_KEY, SHIP_KEY, 'bunn_lang', 'bunn_cart'];
+  Object.keys(localStorage).forEach(k => { if (!keep.includes(k)) localStorage.removeItem(k); });
+  toast('ລຶບ cache ສຳເລັດ ✓');
+}
+
+/* ── TOAST ── */
+function toast(msg) {
+  const t = document.getElementById('pf-toast');
+  t.textContent = msg; t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2400);
+}
+
+/* INIT */
+initProfile();
+loadShipMembers();
+try { Cart.updateBadge(); } catch {}
+</script>
+</body>
+</html>
