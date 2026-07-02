@@ -7,6 +7,7 @@ try { $pdo->exec("ALTER TABLE products ADD COLUMN colors     TEXT    DEFAULT NUL
 try { $pdo->exec("ALTER TABLE products ADD COLUMN cost_price DECIMAL(12,2) DEFAULT 0"); } catch(Exception $e) {}
 try { $pdo->exec("ALTER TABLE products ADD COLUMN pre_order  TINYINT(1) DEFAULT 0"); } catch(Exception $e) {}
 try { $pdo->exec("ALTER TABLE products ADD COLUMN sizes      TEXT       DEFAULT NULL"); } catch(Exception $e) {}
+try { $pdo->exec("ALTER TABLE products ADD COLUMN sort_order INT        DEFAULT NULL"); } catch(Exception $e) {}
 
 function decodeColors($val) {
   if (!$val) return [];
@@ -61,7 +62,7 @@ switch($method) {
         "SELECT p.*, p.image AS image_url, p.name AS name_lo,
                 c.name AS category_name, c.name AS category_name_lo
          FROM products p LEFT JOIN categories c ON p.category_id=c.id
-         $where ORDER BY p.created_at DESC"
+         $where ORDER BY (p.sort_order IS NULL) ASC, p.sort_order ASC, p.created_at DESC"
       );
       $stmt->execute($params);
       $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -97,6 +98,14 @@ switch($method) {
     $data = json_decode(file_get_contents('php://input'), true);
     if(isset($data['action']) && $data['action'] === 'update_stock') {
       $pdo->prepare("UPDATE products SET stock=? WHERE id=?")->execute([(int)$data['stock'], (int)$data['id']]);
+      echo json_encode(['success'=>true]);
+      break;
+    }
+    if(isset($data['action']) && $data['action'] === 'reorder') {
+      $stmt = $pdo->prepare("UPDATE products SET sort_order=? WHERE id=?");
+      foreach((array)($data['items'] ?? []) as $item) {
+        $stmt->execute([(int)$item['sort_order'], (int)$item['id']]);
+      }
       echo json_encode(['success'=>true]);
       break;
     }

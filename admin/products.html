@@ -4,6 +4,7 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ຈັດການສິນຄ້າ — bunnies.bunn</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/admin-auth.js"></script>
   <style>
     body { background:#f4f4f2; margin:0; }
 
@@ -291,6 +292,37 @@
     /* ── EMPTY / LOADING ── */
     .tbl-empty { text-align:center; padding:48px 20px; color:#bbb; font-size:.85rem; }
     .tbl-empty .ei { font-size:2.5rem; margin-bottom:10px; }
+
+    /* ── DRAG & DROP REORDER ── */
+    .th-drag, .td-drag { width:32px; padding:0 4px !important; }
+    .drag-handle {
+      cursor:grab; color:#ddd; font-size:1.2rem; letter-spacing:-1px;
+      display:flex; align-items:center; justify-content:center;
+      height:52px; user-select:none; transition:color .15s; padding:0 6px;
+    }
+    .drag-handle:hover { color:#888; }
+    .drag-handle:active { cursor:grabbing; }
+    tr.row-dragging td { opacity:.25; background:#fdf9f4 !important; }
+    tr.row-drag-over-top td { box-shadow:inset 0 2px 0 #c9a96e; }
+    tr.row-drag-over-bot td { box-shadow:inset 0 -2px 0 #c9a96e; }
+
+    .drag-mode-banner {
+      display:none; align-items:center; gap:10px;
+      background:#fdf9f4; border:1px solid #e8d8b0;
+      border-radius:10px; padding:11px 16px;
+      font-size:.82rem; color:#7a5820; margin-bottom:14px;
+    }
+    .drag-mode-banner.show { display:flex; }
+
+    .sort-toast {
+      position:fixed; bottom:28px; left:50%;
+      transform:translateX(-50%) translateY(8px);
+      background:#111; color:#fff; padding:10px 22px;
+      border-radius:8px; font-size:.82rem; z-index:9999;
+      opacity:0; transition:all .28s; pointer-events:none; white-space:nowrap;
+    }
+    .sort-toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+    .sort-toast.ok { background:#2e7d32; }
   </style>
 </head>
 <body>
@@ -307,7 +339,10 @@
     <a href="preorders.html"><span>🟣</span> Pre-Order</a>
     <a href="banners.html"><span>🖼️</span> Banners</a>
   </nav>
-  <div class="adm-footer"><a href="../index.html">🌐 ໄປໜ້າຮ້ານ</a></div>
+  <div class="adm-footer">
+    <a href="../index.html">🌐 ໜ້າຮ້ານ</a>
+    <a class="adm-logout" href="#" onclick="adminLogout();return false;" style="margin-top:6px;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 14px;font-size:.75rem;font-weight:600">🚪 ອອກຈາກລະບົບ</a>
+  </div>
 </div>
 
 <!-- MAIN -->
@@ -333,8 +368,9 @@
       <option value="low">ໃກ້ໝົດ (≤5)</option>
       <option value="neg">ສາງຕິດລົບ</option>
     </select>
-    <select class="prod-filter-sel" id="filter-sort" onchange="applyFilters()">
+    <select class="prod-filter-sel" id="filter-sort" onchange="onSortChange()">
       <option value="newest">ໃໝ່ສຸດ</option>
+      <option value="custom">⠿ ລຳດັບກຳໜົດເອງ</option>
       <option value="price_hi">ລາຄາ: ສູງ→ຕ່ຳ</option>
       <option value="price_lo">ລາຄາ: ຕ່ຳ→ສູງ</option>
       <option value="stock_hi">ສາງ: ຫຼາຍ→ໜ້ອຍ</option>
@@ -344,10 +380,16 @@
     <button class="prod-filter-clear" onclick="clearFilters()">ລ້າງ Filter</button>
   </div>
 
+  <div class="drag-mode-banner" id="dragModeBanner">
+    <span style="font-size:1.3rem;opacity:.7">⠿</span>
+    <span><strong>ໂໝດຈັດລຳດັບ</strong> — ລາກແຖວຂຶ້ນ/ລຸ່ມ ເພື່ອຕັ້ງລຳດັບສິນຄ້າ · ລຳດັບນີ້ຈະສະແດງໃນໜ້າຮ້ານ</span>
+  </div>
+
   <div class="tbl-card">
     <table class="adm-table">
       <thead>
         <tr>
+          <th class="th-drag"></th>
           <th>ຮູບ</th>
           <th>ສິນຄ້າ</th>
           <th>ລາຄາຂາຍ</th>
@@ -358,7 +400,7 @@
         </tr>
       </thead>
       <tbody id="product-table">
-        <tr><td colspan="7" class="tbl-empty"><div class="ei">📦</div>ກຳລັງໂຫຼດ...</td></tr>
+        <tr><td colspan="8" class="tbl-empty"><div class="ei">📦</div>ກຳລັງໂຫຼດ...</td></tr>
       </tbody>
     </table>
   </div>
@@ -488,6 +530,8 @@ let imagesList = [];
 let pendingSlots = [];
 const MAX_IMAGES = 10;
 let dragSrcIdx = null;
+let displayList = [];
+let rowDragSrc  = null;
 
 /* ── Color tags ── */
 let colorsList = [];
@@ -692,13 +736,15 @@ async function loadProducts() {
 }
 
 function renderTable(list) {
+  displayList = list;
+  const isDrag = document.getElementById('filter-sort').value === 'custom';
   document.getElementById('prod-count').textContent = list.length + ' ລາຍການ';
   if (!list.length) {
     document.getElementById('product-table').innerHTML =
-      '<tr><td colspan="7" class="tbl-empty"><div class="ei">📦</div>ຍັງບໍ່ມີສິນຄ້າ</td></tr>';
+      '<tr><td colspan="8" class="tbl-empty"><div class="ei">📦</div>ຍັງບໍ່ມີສິນຄ້າ</td></tr>';
     return;
   }
-  document.getElementById('product-table').innerHTML = list.map(p => {
+  document.getElementById('product-table').innerHTML = list.map((p, rowIdx) => {
     const imgSrc = p.image || p.image_url || '';
     const imgEl  = imgSrc
       ? `<img class="td-img" src="../${imgSrc}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
@@ -720,8 +766,16 @@ function renderTable(list) {
     const preLbl = parseInt(p.pre_order)
       ? `<span style="font-size:.65rem;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:4px;padding:1px 6px;margin-left:5px;font-weight:700">PRE-ORDER</span>` : '';
 
+    const dragAttrs = isDrag ? `draggable="true"
+      ondragstart="rowDragStart(event,${rowIdx})"
+      ondragover="rowDragOver(event,${rowIdx})"
+      ondragleave="rowDragLeave(event)"
+      ondragend="rowDragEnd(event)"
+      ondrop="rowDrop(event,${rowIdx})"` : '';
+
     return `
-      <tr>
+      <tr ${dragAttrs}>
+        <td class="td-drag">${isDrag ? '<div class="drag-handle" title="ລາກເພື່ອຈັດລຳດັບ">⠿</div>' : ''}</td>
         <td>${imgEl}${ph}</td>
         <td>
           <div class="td-name">${p.name || p.name_lo || '-'}${inactiveLbl}${preLbl}</div>
@@ -749,11 +803,24 @@ function renderTable(list) {
   });
 }
 
+function onSortChange() {
+  if (document.getElementById('filter-sort').value === 'custom') {
+    document.getElementById('prod-search-inp').value = '';
+    document.getElementById('filter-cat').value      = '';
+    document.getElementById('filter-status').value   = '';
+  }
+  applyFilters();
+}
+
 function applyFilters() {
   const q      = (document.getElementById('prod-search-inp').value || '').toLowerCase();
   const cat    = document.getElementById('filter-cat').value;
   const status = document.getElementById('filter-status').value;
   const sort   = document.getElementById('filter-sort').value;
+  const isDrag = sort === 'custom';
+
+  document.querySelector('.adm-main').classList.toggle('drag-mode', isDrag);
+  document.getElementById('dragModeBanner').classList.toggle('show', isDrag);
 
   let list = allProducts.filter(p => {
     if (q && !(p.name||'').toLowerCase().includes(q) && !(p.category_name||'').toLowerCase().includes(q)) return false;
@@ -769,21 +836,29 @@ function applyFilters() {
     return true;
   });
 
-  list = [...list].sort((a, b) => {
-    const sa = parseInt(a.stock)||0, sb = parseInt(b.stock)||0;
-    const pa = parseFloat(a.price)||0, pb = parseFloat(b.price)||0;
-    const ca = parseFloat(a.cost_price)||0, cb = parseFloat(b.cost_price)||0;
-    const ma = ca > 0 ? (pa-ca)/ca : (pa > 0 ? 1 : 0);
-    const mb = cb > 0 ? (pb-cb)/cb : (pb > 0 ? 1 : 0);
-    switch(sort) {
-      case 'price_hi':  return pb - pa;
-      case 'price_lo':  return pa - pb;
-      case 'stock_hi':  return sb - sa;
-      case 'stock_lo':  return sa - sb;
-      case 'margin_hi': return mb - ma;
-      default:          return 0;
-    }
-  });
+  if (isDrag) {
+    list = [...list].sort((a, b) => {
+      const ao = a.sort_order == null ? 999999 : Number(a.sort_order);
+      const bo = b.sort_order == null ? 999999 : Number(b.sort_order);
+      return ao !== bo ? ao - bo : b.id - a.id;
+    });
+  } else {
+    list = [...list].sort((a, b) => {
+      const sa = parseInt(a.stock)||0, sb = parseInt(b.stock)||0;
+      const pa = parseFloat(a.price)||0, pb = parseFloat(b.price)||0;
+      const ca = parseFloat(a.cost_price)||0, cb = parseFloat(b.cost_price)||0;
+      const ma = ca > 0 ? (pa-ca)/ca : (pa > 0 ? 1 : 0);
+      const mb = cb > 0 ? (pb-cb)/cb : (pb > 0 ? 1 : 0);
+      switch(sort) {
+        case 'price_hi':  return pb - pa;
+        case 'price_lo':  return pa - pb;
+        case 'stock_hi':  return sb - sa;
+        case 'stock_lo':  return sa - sb;
+        case 'margin_hi': return mb - ma;
+        default:          return 0;
+      }
+    });
+  }
 
   renderTable(list);
 }
@@ -1006,6 +1081,91 @@ function startStockEdit(id, spanEl, currentVal) {
     if (e.key === 'Enter')  { e.preventDefault(); input.blur(); }
     if (e.key === 'Escape') { input.replaceWith(spanEl); }
   });
+}
+
+/* ── ROW DRAG-AND-DROP ── */
+function rowDragStart(e, i) {
+  rowDragSrc = i;
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#product-table tr');
+    if (rows[i]) rows[i].classList.add('row-dragging');
+  }, 0);
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', String(i));
+}
+
+function rowDragOver(e, i) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('#product-table tr').forEach(r =>
+    r.classList.remove('row-drag-over-top', 'row-drag-over-bot'));
+  if (i === rowDragSrc) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  e.currentTarget.classList.add(
+    e.clientY < rect.top + rect.height / 2 ? 'row-drag-over-top' : 'row-drag-over-bot'
+  );
+}
+
+function rowDragLeave(e) {
+  e.currentTarget.classList.remove('row-drag-over-top', 'row-drag-over-bot');
+}
+
+function rowDragEnd() {
+  document.querySelectorAll('#product-table tr').forEach(r =>
+    r.classList.remove('row-dragging', 'row-drag-over-top', 'row-drag-over-bot'));
+  rowDragSrc = null;
+}
+
+async function rowDrop(e, dropIdx) {
+  e.preventDefault();
+  document.querySelectorAll('#product-table tr').forEach(r =>
+    r.classList.remove('row-dragging', 'row-drag-over-top', 'row-drag-over-bot'));
+
+  if (rowDragSrc === null || rowDragSrc === dropIdx) { rowDragSrc = null; return; }
+
+  const rect        = e.currentTarget.getBoundingClientRect();
+  const insertBefore = e.clientY < rect.top + rect.height / 2;
+  const [moved]     = displayList.splice(rowDragSrc, 1);
+  let at = dropIdx > rowDragSrc ? dropIdx - 1 : dropIdx;
+  if (!insertBefore) at++;
+  displayList.splice(Math.min(at, displayList.length), 0, moved);
+  rowDragSrc = null;
+
+  displayList.forEach((p, i) => { p.sort_order = i + 1; });
+  renderTable(displayList);
+  await saveOrder();
+}
+
+async function saveOrder() {
+  showSortToast('ກຳລັງບັນທຶກ...');
+  try {
+    await fetch('../api/products.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'reorder',
+        items: displayList.map((p, i) => ({ id: p.id, sort_order: i + 1 }))
+      })
+    });
+    showSortToast('✓ ບັນທຶກລຳດັບສຳເລັດ', true);
+  } catch {
+    showSortToast('⚠ ບໍ່ສຳເລັດ', false);
+  }
+}
+
+let _toastEl = null, _toastTimer = null;
+function showSortToast(msg, ok) {
+  if (!_toastEl) {
+    _toastEl = document.createElement('div');
+    _toastEl.className = 'sort-toast';
+    document.body.appendChild(_toastEl);
+  }
+  _toastEl.textContent = msg;
+  _toastEl.className = 'sort-toast visible' + (ok === true ? ' ok' : '');
+  clearTimeout(_toastTimer);
+  if (ok !== undefined) {
+    _toastTimer = setTimeout(() => _toastEl.classList.remove('visible'), 2200);
+  }
 }
 
 loadProducts(); loadCats();

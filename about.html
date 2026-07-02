@@ -241,6 +241,124 @@
       .ab-stats-inner { grid-template-columns:1fr; }
       .ab-stat + .ab-stat::before { display:none; }
     }
+
+    /* ── CONTACT ── */
+    .ab-contact {
+      background:#faf9f7;
+      padding:96px 40px;
+    }
+    .ab-contact-inner {
+      max-width:960px;
+      margin:0 auto;
+    }
+    .ab-contact-head {
+      text-align:center;
+      margin-bottom:56px;
+    }
+    .ab-contact-title {
+      font-family:'Phetsarath OT','Noto Serif Lao',serif;
+      font-size:clamp(1.6rem,3.5vw,2.4rem);
+      font-weight:800;
+      color:#111;
+      margin:8px 0 14px;
+    }
+    .ab-contact-sub {
+      font-size:.9rem;
+      color:#888;
+      line-height:1.7;
+    }
+    .ab-contact-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+      margin-bottom:40px;
+    }
+    .ab-contact-card {
+      background:#fff;
+      border:1.5px solid #ede9e2;
+      border-radius:16px;
+      padding:32px 24px;
+      text-align:center;
+      transition:box-shadow .22s, transform .22s;
+    }
+    .ab-contact-card:hover {
+      box-shadow:0 8px 32px rgba(201,169,110,.14);
+      transform:translateY(-3px);
+    }
+    .ab-contact-card a {
+      text-decoration:none;
+      color:inherit;
+      display:block;
+    }
+    .ab-cc-icon {
+      width:52px; height:52px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.4rem;
+      margin:0 auto 16px;
+    }
+    .ab-cc-icon.phone  { background:#fff0f0; }
+    .ab-cc-icon.line   { background:#e8f9ee; }
+    .ab-cc-icon.fb     { background:#eef1fb; }
+    .ab-cc-icon.tiktok { background:#f0eff9; }
+    .ab-cc-icon.ig     { background:#fef0f7; }
+    .ab-cc-icon.map    { background:#fffbee; }
+    .ab-cc-label {
+      font-size:.7rem;
+      font-weight:700;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      color:#aaa;
+      margin-bottom:6px;
+    }
+    .ab-cc-val {
+      font-size:.95rem;
+      font-weight:700;
+      color:#111;
+    }
+    .ab-cc-val small {
+      display:block;
+      font-size:.78rem;
+      font-weight:400;
+      color:#888;
+      margin-top:3px;
+    }
+    .ab-contact-hours {
+      background:#fff;
+      border:1.5px solid #ede9e2;
+      border-radius:16px;
+      padding:28px 32px;
+      display:flex;
+      align-items:center;
+      gap:24px;
+      max-width:480px;
+      margin:0 auto;
+    }
+    .ab-hours-icon {
+      font-size:1.8rem;
+      flex-shrink:0;
+    }
+    .ab-hours-title {
+      font-size:.72rem;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:#aaa;
+      margin-bottom:6px;
+    }
+    .ab-hours-row {
+      font-size:.88rem;
+      color:#444;
+      line-height:1.9;
+    }
+    .ab-hours-row strong { color:#111; }
+    @media(max-width:760px) {
+      .ab-contact-grid { grid-template-columns:1fr 1fr; }
+      .ab-contact { padding:64px 20px; }
+    }
+    @media(max-width:480px) {
+      .ab-contact-grid { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -249,10 +367,10 @@
   <div class="nav-inner">
     <a href="index.html" class="logo">bunnies<span>.bunn</span></a>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="index.html#shop">Shop</a></li>
-      <li><a href="about.html" class="active">About</a></li>
-      <li><a href="#">Contact</a></li>
+      <li><a href="index.html" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
+      <li><a href="index.html#shop" data-i18n="nav.shop">ຮ້ານຄ້າ</a></li>
+      <li><a href="about.html" class="active" data-i18n="nav.about">ກ່ຽວກັບ</a></li>
+      <li><a href="#contact" data-i18n="nav.contact">ຕິດຕໍ່</a></li>
     </ul>
     <div class="nav-actions">
       <div class="lang-toggle">
@@ -262,25 +380,29 @@
       <div class="user-dropdown-wrap" id="userDropWrap">
         <button class="nav-icon-btn user-icon-btn" id="userIconBtn" onclick="toggleUserDrop(event)" title="ບັນຊີ">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
-          <span id="navUserLabel">Account</span>
+          <span id="navUserLabel" data-i18n="nav.account">ບັນຊີ</span>
         </button>
         <div class="user-dropdown" id="userDropdown">
           <div class="dd-header">
             <div class="dd-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg></div>
-            <div class="dd-welcome" id="ddWelcome">ຍິນດີຕ້ອນຮັບ</div>
+            <div class="dd-welcome" id="ddWelcome" data-i18n="dd.welcome">ຍິນດີຕ້ອນຮັບ</div>
             <div class="dd-name" id="ddName">bunnies.bunn</div>
           </div>
           <div class="dd-guest" id="ddGuest">
-            <a class="dd-item" href="index.html">ເຂົ້າສູ່ລະບົບ / ສະໝັກ</a>
+            <a class="dd-item" href="index.html">
+              <span data-i18n="dd.login">ເຂົ້າສູ່ລະບົບ</span> / <span data-i18n="dd.register">ສະໝັກ</span>
+            </a>
           </div>
           <div class="dd-loggedin" id="ddLoggedin">
-            <button class="dd-item danger" onclick="doLogout()">ອອກຈາກລະບົບ</button>
+            <button class="dd-item danger" onclick="doLogout()">
+              <span data-i18n="dd.logout">ອອກຈາກລະບົບ</span>
+            </button>
           </div>
         </div>
       </div>
       <a href="cart.html" class="nav-icon-btn cart-nav-btn" title="ກະຕ່າ">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span>Cart (<span class="cart-count-inline">0</span>)</span>
+        <span><span data-i18n="nav.cart">ກະຕ່າ</span> (<span class="cart-count-inline">0</span>)</span>
         <span class="cart-count" style="display:none">0</span>
       </a>
     </div>
@@ -390,6 +512,73 @@
   <h2 class="ab-cta-title reveal">ພ້ອມຈະຊ໋ອບປິ້ງແລ້ວບໍ?</h2>
   <p class="ab-cta-sub reveal reveal-d1">ຄົ້ນພົບສິນຄ້າ fashion ທີ່ຄັດສັນໄວ້ເພື່ອທ່ານ</p>
   <a href="index.html#shop" class="ab-cta-btn reveal reveal-d2">ດູສິນຄ້າທັງໝົດ →</a>
+</section>
+
+<!-- ── CONTACT ── -->
+<section class="ab-contact" id="contact">
+  <div class="ab-contact-inner">
+    <div class="ab-contact-head">
+      <div class="ab-eyebrow reveal" style="justify-content:center">Get In Touch</div>
+      <h2 class="ab-contact-title reveal reveal-d1">ຕິດຕໍ່ພວກເຮົາ</h2>
+      <p class="ab-contact-sub reveal reveal-d2">ມີຄຳຖາມ? ຕ້ອງການຊ່ວຍເຫຼືອ? ພວກເຮົາຍິນດີຊ່ວຍສະເໝີ</p>
+    </div>
+
+    <div class="ab-contact-grid">
+      <div class="ab-contact-card reveal reveal-d1">
+        <a href="tel:020-000-0000">
+          <div class="ab-cc-icon phone">📞</div>
+          <div class="ab-cc-label">ໂທລະສັບ</div>
+          <div class="ab-cc-val">(020) 000-0000<small>ຈ-ສ · 9:00 – 20:00</small></div>
+        </a>
+      </div>
+      <div class="ab-contact-card reveal reveal-d2">
+        <a href="https://line.me/ti/p/~bunniesbunn" target="_blank" rel="noopener">
+          <div class="ab-cc-icon line">💬</div>
+          <div class="ab-cc-label">LINE</div>
+          <div class="ab-cc-val">@bunniesbunn<small>ຕອບໄວທີ່ສຸດ</small></div>
+        </a>
+      </div>
+      <div class="ab-contact-card reveal reveal-d3">
+        <a href="https://facebook.com/bunniesbunn" target="_blank" rel="noopener">
+          <div class="ab-cc-icon fb">👍</div>
+          <div class="ab-cc-label">Facebook</div>
+          <div class="ab-cc-val">bunnies.bunn<small>ຕິດຕາມ & ສອບຖາມ</small></div>
+        </a>
+      </div>
+      <div class="ab-contact-card reveal reveal-d1">
+        <a href="https://tiktok.com/@bunniesbunn" target="_blank" rel="noopener">
+          <div class="ab-cc-icon tiktok">🎵</div>
+          <div class="ab-cc-label">TikTok</div>
+          <div class="ab-cc-val">@bunniesbunn<small>ດູ content ໃໝ່ທຸກວັນ</small></div>
+        </a>
+      </div>
+      <div class="ab-contact-card reveal reveal-d2">
+        <a href="https://instagram.com/bunniesbunn" target="_blank" rel="noopener">
+          <div class="ab-cc-icon ig">📸</div>
+          <div class="ab-cc-label">Instagram</div>
+          <div class="ab-cc-val">@bunniesbunn<small>ສິນຄ້າໃໝ່ & lookbook</small></div>
+        </a>
+      </div>
+      <div class="ab-contact-card reveal reveal-d3">
+        <a href="https://maps.google.com/?q=ນະຄອນຫຼວງວຽງຈັນ" target="_blank" rel="noopener">
+          <div class="ab-cc-icon map">📍</div>
+          <div class="ab-cc-label">ທີ່ຢູ່</div>
+          <div class="ab-cc-val">ນະຄອນຫຼວງ<small>ວຽງຈັນ, ລາວ</small></div>
+        </a>
+      </div>
+    </div>
+
+    <div class="ab-contact-hours reveal reveal-d2">
+      <div class="ab-hours-icon">🕐</div>
+      <div>
+        <div class="ab-hours-title">ເວລາເຮັດວຽກ</div>
+        <div class="ab-hours-row">
+          <strong>ຈັນ – ສຸກ</strong> · 9:00 – 20:00<br>
+          <strong>ສາ – ອາທິດ</strong> · 10:00 – 18:00
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer class="footer">

@@ -2,10 +2,10 @@
 const TRANS = {
   lo: {
     /* nav */
-    'nav.home'    : 'Home',
-    'nav.shop'    : 'Shop',
-    'nav.about'   : 'About',
-    'nav.contact' : 'Contact',
+    'nav.home'    : 'ໜ້າຫຼັກ',
+    'nav.shop'    : 'ຮ້ານຄ້າ',
+    'nav.about'   : 'ກ່ຽວກັບ',
+    'nav.contact' : 'ຕິດຕໍ່',
     'nav.search'  : 'ຄົ້ນຫາ',
     'nav.account' : 'ບັນຊີ',
     'nav.cart'    : 'ກະຕ່າ',

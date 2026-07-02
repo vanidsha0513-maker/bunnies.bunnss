@@ -74,7 +74,12 @@ if($method === 'POST') {
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 
     } else {
-        $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
+        $stmt = $pdo->query(
+            "SELECT o.*,
+               (SELECT COUNT(*) FROM order_items oi
+                WHERE oi.order_id=o.id AND oi.is_preorder=1) AS has_preorder
+             FROM orders o ORDER BY o.created_at DESC"
+        );
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
@@ -111,6 +116,54 @@ if($method === 'POST') {
         if(!$id) { echo json_encode(['success'=>false,'error'=>'ບໍ່ພົບ ID']); exit; }
         $pdo->prepare("UPDATE orders SET customer_address=? WHERE id=?")->execute([$addr, $id]);
         echo json_encode(['success'=>true]);
+        exit;
+    }
+
+    /* admin update item quantity */
+    if(isset($data['action']) && $data['action'] === 'update_item') {
+        $itemId  = (int)($data['item_id'] ?? 0);
+        $qty     = (int)($data['quantity'] ?? 1);
+        $orderId = (int)($data['order_id'] ?? 0);
+        if(!$itemId || $qty < 1 || !$orderId) {
+            echo json_encode(['success'=>false,'error'=>'ຂໍ້ມູນບໍ່ຄົບ']); exit;
+        }
+        $pdo->prepare("UPDATE order_items SET quantity=? WHERE id=?")->execute([$qty, $itemId]);
+        $totStmt = $pdo->prepare("SELECT COALESCE(SUM(price*quantity),0) FROM order_items WHERE order_id=?");
+        $totStmt->execute([$orderId]);
+        $newItemsTotal = (int)$totStmt->fetchColumn();
+        $sfStmt = $pdo->prepare("SELECT COALESCE(shipping_fee,0) FROM orders WHERE id=?");
+        $sfStmt->execute([$orderId]);
+        $sf = (int)$sfStmt->fetchColumn();
+        $newTotal = $newItemsTotal + $sf;
+        $pdo->prepare("UPDATE orders SET items_total=?, total_amount=? WHERE id=?")->execute([$newItemsTotal, $newTotal, $orderId]);
+        echo json_encode(['success'=>true,'items_total'=>$newItemsTotal,'total'=>$newTotal]);
+        exit;
+    }
+
+    /* admin delete item */
+    if(isset($data['action']) && $data['action'] === 'delete_item') {
+        $itemId  = (int)($data['item_id'] ?? 0);
+        $orderId = (int)($data['order_id'] ?? 0);
+        if(!$itemId || !$orderId) {
+            echo json_encode(['success'=>false,'error'=>'ຂໍ້ມູນບໍ່ຄົບ']); exit;
+        }
+        $itStmt = $pdo->prepare("SELECT product_id, quantity, is_preorder FROM order_items WHERE id=?");
+        $itStmt->execute([$itemId]);
+        $it = $itStmt->fetch(PDO::FETCH_ASSOC);
+        if(!$it) { echo json_encode(['success'=>false,'error'=>'ບໍ່ພົບລາຍການ']); exit; }
+        if(!$it['is_preorder']) {
+            $pdo->prepare("UPDATE products SET stock=stock+? WHERE id=?")->execute([$it['quantity'],$it['product_id']]);
+        }
+        $pdo->prepare("DELETE FROM order_items WHERE id=?")->execute([$itemId]);
+        $totStmt = $pdo->prepare("SELECT COALESCE(SUM(price*quantity),0) FROM order_items WHERE order_id=?");
+        $totStmt->execute([$orderId]);
+        $newItemsTotal = (int)$totStmt->fetchColumn();
+        $sfStmt = $pdo->prepare("SELECT COALESCE(shipping_fee,0) FROM orders WHERE id=?");
+        $sfStmt->execute([$orderId]);
+        $sf = (int)$sfStmt->fetchColumn();
+        $newTotal = $newItemsTotal + $sf;
+        $pdo->prepare("UPDATE orders SET items_total=?, total_amount=? WHERE id=?")->execute([$newItemsTotal, $newTotal, $orderId]);
+        echo json_encode(['success'=>true,'items_total'=>$newItemsTotal,'total'=>$newTotal]);
         exit;
     }
 

@@ -4,6 +4,7 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pre-Order — bunnies.bunn</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="../js/admin-auth.js"></script>
   <style>
     body { background:#f4f4f2; margin:0; }
 
@@ -215,7 +216,10 @@
     <a href="preorders.html" class="active">🟣 Pre-Order</a>
     <a href="banners.html">🖼️ Banners</a>
   </nav>
-  <div class="adm-footer"><a href="../index.html">← ກັບໜ້າຮ້ານ</a></div>
+  <div class="adm-footer">
+    <a href="../index.html">🌐 ໜ້າຮ້ານ</a>
+    <a class="adm-logout" href="#" onclick="adminLogout();return false;" style="margin-top:6px;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 14px;font-size:.75rem;font-weight:600">🚪 ອອກຈາກລະບົບ</a>
+  </div>
 </aside>
 
 <main class="adm-main">

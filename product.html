@@ -307,8 +307,8 @@ async function loadProduct(){
           <img id="mainImg" src="${galleryImages[0]||''}" alt="${p.name||''}"
                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22><rect fill=%22%23f5f5f5%22 width=%22400%22 height=%22400%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23ccc%22 font-size=%2248%22>🛍️</text></svg>'">
           <span class="gallery-counter" id="galleryCounter" style="display:${hasMulti?'block':'none'}">${hasMulti?'1 / '+galleryImages.length:''}</span>
-          <button class="gallery-arrow prev hidden" id="galleryPrevBtn" onclick="galleryPrev()">‹</button>
-          <button class="gallery-arrow next ${!hasMulti?'hidden':''}" id="galleryNextBtn" onclick="galleryNext()">›</button>
+          <button class="gallery-arrow prev hidden" id="galleryPrevBtn" onclick="event.stopPropagation();galleryPrev()">‹</button>
+          <button class="gallery-arrow next ${!hasMulti?'hidden':''}" id="galleryNextBtn" onclick="event.stopPropagation();galleryNext()">›</button>
         </div>
       </div>
 

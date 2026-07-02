@@ -5,6 +5,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <title>Banner Slides — Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="../js/admin-auth.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:#f4f4f2;font-family:'Noto Sans Lao',sans-serif}
@@ -68,7 +69,10 @@
     <a href="orders.html"><span>🛒</span> ລາຍງານການສັ່ງຊື້</a>
     <a href="banners.html" class="active"><span>🖼️</span> Banner Slides</a>
   </nav>
-  <div class="adm-footer"><a href="../index.html">🌐 ໄປໜ້າຮ້ານ</a></div>
+  <div class="adm-footer">
+    <a href="../index.html">🌐 ໜ້າຮ້ານ</a>
+    <a class="adm-logout" href="#" onclick="adminLogout();return false;" style="margin-top:6px;color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 14px;font-size:.75rem;font-weight:600">🚪 ອອກຈາກລະບົບ</a>
+  </div>
 </div>
 
 <div class="adm-main">

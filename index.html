@@ -85,7 +85,7 @@
       <li><a href="index.html" class="active" data-i18n="nav.home">Home</a></li>
       <li><a href="#shop" data-i18n="nav.shop">Shop</a></li>
       <li><a href="about.html" data-i18n="nav.about">About</a></li>
-      <li><a href="#" data-i18n="nav.contact">Contact</a></li>
+      <li><a href="about.html#contact" data-i18n="nav.contact">Contact</a></li>
     </ul>
 
     <!-- Right Actions -->
@@ -148,7 +148,7 @@
       <!-- Cart -->
       <a href="cart.html" class="nav-icon-btn cart-nav-btn" title="ກະຕ່າ">
         <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span>Cart (<span class="cart-count-inline">0</span>)</span>
+        <span><span data-i18n="nav.cart">ກະຕ່າ</span> (<span class="cart-count-inline">0</span>)</span>
         <span class="cart-count" style="display:none">0</span>
       </a>
 
@@ -186,41 +186,42 @@
      AUTH MODAL
      ========================================================= -->
 <style>
-.otp-boxes { display:flex; gap:10px; justify-content:center; margin:18px 0; }
+/* OTP boxes */
+.otp-boxes { display:flex; gap:10px; justify-content:center; margin:20px 0; }
 .otp-box {
-  width:44px; height:52px; border:2px solid #e0dbd4; border-radius:8px;
-  text-align:center; font-size:1.4rem; font-weight:700; color:#111;
-  outline:none; transition:border .18s; background:#fafafa;
+  width:46px; height:54px; border:1.5px solid #e0dbd4; border-radius:12px;
+  text-align:center; font-size:1.5rem; font-weight:700; color:#111;
+  outline:none; transition:border .18s, box-shadow .18s; background:#fafaf8;
 }
-.otp-box:focus { border-color:#c9a96e; background:#fff; }
+.otp-box:focus { border-color:#c9a96e; background:#fff; box-shadow:0 0 0 3px rgba(201,169,110,0.14); }
 .otp-box.filled { border-color:#c9a96e; background:#fdf9f4; }
-.otp-hint { text-align:center; font-size:.78rem; color:#aaa; margin-bottom:4px; }
-.otp-phone-display { text-align:center; font-size:.88rem; color:#555; margin-bottom:2px; }
+.otp-hint { text-align:center; font-size:.78rem; color:#bbb; margin-bottom:4px; }
+.otp-phone-display { text-align:center; font-size:.88rem; color:#777; margin-bottom:2px; }
 .otp-phone-display strong { color:#111; }
-.resend-row { text-align:center; margin-top:10px; font-size:.78rem; color:#aaa; }
+.resend-row { text-align:center; margin-top:12px; font-size:.78rem; color:#bbb; }
 .resend-btn { background:none; border:none; color:#c9a96e; cursor:pointer; font-size:.78rem; padding:0; text-decoration:underline; }
 .resend-btn:disabled { color:#ccc; cursor:default; text-decoration:none; }
-.step-dots { display:flex; justify-content:center; gap:6px; margin-bottom:18px; }
-.step-dot { width:8px; height:8px; border-radius:50%; background:#e0dbd4; transition:background .2s; }
-.step-dot.active { background:#c9a96e; width:20px; border-radius:4px; }
-.step-dot.done { background:#27ae60; }
-.auth-back { background:none; border:none; color:#aaa; font-size:.78rem; cursor:pointer; padding:0 0 12px; display:flex; align-items:center; gap:4px; }
+.step-dots { display:flex; justify-content:center; gap:7px; margin-bottom:20px; }
+.step-dot { width:8px; height:8px; border-radius:50%; background:#e0dbd4; transition:all .25s; }
+.step-dot.active { background:#c9a96e; width:22px; border-radius:5px; }
+.step-dot.done { background:#43a047; }
+.auth-back { background:none; border:none; color:#bbb; font-size:.78rem; cursor:pointer; padding:0 0 14px; display:flex; align-items:center; gap:4px; transition:color .15s; }
 .auth-back:hover { color:#c9a96e; }
 </style>
 
 <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
   <div class="auth-box">
-    <button class="auth-close" onclick="closeAuth()">×</button>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin"    onclick="switchAuthTab('login')">ເຂົ້າສູ່ລະບົບ</button>
-      <button class="auth-tab"        id="tabRegister" onclick="switchAuthTab('register')">ສະໝັກສະມາຊິກ</button>
+    <div class="auth-brand-header">
+      <button class="auth-close" onclick="closeAuth()">×</button>
+      <div class="auth-brand-logo">bunnies<span>.bunn</span></div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin"    onclick="switchAuthTab('login')">ເຂົ້າສູ່ລະບົບ</button>
+        <button class="auth-tab"        id="tabRegister" onclick="switchAuthTab('register')">ສະໝັກສະມາຊິກ</button>
+      </div>
     </div>
     <div class="auth-body">
       <div class="auth-icon-area">
-        <div class="auth-big-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
-        </div>
-        <p class="auth-subtitle" id="authSubtitle">ເຂົ້າສູ່ລະບົບ bunnies.bunn</p>
+        <p class="auth-subtitle" id="authSubtitle">ຍິນດີຕ້ອນຮັບ</p>
       </div>
       <div class="auth-msg error"   id="authError"></div>
       <div class="auth-msg success" id="authSuccess"></div>
@@ -230,8 +231,8 @@
         <div class="auth-fg">
           <label>ເບີໂທ</label>
           <div style="display:flex;gap:6px;align-items:center">
-            <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
-            <input type="tel" id="loginPhone" placeholder="020 XXXX XXXX" style="flex:1"
+            <span class="phone-prefix">+856</span>
+            <input type="tel" id="loginPhone" placeholder="020 XXXX XXXX" style="flex:1;min-width:0"
                    inputmode="numeric" autocomplete="username"
                    oninput="this.value=this.value.replace(/\D/g,'')"
                    onkeydown="if(event.key==='Enter')document.getElementById('loginPassword').focus()">
@@ -265,8 +266,8 @@
           <div class="auth-fg">
             <label>ເບີໂທທີ່ສະໝັກໄວ້</label>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
-              <input type="tel" id="rstPhone" placeholder="020 XXXX XXXX" style="flex:1" inputmode="numeric"
+              <span class="phone-prefix">+856</span>
+              <input type="tel" id="rstPhone" placeholder="020 XXXX XXXX" style="flex:1;min-width:0" inputmode="numeric"
                      oninput="this.value=this.value.replace(/\D/g,'')"
                      onkeydown="if(event.key==='Enter')rstSendOtp()">
             </div>
@@ -327,8 +328,8 @@
           <div class="auth-fg">
             <label>ເບີໂທ</label>
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="background:#f4f4f2;border:1px solid #ddd;padding:9px 10px;border-radius:6px;font-size:.82rem;color:#666;white-space:nowrap">+856</span>
-              <input type="tel" id="regPhone" placeholder="020 XXXX XXXX" style="flex:1" inputmode="numeric"
+              <span class="phone-prefix">+856</span>
+              <input type="tel" id="regPhone" placeholder="020 XXXX XXXX" style="flex:1;min-width:0" inputmode="numeric"
                      onkeydown="if(event.key==='Enter')regSendOtp()">
             </div>
           </div>
@@ -1056,8 +1057,7 @@ function buildShopCard(p) {
   const iUrl  = JSON.stringify(img);
 
   let label = '';
-  if (isPreorder) label = `<div class="shop-card-label label-pre">${t('card.label.pre')}</div>`;
-  else if (p.is_new) label = `<div class="shop-card-label label-sale">${t('card.label.new')}</div>`;
+  if (p.is_new) label = `<div class="shop-card-label label-sale">${t('card.label.new')}</div>`;
   else if (p.old_price) label = `<div class="shop-card-label label-sale">${t('card.label.sale')}</div>`;
   else if (p.category_name) label = `<div class="shop-card-label label-cat">${p.category_name}</div>`;
 
@@ -1488,9 +1488,31 @@ syncCartInline();
   border-radius:10px; flex-shrink:0; border:1px solid #eee;
 }
 .ord-item-info { flex:1; min-width:0; }
-.ord-item-name { font-size:13px; color:#222; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ord-item-name {
+  font-size:13px; color:#222; line-height:1.4;
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+}
 .ord-item-unit { font-size:11px; color:#aaa; margin-top:2px; }
 .ord-item-price { font-size:13px; font-weight:700; color:#111; white-space:nowrap; }
+
+/* pre-order badge on item */
+.ord-pre-badge {
+  display:inline-block; font-size:9px; font-weight:800;
+  letter-spacing:.6px; padding:2px 7px; border-radius:4px;
+  background:#fff3e0; color:#e65100; border:1px solid #ffcc80;
+  vertical-align:middle; flex-shrink:0;
+}
+
+/* pre-order notice banner */
+.ord-preorder-notice {
+  display:flex; align-items:flex-start; gap:10px;
+  background:#fff8f0; border:1px solid #ffd9a0;
+  border-left:3px solid #e65100;
+  border-radius:10px; padding:12px 14px; margin-bottom:16px;
+}
+.ord-preorder-notice .ord-pre-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.ord-preorder-notice strong { font-size:12px; color:#bf360c; display:block; margin-bottom:2px; }
+.ord-preorder-notice span { font-size:11px; color:#8d4a1a; line-height:1.5; }
 
 .ord-total-row {
   display:flex; justify-content:space-between; align-items:center;
@@ -1742,13 +1764,18 @@ async function openOrderDetail(o) {
     items = await r.json();
   } catch { items = []; }
 
+  const hasPreorder = Array.isArray(items) && items.some(it => parseInt(it.is_preorder) === 1);
   const itemsHtml = Array.isArray(items) && items.length ? items.map(it => {
-    const img = it.product_image || '';
+    const img   = it.product_image || '';
+    const isPre = parseInt(it.is_preorder) === 1;
     return `
     <div class="ord-item-row">
       <img class="ord-item-img" src="${img}" onerror="this.style.opacity='.2'" style="${img?'':'display:none'}" onload="this.style.opacity='1'">
       <div class="ord-item-info">
-        <div class="ord-item-name">${it.product_name || 'ສິນຄ້າ'}</div>
+        <div class="ord-item-name">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.product_name || 'ສິນຄ້າ'}</span>
+          ${isPre ? '<span class="ord-pre-badge">PRE-ORDER</span>' : ''}
+        </div>
         <div class="ord-item-unit">₭${Number(it.price).toLocaleString()} × ${it.quantity}</div>
       </div>
       <div class="ord-item-price">₭${Number(it.price * it.quantity).toLocaleString()}</div>
@@ -1765,6 +1792,16 @@ async function openOrderDetail(o) {
       <div class="ord-detail-label">ສະຖານະ</div>
       <span class="ord-status-big ${st}">${STATUS_DOT[st]||''} ${STATUS_LO[st]||st}</span>
     </div>
+
+    <!-- PRE-ORDER NOTICE -->
+    ${hasPreorder ? `
+    <div class="ord-preorder-notice">
+      <div class="ord-pre-icon">📦</div>
+      <div>
+        <strong>ອໍເດີນີ້ມີສິນຄ້າ Pre-Order</strong>
+        <span>ສິນຄ້າທີ່ຕິດ PRE-ORDER ຈະໃຊ້ເວລາ 7–14 ວັນ ກ່ອນຈັດສົ່ງ — ຂອບໃຈທີ່ລໍຖ້າ</span>
+      </div>
+    </div>` : ''}
 
     <!-- ITEMS -->
     <div class="ord-detail-section">
